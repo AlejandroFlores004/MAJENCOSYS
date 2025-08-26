@@ -4,61 +4,73 @@
 
 {% block content %}
 <div class="container mt-4">
+  <div class="row g-4 row-cols-1 row-cols-md-2">
 
-  <!-- Header with button -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4">Usuarios</h2>
-    <a href="#" class="btn btn-primary">
-      <i class="bi bi-person-plus"></i> Nuevo Usuario
-    </a>
-  </div>
-
-  <table class="table table-hover align-middle">
-    <thead class="table-dark">
-      <tr>
-        <th>Nombres</th>
-        <th>Apellidos</th>
-        <th>Correo</th>
-        <th>Rol</th>
-        <th>Estado</th>
-        <th class="text-center">Acción</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for usuario in usuarios %}
-      <tr>
-        <td>{{ usuario.first_name }}</td>
-        <td>{{ usuario.last_name }}</td>
-        <td>{{ usuario.email }}</td>
-        <td>
-          {% for group in usuario.groups.all %}
-            <span class="badge bg-secondary">{{ group.name }}</span>
-          {% empty %}
-            <span class="text-muted">Sin rol</span>
-          {% endfor %}
-        </td>
-        <td>
-          <div class="form-check form-switch">
-            <input 
-              class="form-check-input" 
-              type="checkbox" 
-              id="switch{{ usuario.id }}" 
-              {% if usuario.is_active %}checked{% endif %}
-              onclick="toggleEstado('{{ usuario.id }}')"
-            >
+    <!-- Panel: Usuarios -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Usuarios</h5>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-primary">
+              <i class="bi bi-person-plus"></i> add
+            </button>
+            <button class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-info-circle"></i> Detalles
+            </button>
           </div>
-        </td>
-        <td class="text-center">
-          <a href="#" class="btn btn-sm btn-warning me-1">
-            <i class="bi bi-pencil-square"></i>
-          </a>
-          <a href="#" class="btn btn-sm btn-danger">
-            <i class="bi bi-trash"></i>
-          </a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        </div>
+
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush" style="max-height: 60vh; overflow-y: auto;">
+            {% for usuario in usuarios %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ usuario.first_name }} {{ usuario.last_name }}</strong><br>
+                  <small class="text-muted">{{ usuario.email }}</small>
+                </div>
+                <div>
+                  {% if usuario.is_active %}
+                    <span class="badge bg-success">Activo</span>
+                  {% else %}
+                    <span class="badge bg-danger">Inactivo</span>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Roles y permisos -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Roles y permisos</h5>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-primary">
+              <i class="bi bi-plus-square"></i> add
+            </button>
+            <button class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-info-circle"></i> Detalles
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush" style="max-height: 60vh; overflow-y: auto;">
+            {% for grupo in grupos %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ grupo.name }}
+                <span class="badge bg-secondary">Aquí ya vamos a ver</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 {% endblock content %}
