@@ -42,12 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
     'project',
-=======
     'main',
     'user',
->>>>>>> origin/wb-user
 ]
 
 MIDDLEWARE = [
