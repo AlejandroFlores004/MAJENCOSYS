@@ -1,0 +1,92 @@
+{% extends "baseMainWorkflow.html" %}
+
+{% block title %}Usuarios{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row g-4 row-cols-1 row-cols-md-2">
+
+    <!-- Panel: Usuarios -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Usuarios</h5>
+          <div class="btn-group">
+            <a href="{% url "usuarioForm" %}" class="btn btn-sm btn-primary">
+              <i class="bi bi-person-plus"></i> Crear
+            </a>
+            <button class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-info-circle"></i> Detalles
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush" style="max-height: 60vh; overflow-y: auto;">
+            {% for usuario in usuarios %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ usuario.first_name }} {{ usuario.last_name }}</strong><br>
+                  <small class="text-muted">{{ usuario.email }}</small><br>
+                  <small class="text-muted">
+                    Último acceso: 
+                    {% if usuario.last_login %}
+                      {{ usuario.last_login|date:"d M Y, H:i" }}
+                    {% else %}
+                      Nunca ha iniciado sesión
+                    {% endif %}
+                  </small>
+                </div>
+                <div>
+                  {% if usuario.is_active %}
+                    <span class="badge bg-success">Activo</span>
+                  {% else %}
+                    <span class="badge bg-danger">Inactivo</span>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Panel: Roles y permisos -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Roles y permisos</h5>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-primary">
+              <i class="bi bi-plus-square"></i> Crear
+            </button>
+            <button class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-info-circle"></i> Detalles
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush" style="max-height: 60vh; overflow-y: auto;">
+            {% for grupo in grupos %}
+              <li class="list-group-item">
+                <h6 class="fw-bold">{{ grupo.name }}</h6>  <!-- Role Name -->
+
+                <ul class="list-group list-group-flush ms-3">  <!-- Nested permissions list -->
+                  {% for permiso in grupo.permissions.all %}
+                    <li class="list-group-item d-flex justify-content-between">
+                      <span>{{ permiso.name }}</span>  <!-- Permission name -->
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+{% endblock content %}
