@@ -1,0 +1,50 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}
+Proyectos
+{% endblock title %}
+{% block content %} {# inicia la zona de contenido que la base renderiza#}
+<div class="card shadow-sm">  {# tarjeta contenedora #}
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Proyectos</h5>                   {# título de la tarjeta #}
+    <div class="d-flex gap-2">
+      <a href="#" class="btn btn-primary btn-sm disabled" aria-disabled="true" tabindex="-1">
+  ➕ Crear
+</a>
+     <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true" tabindex="-1">
+  ℹ️ Detalles
+</a>
+    </div>
+  </div>
+<ul class="list-group list-group-flush"> {# lista “pegada” a la card #}
+{% for p in proyectos %} {# recorre la lista 'proyectos' que envia la vista #}
+<li class="list-group-item d-flex justify-content-between align-items-start position-relative"> {#Cada elemento dila de la lista usa flex para separar izquierda/derecha#}
+
+<div> {#columna izquierda con nombres y datos secundarios#}
+<a href="{% url 'projectDetail' p.pk %}" class="fw-semibold text-decoration-none text-reset d-block text-truncate" style="max-width: 28rem;">
+  {{ p.nombre }}
+</a>
+<div class="small text-muted">
+    Creador: {{p.usuario}} &middot; Técnico: {{p.tecnico}}
+    </div> {# Muestra las FKs: usuario creador y tecnico asignado #}
+</div>
+
+{# get_estado_display = muestra la etiqueta legible del choice ("Planeación", "En Proceso", "Completado") #}
+{% with texto=p.get_estado_display %}
+  {% if p.estado == "PL" %}
+    <span class="badge text-bg-secondary align-self-center" title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
+  {% elif p.estado == "P" %}
+    <span class="badge text-bg-warning align-self-center"  title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
+  {% elif p.estado == "C" %}
+    <span class="badge text-bg-success align-self-center"  title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
+  {% else %}
+    <span class="badge text-bg-dark align-self-center"     title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
+  {% endif %}
+{% endwith %}
+</li>
+
+{% empty %} {# si 'proyectos' viene vacio, muestra este mensaje #}
+<li class="list-group-item text-muted"> No hay proyectos aún.</li>
+{% endfor %} {# Fin del bucle de proyectos #}
+</ul>
+</div>  {# fin .card #}
+{% endblock content %}
