@@ -1,6 +1,6 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.models import User,Group
-from .forms import userForm
+from .forms import userForm, UserUpdateForm
 from django.contrib import messages
 
 # Create your views here.
@@ -30,3 +30,32 @@ def userFormView(request):
         "form" : form,
     }
     return render(request, 'usuarioForm.html', object)
+
+def userDetails(request):
+    users = User.objects.filter(is_active=True)
+    groups = Group.objects.all()
+
+    objects = {
+        "usuarios" : users,
+        "grupos" : groups
+    }
+    return render(request, 'usuariosDetails.html', objects)
+
+def userEdit(request, pk):
+    user_obj = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=user_obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '¡Usuario actualizado correctamente!')
+            return redirect('usuarioDetails')  # vuelve a la tabla
+    else:
+        form = UserUpdateForm(instance=user_obj)
+
+    objects = {
+        "form": form,
+        "usuario": user_obj
+    }
+
+    return render(request, 'usuarioEdit.html', objects)
