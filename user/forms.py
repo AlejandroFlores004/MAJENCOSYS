@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm,SetPasswordForm
 from django.contrib.auth.models import User, Group
 
 class userForm(UserCreationForm):
@@ -71,3 +71,15 @@ class UserUpdateForm(forms.ModelForm):
         grp = self.cleaned_data['group']
         user.groups.set([grp])
         return user
+    
+class UserUpdatePasswordForm(SetPasswordForm):
+    """
+    Use this when an admin (or any view) changes the password for a given user object.
+    It provides new_password1 and new_password2 with all Django validations.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Bootstrap classes and placeholders
+        for name in ('new_password1', 'new_password2'):
+            self.fields[name].widget.attrs.setdefault('class', 'form-control')
+            self.fields[name].widget.attrs.setdefault('placeholder', self.fields[name].label)
