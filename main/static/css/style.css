@@ -1578,7 +1578,7 @@ pre code {
 }
 
 .table-hover tbody tr:hover {
-  color: #757575;
+  color: #07070A;
   background-color: rgba(0, 0, 0, 0.075);
 }
 
@@ -2359,6 +2359,29 @@ fieldset:disabled a.btn {
   pointer-events: none;
 }
 
+.btn-activo {
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-activo:hover {
+  color: #fff;
+  background-color: #145524;
+  border-color: #145524;
+}
+.btn-desactivo {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-desactivo:hover {
+  color: #fff;
+  background-color: #771e27;
+  border-color: #771e27;
+}
+
 .btn-primary {
   color: #fff;
   background-color: #FAAE5B;
@@ -2505,6 +2528,39 @@ fieldset:disabled a.btn {
 .btn-info:not(:disabled):not(.disabled):active:focus, .btn-info:not(:disabled):not(.disabled).active:focus,
 .show > .btn-info.dropdown-toggle:focus {
   box-shadow: 0 0 0 0.2rem rgba(58, 176, 195, 0.5);
+}
+
+.btn-1 {
+  color: #fff;
+  background-color: #EF503E;
+  border-color: #EF503E;
+}
+.btn-1:hover {
+  color: #1A1000;
+  background-color: transparent;
+  border-color: #EF503E;
+}
+
+.btn-2 {
+  color: #fff;
+  background-color: #85EF3E;
+  border-color: #85EF3E;
+}
+.btn-2:hover {
+  color: #1A1000;
+  background-color: transparent;
+  border-color: #85EF3E;
+}
+
+.btn-3 {
+  color: #fff;
+  background-color: #3E85EF;
+  border-color: #3E85EF;
+}
+.btn-3:hover {
+  color: #1A1000;
+  background-color: transparent;
+  border-color: #3E85EF;
 }
 
 .btn-warning {
@@ -4680,7 +4736,7 @@ a.badge-primary:focus, a.badge-primary.focus {
 }
 
 .badge-secondary {
-  color: #212529;
+  color: #000;
   background-color: #FFDEAA;
 }
 
@@ -6117,6 +6173,10 @@ button.bg-primary:focus {
   background-color: #F2F2F4 !important;
 }
 
+.bg-secondary3 {
+  background-color: #3D1E0A !important;
+}
+
 a.bg-secondary:hover, a.bg-secondary:focus,
 button.bg-secondary:hover,
 button.bg-secondary:focus {
@@ -6124,6 +6184,7 @@ button.bg-secondary:focus {
 }
 
 .bg-success {
+  color: #F2F2F4;
   background-color: #28a745 !important;
 }
 
@@ -6154,6 +6215,7 @@ button.bg-warning:focus {
 }
 
 .bg-danger {
+  color: #F2F2F4;
   background-color: #dc3545 !important;
 }
 

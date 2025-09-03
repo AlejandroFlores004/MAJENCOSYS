@@ -2,6 +2,21 @@
 {% block title %}Detalles de los usuarios{% endblock title %}
 
 {% block content %}
+
+<!-- Header -->
+<div class="jumbotron2 jumbotron-fluid mb-5">
+  <div class="container text-center py-6">
+    <h1 class="text-white display-3">DETALLE DE USUARIOS</h1>
+    <div class="d-inline-flex align-items-center text-white">
+      <p class="m-0 text-white">Información</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Roles</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Estado</p>
+    </div>
+  </div>
+</div>
+
 <div class="container mt-4">
   <h4 class="mb-3">Usuarios registrados</h4>
   
@@ -22,11 +37,11 @@
         <tr>
           <th>#</th>
           <th>Usuario</th>
-          <th>Nombre completo</th>
+          <th>Nombre</th>
           <th>Correo</th>
           <th>Roles/Grupos</th>
           <th>Creado</th>
-          <th>Último acceso</th>
+          <th>Últ. Acceso</th>
           <th>Estado</th>
           <th class="text-end">Acciones</th>
         </tr>
@@ -35,13 +50,13 @@
         {% for u in usuarios %}
         <tr>
           <td>{{ forloop.counter }}</td>
-          <td><code>{{ u.username }}</code></td>
+          <td>{{ u.username }}</td>
           <td>{{ u.first_name }} {{ u.last_name }}</td>
           <td>{{ u.email }}</td>
           <td>
             {% if u.groups.all %}
               {% for g in u.groups.all %}
-                <span class="badge rounded-pill bg-primary text-white me-1">{{ g.name }}</span>
+                <span class="badge rounded-pill bg-secondary3 text-white me-1">{{ g.name }}</span>
               {% empty %}
                 <span class="text-muted">—</span>
               {% endfor %}
@@ -56,30 +71,30 @@
             {% if u.last_login %}
               {{ u.last_login|date:"d/m/Y H:i" }}
             {% else %}
-              <span class="text-muted">Nunca</span>
+              <span class="">Nunca</span>
             {% endif %}
           </td>
           <td>
             {% if u.is_active %}
-              <a href="{% url 'usuarioEditStatus' u.id %}" class="btn btn-outline-primary" title="Desactivar usuario">
-                Activo<i class="bi bi-lock"></i>
+              <a href="{% url 'usuarioEditStatus' u.id %}" class="btn btn-activo" title="Desactivar usuario">
+                Activo
               </a>
             {% else %}
-              <a href="{% url 'usuarioEditStatus' u.id %}" class="btn btn-outline-dark" title="Activar usuario">
-                Inactivo<i class="bi bi-lock"></i>
+              <a href="{% url 'usuarioEditStatus' u.id %}" class="btn btn-desactivo" title="Activar usuario">
+                Inactivo
               </a>
             {% endif %}
             
           </td>
           <td class="text-end">
             <div class="btn-group btn-group-md" role="group">
-              <a href="{% url 'usuarioEditPass' u.id %}" class="btn btn-outline-warning" title="Change password">
+              <a href="{% url 'usuarioEditPass' u.id %}" class="btn btn-2" title="Cambiar password">
                 <i class="bi bi-key"></i>
               </a>
-              <a href="{% url 'usuarioEdit' u.id %}" class="btn btn-outline-primary" title="Editar">
+              <a href="{% url 'usuarioEdit' u.id %}" class="btn btn-3" title="Editar">
                 <i class="bi bi-pencil"></i>
               </a>
-              <a href="{% url 'usuarioDelete' u.id %}" class="btn btn-outline-danger" title="Eliminar">
+              <a href="{% url 'usuarioDelete' u.id %}" class="btn btn-1" title="Eliminar">
                 <i class="bi bi-trash"></i>
               </a>
             </div>
@@ -98,8 +113,8 @@
 
   {# Button to return to the main page #}
   <div class="mt-3 text-center">
-    <a href="{% url 'usuariosMain' %}" class="btn btn-secondary">
-      <i class="bi bi-house-door"></i> Volver a vista general
+    <a href="{% url 'usuariosMain' %}" class="btn btn-primary">
+      <i class="bi bi-door-open-fill"></i> REGRESAR
     </a>
   </div>
 </div>
