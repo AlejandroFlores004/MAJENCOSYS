@@ -117,7 +117,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-sv'
 
-TIME_ZONE = 'UTC'
+USE_TZ = True            # recomendado
+TIME_ZONE = "America/El_Salvador"
+
 
 USE_I18N = True
 

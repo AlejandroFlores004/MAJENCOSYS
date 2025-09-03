@@ -3,21 +3,34 @@
 {% block title %}Usuarios{% endblock title %}
 
 {% block content %}
+
 <div class="container mt-4">
   <div class="row g-4 row-cols-1 row-cols-md-2">
+    
+    {# Success message display #}
+    {% if messages %}
+      <div class="col-12">  
+        {% for message in messages %}
+          <div class="alert alert-success alert-dismissible">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
-    <!-- Panel: Usuarios -->
+    <!-- Panels for users and roles -->
     <div class="col">
       <div class="card h-100 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Usuarios</h5>
           <div class="btn-group">
-            <a href="{% url "usuarioForm" %}" class="btn btn-sm btn-primary">
+            <a href="{% url 'usuarioForm' %}" class="btn btn-sm btn-primary">
               <i class="bi bi-person-plus"></i> Crear
             </a>
-            <button class="btn btn-sm btn-outline-secondary">
+            <a href="{% url 'usuarioDetails' %}" class="btn btn-sm btn-outline-secondary">
               <i class="bi bi-info-circle"></i> Detalles
-            </button>
+            </a>
           </div>
         </div>
         <div class="card-body p-0">
@@ -34,7 +47,16 @@
                     {% else %}
                       Nunca ha iniciado sesión
                     {% endif %}
-                  </small>
+                  </small><br>
+                  <div>
+                    {% if usuario.groups.all %}
+                      {% for group in usuario.groups.all %}
+                        <span class="badge rounded-pill bg-primary text-white me-1">{{ group.name }}</span>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-muted">— No tiene grupos asignados —</span>
+                    {% endif %}
+                  </div>
                 </div>
                 <div>
                   {% if usuario.is_active %}
@@ -56,37 +78,28 @@
       <div class="card h-100 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Roles y permisos</h5>
-          <div class="btn-group">
-            <button class="btn btn-sm btn-primary">
-              <i class="bi bi-plus-square"></i> Crear
-            </button>
-            <button class="btn btn-sm btn-outline-secondary">
-              <i class="bi bi-info-circle"></i> Detalles
-            </button>
-          </div>
         </div>
-
         <div class="card-body p-0">
           <ul class="list-group list-group-flush" style="max-height: 60vh; overflow-y: auto;">
             {% for grupo in grupos %}
-              <li class="list-group-item">
-                <h6 class="fw-bold">{{ grupo.name }}</h6>  <!-- Role Name -->
-
-                <ul class="list-group list-group-flush ms-3">  <!-- Nested permissions list -->
-                  {% for permiso in grupo.permissions.all %}
-                    <li class="list-group-item d-flex justify-content-between">
-                      <span>{{ permiso.name }}</span>  <!-- Permission name -->
-                    </li>
-                  {% endfor %}
-                </ul>
+              <li class="list-group-item d-flex align-items-center">
+                <i class="bi bi-people-fill text-primary me-2"></i> 
+                <span class="fw-semibold">{{ grupo.name }}</span>
               </li>
             {% endfor %}
           </ul>
         </div>
       </div>
     </div>
-
-
   </div>
+
+  {# Button to return to the main page #}
+  <div class="mt-3">
+    <a href="{% url 'startpage' %}" class="btn btn-secondary">
+      <i class="bi bi-house-door"></i> Volver a la página principal
+    </a>
+  </div>
+
 </div>
+
 {% endblock content %}
