@@ -1,0 +1,51 @@
+{% extends "baseMainWorkflow.html" %}
+
+{% block title %}Eliminar Usuario{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+  <h4 class="mb-3">Eliminar Usuario: <code>{{ usuario.username }}</code></h4>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">Información del Usuario</h5>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <strong>Nombre completo:</strong> {{ usuario.first_name }} {{ usuario.last_name }}
+        </div>
+        <div class="col-md-6 mb-3">
+          <strong>Correo:</strong> {{ usuario.email }}
+        </div>
+        <div class="col-md-6 mb-3">
+          <strong>Último acceso:</strong>
+          {% if usuario.last_login %}
+            {{ usuario.last_login|date:"d M Y, H:i" }}
+          {% else %}
+            Nunca ha iniciado sesión
+          {% endif %}
+        </div>
+        <div class="col-md-6 mb-3">
+          <strong>Estado:</strong>
+          {% if usuario.is_active %}
+            <span class="badge bg-success">Activo</span>
+          {% else %}
+            <span class="badge bg-danger">Inactivo</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <p class="text-danger">Zona de riesgo: ¿Está seguro de que desea eliminar este usuario?</p>
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-danger">
+            Eliminar
+          </button>
+          <a href="{% url 'usuarioDetails' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
