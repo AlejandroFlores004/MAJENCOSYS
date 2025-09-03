@@ -5,7 +5,8 @@
 {% block content %}
 <div class="container mt-4">
   <h2 class="mb-3">Registro de Usuario</h2>
-  <!-- Error Handling Section -->
+  
+  {# Error Handling Section #}
   {% if form.errors or form.non_field_errors %}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <div class="fw-semibold mb-1">Se encontraron errores:</div>
@@ -22,62 +23,61 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
   {% endif %}
+  
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="POST">
+        {% csrf_token %}
+        
+        {# Username Field #}
+        <div class="mb-3">
+          <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de usuario</label>
+          {{ form.username }}
+        </div>
 
-  <form method="POST">
-    {% csrf_token %}
+        {# First and Last Name Fields #}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre</label>
+            {{ form.first_name }}
+          </div>
+          <div class="col-md-6">
+            <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido</label>
+            {{ form.last_name }}
+          </div>
+        </div>
 
-    <!-- Username -->
-    <div class="row">
-      <div class="col-md-12 mb-3">
-        <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de usuario</label>
-        {{ form.username }}
-      </div>
+        {# Email Field #}
+        <div class="mb-3">
+          <label for="{{ form.email.id_for_label }}" class="form-label">Correo Electrónico</label>
+          {{ form.email }}
+        </div>
+
+        {# Password Fields #}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña</label>
+            {{ form.password1 }}
+          </div>
+          <div class="col-md-6">
+            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Contraseña</label>
+            {{ form.password2 }}
+          </div>
+        </div>
+
+        {# Role Field #}
+        <div class="mb-3">
+          <label for="{{ form.group.id_for_label }}" class="form-label">Rol</label>
+          {{ form.group }}
+        </div>
+
+        {# Submit Button #}
+        <div class="d-flex justify-content-between">
+          <a href="{% url 'usuariosMain' %}" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary">Registrar</button>
+        </div>
+      </form>
     </div>
-
-    <!-- First and Last Name -->
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre</label>
-        {{ form.first_name }}
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido</label>
-        {{ form.last_name }}
-      </div>
-    </div>
-
-    <!-- Email -->
-    <div class="row">
-      <div class="col-md-12 mb-3">
-        <label for="{{ form.email.id_for_label }}" class="form-label">Correo Electrónico</label>
-        {{ form.email }}
-      </div>
-    </div>
-
-    <!-- Password -->
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña</label>
-        {{ form.password1 }}
-      </div>
-
-      <!-- Confirm Password -->
-      <div class="col-md-6 mb-3">
-        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Contraseña</label>
-        {{ form.password2 }}
-      </div>
-    </div>
-
-    <!-- Roles -->
-    <div class="row">
-      <div class="col-md-12 mb-3">
-        <label for="{{ form.group.id_for_label }}" class="form-label">Rol</label>
-        {{ form.group }}
-      </div>
-    </div>
-
-    <!-- Submit Button -->
-    <button type="submit" class="btn btn-primary">Registrar</button>
-  </form>
+  </div>
 </div>
 {% endblock content %}

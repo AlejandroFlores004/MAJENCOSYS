@@ -32,7 +32,7 @@ def userFormView(request):
     return render(request, 'usuarioForm.html', object)
 
 def userDetails(request):
-    users = User.objects.filter(is_active=True)
+    users = User.objects.all()
     groups = Group.objects.all()
 
     objects = {
@@ -78,3 +78,30 @@ def userEditPassword(request, pk):
         "usuario": user_obj,
     }
     return render(request, 'usuarioEditPassword.html', context)
+
+def userEditStatus(request, pk):
+    user_obj = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        user_obj.is_active = not user_obj.is_active
+        user_obj.save()
+        messages.success(request, '¡Estado de usuario actualizado correctamente!')
+        return redirect('usuarioDetails')
+
+    object = {
+        "usuario": user_obj,
+    }
+    return render(request, 'usuarioCambiarEstado.html', object)
+
+def userDelete(request, pk):
+    user_obj = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        user_obj.delete()
+        messages.success(request, '¡Usuario eliminado correctamente!')
+        return redirect('usuarioDetails')
+
+    object = {
+        "usuario": user_obj,
+    }
+    return render(request, 'usuarioDelete.html', object)
