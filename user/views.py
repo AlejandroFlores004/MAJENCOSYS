@@ -12,6 +12,7 @@ def userMain(request):
         "usuarios" : users,
         "grupos" : groups
     }
+    
     return render(request,'usuarioMain.html',objects)
 
 
