@@ -1,28 +1,21 @@
-# Importamos las clases necesarias de Django
-from django.db import models                     # Contiene todos los tipos de campos (CharField, TextField, etc.)
-from django.contrib.auth.models import User      # Importamos el modelo de usuarios que ya viene con Django
+from django.db import models
+from django.contrib.auth.models import User
 
-# Definimos las opciones que podrá tener el campo "estado" del proyecto
-# Cada tupla tiene (valor_guardado, valor_mostrado)
-# - 'PL' se guarda en la BD y "Planeación" es lo que se muestra al usuario
-# - 'P' se guarda y se muestra como "En Proceso"
-# - 'C' se guarda y se muestra como "Completado"
+# Opciones de estado del proyecto
 opcionesEstadoProyecto = [
     ('PL', 'Planeación'),
     ('P', 'En Proceso'),
     ('C', 'Completado'),
 ]
+opcionesTypeProyecto = [
+    ('INF','Infraestructura'),
+    ('OBM','Obras de Mitigación'),
+    ('ALC','Alcantarillado'),
+    ('CMRV','Construcción y Mantenimiento de Red Vial')
+]
 
-# Definimos la clase Project, que hereda de models.Model
-# Esto significa que será una tabla en la base de datos
 class Project(models.Model):
-
-    # Campo "nombre" del proyecto
-    # Usamos TextField porque puede tener textos largos, aunque también se podría usar CharField
-    # - verbose_name = texto descriptivo que verá el usuario en formularios
-    # - max_length = cantidad máxima de caracteres
-    # - blank y null = indican que este campo es obligatorio (False)
-    # - help_text = texto de ayuda que aparece en formularios
+    # Nombre del proyecto
     nombre = models.CharField(
         "Nombre",
         max_length=255,
@@ -31,21 +24,15 @@ class Project(models.Model):
         help_text="Nombre del Proyecto a crear"
     )
 
-    # Campo "descripcion" del proyecto
-    # Similar a "nombre", pero aquí se describe el proyecto con más detalle
-    # También es obligatorio y con un máximo de 255 caracteres
-    descripcion = models.CharField(
+    # Descripción del proyecto
+    descripcion = models.TextField(
         "Descripción",
-        max_length=255,
         blank=False,
         null=False,
-        help_text="Descripción del Proyecto a crear"
+        help_text="Descripción del Proyecto"
     )
 
-    # Campo "estado" del proyecto
-    # Es un CharField (cadena corta), con máximo 2 caracteres
-    # Se restringe a las opciones definidas en "opcionesEstadoProyecto"
-    # Tiene un valor por defecto: 'PL' (Planeación)
+    # Estado del proyecto
     estado = models.CharField(
         "Estado",
         max_length=2,
@@ -53,26 +40,42 @@ class Project(models.Model):
         default='PL',
     )
 
-    # Relación con el modelo User (usuario dueño del proyecto)
-    # - ForeignKey crea una relación de muchos proyectos → un solo usuario
-    # - on_delete=models.CASCADE significa que si el usuario se borra, también se borran sus proyectos
-    # - related_name nos da un nombre más claro para acceder desde User (user.usuarioProyecto.all())
+    # Usuario que creó el proyecto
     usuario = models.ForeignKey(
         User,
-        on_delete= models.CASCADE, #Si el usuario es eliminado se eliminaran todos los proyectos del usuario
-        related_name= 'usuarioProyecto' #Nos permite acceder a todos los proyectos de un usuario
-        )
+        on_delete=models.CASCADE,
+        related_name='usuarioProyecto'
+    )
 
-    def __str__(self):
-        return f"Proyecto {self.descripcion[:35]}..." # Muestra una parte de la descripcion del proyecta
-    tecnico = models.ForeignKey (
+    # Usuario técnico asignado
+    tecnico = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='tecnicoProyecto'
     )
 
-    # Método que devuelve una representación en texto del objeto
-    # Esto es útil al imprimir un proyecto en consola o en el admin de Django
-    # Mostramos solo los primeros 35 caracteres de la descripción para no saturar
+    # Fecha de creación del proyecto
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Última modificación (último acceso)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    #Tipos de Proyecto
+    type = models.CharField(
+        "Tipo",
+        max_length=4,
+        choices=opcionesTypeProyecto,
+        default='INF',
+    )
+
+    #Imagen de Proyecto
+    imagen = models.ImageField(
+        "Imagen Proyecto",
+        upload_to='\imgProjects',
+        null= True,
+        blank= True,
+    )
+
+    # Representación en texto del proyecto
     def __str__(self):
-        return f"Proyecto {self.descripcion[:35]}..."
+        return f"Proyecto {self.nombre} - {self.descripcion[:35]}..."

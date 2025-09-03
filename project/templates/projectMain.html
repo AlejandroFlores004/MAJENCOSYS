@@ -1,26 +1,24 @@
 {% extends "baseMainWorkflow.html" %}
 {% block title %}Proyectos{% endblock title %}
 
-{% block content %} {# inicia la zona de contenido que la base renderiza #}
-<div class="container my-3">                                {# margen vertical como el dashboard #}
-  <div class="row g-4">                                     {# fila con separación entre columnas #}
-    <div class="col-12 col-lg-6">                           {# ancho: 100% en móvil, 50% en desktop #}
+{% block content %}
+<div class="container my-3">
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
 
-      <div class="card shadow-sm rounded-3 mb-4">           {# tarjeta con bordes suaves y respiro abajo #}
+      <div class="card shadow-sm rounded-3 mb-4">
         <div class="card-header d-flex justify-content-between align-items-center py-2">
-          <h5 class="mb-0">Proyectos</h5>                   {# título de la tarjeta #}
+          <h5 class="mb-0">Proyectos</h5>
           <div class="d-flex gap-2">
             <a href="{% url 'projectCreate' %}" class="btn btn-primary btn-sm">➕ Crear</a>
-            <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true" tabindex="-1">
-              ℹ️ Detalles
-            </a>
+            <a href="{% url 'projectDetailList' %}" class="btn btn-outline-secondary btn-sm">ℹ️ Detalles</a>   <!-- Nuevo botón para detalles completos -->
           </div>
         </div>
 
-        <ul class="list-group list-group-flush">            {# lista “pegada” a la card #}
-          {% for p in proyectos %}                          {# recorre la lista 'proyectos' que envía la vista #}
+        <ul class="list-group list-group-flush">
+          {% for p in proyectos %}
             <li class="list-group-item d-flex justify-content-between align-items-start position-relative">
-              {# izquierda: nombre + datos secundarios #}
+
               <div>
                 <a href="{% url 'projectDetail' p.pk %}"
                    class="fw-semibold text-decoration-none text-reset d-block text-truncate"
@@ -32,7 +30,6 @@
                 </div>
               </div>
 
-              {# derecha: badge de estado con paleta (BS 5.0.2 → bg-*) #}
               {% with texto=p.get_estado_display %}
                 {% if p.estado == "PL" %}
                   <span class="badge bg-secondary align-self-center" title="{{ texto }}">{{ texto }}</span>
@@ -44,14 +41,19 @@
                   <span class="badge bg-dark align-self-center" title="{{ texto }}">{{ texto }}</span>
                 {% endif %}
               {% endwith %}
+
+              <div class="d-flex gap-2">
+                <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-primary btn-sm">Editar</a>
+                <a href="{% url 'projectDelete' p.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+              </div>
             </li>
           {% empty %}
             <li class="list-group-item text-muted">No hay proyectos aún.</li>
           {% endfor %}
         </ul>
-      </div>                                                {# fin .card #}
+      </div>  {# fin .card #}
 
-    </div>                                                  {# fin col #}
-  </div>                                                    {# fin row #}
-</div>                                                      {# fin container #}
+    </div>  {# fin col #}
+  </div>  {# fin row #}
+</div>  {# fin container #}
 {% endblock content %}

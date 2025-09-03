@@ -54,3 +54,7 @@ def projectDelete(request, pk):
         return redirect("projectMain")
 
     return render(request, "projectConfirmDelete.html", {"p": p})
+
+def projectDetailList(request):
+    proyectos = Project.objects.select_related("usuario", "tecnico").order_by("-created_at")
+    return render(request, "projectDetailList.html", {"proyectos": proyectos})
