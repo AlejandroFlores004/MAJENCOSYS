@@ -22,30 +22,14 @@
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
     </head>
     <body style="background-color: white;">
-        <!-- Contactos -->
-        <div class="container-fluid bg-dark">
-            <div class="row py-2 px-lg-5">
-                <div class="col-lg-6 text-center text-lg-left mb-2 mb-lg-0">
-                    <div
-                        class="d-inline-flex align-items-center text-white">
-                        <small><i class="fa fa-phone-alt mr-2"></i>+503 7674
-                            7779</small>
-                        <small class="px-3">|</small>
-                        <small><i class="fa fa-phone-alt mr-2"></i>+503 7909
-                            6893</small>
-                        <small class="px-3">|</small>
-                        <small><i
-                                class="fa fa-envelope mr-2"></i>inversionesmajencosadec@gmail.com</small>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- Nav -->
         <div class="container-fluid p-0">
             <nav
                 class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-lg-5">
-                <h1 class="m-0 display-5 text-uppercase text-primary"><i
-                        class="fa fa-wrench mr-2"></i>MAJENCO</h1>
+                <a href="/dashboard" class="navbar-brand ml-lg-3">
+                    <h1 class="m-0 display-5 text-uppercase text-primary"><i
+                            class="fa fa-wrench mr-2"></i>MAJENCO</h1>
+                </a>
                 <button type="button" class="navbar-toggler"
                     data-toggle="collapse" data-target="#navbarCollapse">
                     <span class="navbar-toggler-icon"></span>
@@ -54,13 +38,15 @@
                     class="collapse navbar-collapse justify-content-between px-lg-3"
                     id="navbarCollapse">
                     <div class="navbar-nav m-auto py-0">
-                        <a href class="nav-item nav-link">USUARIOS</a>
+                        <a href="/admon_usuarios"
+                            class="nav-item nav-link">USUARIOS</a>
                         <a href class="nav-item nav-link">2</a>
                         <a href class="nav-item nav-link">3</a>
                         <a href class="nav-item nav-link">4</a>
                     </div>
                     <a href
-                        class="btn btn-primary py-2 px-4 d-none d-lg-block"><i class="fa fa-user mr-2"></i> USUARIO ACTIVO</a>
+                        class="btn btn-primary py-2 px-4 d-none d-lg-block"><i
+                            class="fa fa-user mr-2"></i> USUARIO ACTIVO</a>
                 </div>
             </nav>
         </div>
@@ -68,6 +54,20 @@
 
         {% endblock content %}
 
+        <!-- Footer -->
+        <br><div
+            class="container-fluid bg-dark2 text-white border-top py-4 px-sm-3 px-md-5"
+            style="border-color: #3E3E4E !important;">
+            <div class="row">
+                <div class="col-lg-6 text-center text-md-left mb-3 mb-md-0">
+                    <p class="m-0 text-white">&copy; <a
+                            href="#0">MAJENCO</a>.
+                        Todos los derechos reservados.
+                        Diseñado por: <a href="#">UES Paracentral</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-primary back-to-top"><i
                 class="fa fa-angle-double-up"></i></a>
