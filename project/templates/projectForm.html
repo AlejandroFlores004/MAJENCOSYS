@@ -1,0 +1,30 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}{% if p %}Editar{% else %}Nuevo{% endif %} proyecto{% endblock title %}
+
+{% block content %}
+<div class="container my-3">
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm rounded-3 mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center py-2">
+          <h5 class="mb-0">{% if p %}Editar{% else %}Crear{% endif %} proyecto</h5>
+          <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
+        </div>
+        <div class="card-body">
+          <form method="post">                         {# Siempre POST en formularios #}
+            {% csrf_token %}                           {# Protección CSRF obligatoria #}
+            {{ form.as_p }}                            {# Render simple y directo #}
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" type="submit">Guardar</button>
+              <a class="btn btn-outline-secondary" href="{% url 'projectMain' %}">Cancelar</a>
+              {% if p %}
+                <a class="btn btn-danger ms-auto" href="{% url 'projectDelete' p.pk %}">Eliminar…</a>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

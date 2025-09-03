@@ -1,0 +1,26 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Eliminar proyecto{% endblock title %}
+
+{% block content %}
+<div class="container my-3">
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm rounded-3 mb-4">
+        <div class="card-header py-2">
+          <h5 class="mb-0">Eliminar proyecto</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-3">¿Seguro que quieres eliminar <strong>{{ p.nombre }}</strong>?</p>
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+              <button class="btn btn-danger" type="submit">Sí, eliminar</button>
+              <a class="btn btn-outline-secondary" href="{% url 'projectDetail' p.pk %}">No, volver</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

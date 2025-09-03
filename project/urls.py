@@ -1,10 +1,13 @@
-from django.contrib import admin
-from django.urls import path,include
-from .views import projectMain, projectDetail
+# project/urls.py
+from django.contrib import admin                   # (no se usa aquí, pero puedes dejarlo)
+from django.urls import path, include              # include no se usa en este archivo
+from .views import (projectMain,projectDetail,projectCreate,projectUpdate,projectDelete)
 
 urlpatterns = [
-    path('', projectMain, name='projectMain'), # /project/ muestra la lista
-    path("<int:pk>/", projectDetail, name="projectDetail"), #Detalle de proyecto
-  #  path('/formulario_project', userFormView, name='projectForm'),
-  
+
+    path("", projectMain, name="projectMain"),
+    path("nuevo/", projectCreate, name="projectCreate"),
+    path("<int:pk>/", projectDetail, name="projectDetail"),
+    path("<int:pk>/editar/", projectUpdate, name="projectUpdate"),
+    path("<int:pk>/eliminar/", projectDelete, name="projectDelete"),
 ]
