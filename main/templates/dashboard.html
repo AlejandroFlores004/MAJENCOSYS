@@ -2,6 +2,7 @@
 {% block title %}Dashboard{% endblock title %}
 {% block content %}
 
+{% load static %}
 <!-- Header -->
 <div class="jumbotron2 jumbotron-fluid mb-5">
   <div class="container text-center py-6">
@@ -16,6 +17,262 @@
   </div>
 </div>
 
-    <h1>Bienvenido al Dashboard</h1>
-    <p>Aquí puedes ver un resumen de la información.</p>
+<!-- Contenido Dashboard -->
+<div class="container py-5">
+  <div class="row">
+
+    <!-- Proyectos Pendientes -->
+    <div class="col-lg-8">
+      <h6 class="text-primary text-uppercase font-weight-bold">Lista de
+        proyectos</h6>
+      <h1 class="mb-4">Proyectos Pendientes</h1>
+      <div class="row">
+
+        <div class="col-md-6 mb-3">
+          <div class="position-relative">
+            <img class="img-fluid w-100" src="{% static 'img/Trab1.jpg' %}" alt>
+            <div
+              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
+              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
+              <h4 class="font-weight-bold mb-n1">09</h4>
+              <small class="text-white text-uppercase">SEP</small>
+            </div>
+          </div>
+          <div class="bg-secondary mb-3" style="padding: 30px;">
+            <div class="d-flex mb-3">
+              <div class="d-flex align-items-center">
+                <p class="text-muted ml-2">Cliente</p>
+              </div>
+              <div class="d-flex align-items-center ml-4">
+                <p class="text-muted ml-2">Tipo de
+                  Trab.</p>
+              </div>
+            </div>
+            <h4 class="font-weight-bold mb-3">Trabajo
+              Pendiente 1</h4>
+            <p>Dolor sea ipsum ipsum et. Erat duo lorem
+              magna vero dolor dolores. Rebum eirmod no
+              dolor diam dolor amet ipsum. Lorem lorem sea
+              sed diam est lorem magna</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <div class="position-relative">
+            <img class="img-fluid w-100"
+              src="{% static 'img/Trab2.jpg' %}" alt>
+            <div
+              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
+              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
+              <h4 class="font-weight-bold mb-n1">12</h4>
+              <small class="text-white text-uppercase">SEP</small>
+            </div>
+          </div>
+          <div class="bg-secondary mb-3" style="padding: 30px;">
+            <div class="d-flex mb-3">
+              <div class="d-flex align-items-center">
+                <p class="text-muted ml-2">Cliente</p>
+              </div>
+              <div class="d-flex align-items-center ml-4">
+                <p class="text-muted ml-2">Tipo de
+                  Trab.</p>
+              </div>
+            </div>
+            <h4 class="font-weight-bold mb-3">Trabajo
+              Pendiente 2</h4>
+            <p>Dolor sea ipsum ipsum et. Erat duo lorem
+              magna vero dolor dolores. Rebum eirmod no
+              dolor diam dolor amet ipsum. Lorem lorem sea
+              sed diam est lorem magna</p>
+          </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+          <div class="position-relative">
+            <img class="img-fluid w-100" src="{% static 'img/Trab1.jpg' %}" alt>
+            <div
+              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
+              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
+              <h4 class="font-weight-bold mb-n1">13</h4>
+              <small class="text-white text-uppercase">SEP</small>
+            </div>
+          </div>
+          <div class="bg-secondary mb-3" style="padding: 30px;">
+            <div class="d-flex mb-3">
+              <div class="d-flex align-items-center">
+                <p class="text-muted ml-2">Cliente</p>
+              </div>
+              <div class="d-flex align-items-center ml-4">
+                <p class="text-muted ml-2">Tipo de
+                  Trab.</p>
+              </div>
+            </div>
+            <h4 class="font-weight-bold mb-3">Trabajo
+              Pendiente 3</h4>
+            <p>Dolor sea ipsum ipsum et. Erat duo lorem
+              magna vero dolor dolores. Rebum eirmod no
+              dolor diam dolor amet ipsum. Lorem lorem sea
+              sed diam est lorem magna</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <div class="position-relative">
+            <img class="img-fluid w-100"
+              src="{% static 'img/Trab2.jpg' %}" alt>
+            <div
+              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
+              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
+              <h4 class="font-weight-bold mb-n1">14</h4>
+              <small class="text-white text-uppercase">SEP</small>
+            </div>
+          </div>
+          <div class="bg-secondary mb-3" style="padding: 30px;">
+            <div class="d-flex mb-3">
+              <div class="d-flex align-items-center">
+                <p class="text-muted ml-2">Cliente</p>
+              </div>
+              <div class="d-flex align-items-center ml-4">
+                <p class="text-muted ml-2">Tipo de
+                  Trab.</p>
+              </div>
+            </div>
+            <h4 class="font-weight-bold mb-3">Trabajo
+              Pendiente 4</h4>
+            <p>Dolor sea ipsum ipsum et. Erat duo lorem
+              magna vero dolor dolores. Rebum eirmod no
+              dolor diam dolor amet ipsum. Lorem lorem sea
+              sed diam est lorem magna</p>
+          </div>
+        </div>
+
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-lg justify-content-center mb-0">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                  <span class="sr-only">Previo</span>
+                </a>
+              </li>
+              <li class="page-item active"><a class="page-link"
+                  href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                  <span class="sr-only">Siguiente</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra Lateral -->
+    <div class="col-lg-4 mt-5 mt-lg-0">
+
+      <!-- Buscador -->
+      <div class="mb-5">
+        <div class="bg-secondary2" style="padding: 30px;">
+          <div class="input-group">
+            <input type="text" class="form-control border-0 p-4"
+              placeholder="Buscador...">
+            <div class="input-group-append">
+              <span
+                class="input-group-text bg-primary border-primary text-white"><i
+                  class="fa fa-search"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipos  -->
+      <div class="mb-5">
+        <h3 class="mb-4">Tipos de Trabajo</h3>
+        <div class="bg-secondary2" style="padding: 30px;">
+          <ul class="list-inline m-0">
+            <li
+              class="mb-1 py-2 px-3 bg-light d-flex justify-content-between align-items-center">
+              <a class="text-dark" href="#"><i
+                  class="fa fa-angle-right text-primary mr-2"></i>Tipo 1</a>
+              <span class="badge badge-secondary badge-pill">1</span>
+            </li>
+            <li
+              class="mb-1 py-2 px-3 bg-light d-flex justify-content-between align-items-center">
+              <a class="text-dark" href="#"><i
+                  class="fa fa-angle-right text-primary mr-2"></i>Tipo 2</a>
+              <span class="badge badge-secondary badge-pill">1</span>
+            </li>
+            <li
+              class="mb-1 py-2 px-3 bg-light d-flex justify-content-between align-items-center">
+              <a class="text-dark" href="#"><i
+                  class="fa fa-angle-right text-primary mr-2"></i>Tipo 3</a>
+              <span class="badge badge-secondary badge-pill">2</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Actividades -->
+      <div class="mb-5">
+        <h3 class="mb-4">Actividades Proximas</h3>
+        <div class="d-flex mb-3">
+          <img class="img-fluid" src="{% static 'img/Trab2.jpg' %}"
+            style="width: 80px; height: 80px; object-fit: cover;" alt>
+          <a href
+            class="d-flex align-items-center bg-secondary2 text-dark text-decoration-none px-3"
+            style="height: 80px;">
+            Lorem ipsum dolor sit amet consec adipis elit
+          </a>
+        </div>
+        <div class="d-flex mb-3">
+          <img class="img-fluid" src="{% static 'img/Trab1.jpg' %}"
+            style="width: 80px; height: 80px; object-fit: cover;" alt>
+          <a href
+            class="d-flex align-items-center bg-secondary2 text-dark text-decoration-none px-3"
+            style="height: 80px;">
+            Lorem ipsum dolor sit amet consec adipis elit
+          </a>
+        </div>
+        <div class="d-flex mb-3">
+          <img class="img-fluid" src="{% static 'img/Trab2.jpg' %}"
+            style="width: 80px; height: 80px; object-fit: cover;" alt>
+          <a href
+            class="d-flex align-items-center bg-secondary2 text-dark text-decoration-none px-3"
+            style="height: 80px;">
+            Lorem ipsum dolor sit amet consec adipis elit
+          </a>
+        </div>
+        <div class="d-flex mb-3">
+          <img class="img-fluid" src="{% static 'img/Trab1.jpg' %}"
+            style="width: 80px; height: 80px; object-fit: cover;" alt>
+          <a href
+            class="d-flex align-items-center bg-secondary2 text-dark text-decoration-none px-3"
+            style="height: 80px;">
+            Lorem ipsum dolor sit amet consec adipis elit
+          </a>
+        </div>
+      </div>
+
+      <!-- Extra -->
+      <div>
+        <h3 class="mb-4">Informacion Extra...</h3>
+        <div class="bg-secondary2 text-center" style="padding: 30px;">
+          <p>Vero sea et accusam justo dolor accusam lorem consetetur, dolores
+            sit amet sit dolor clita kasd justo, diam accusam no sea ut tempor
+            magna takimata, amet sit et diam dolor ipsum amet diam</p>
+          <a href class="btn btn-primary py-2 px-4">MAS</a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
 {% endblock content %}

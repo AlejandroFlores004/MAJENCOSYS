@@ -4,7 +4,13 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h4 class="mb-3">Eliminar Usuario: <code>{{ usuario.username }}</code></h4>
+  <h6 class="text-primary text-uppercase font-weight-bold">Eliminar Usuario</h6>
+  <h1 class="mb-2">{{ usuario.username }}</h1>
+
+  <!-- Display additional user details -->
+  <div class="mb-3">
+    <p><strong>{% for group in usuario.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</strong></p>
+  </div>
 
   <div class="card shadow-sm">
     <div class="card-body">
@@ -19,30 +25,32 @@
         <div class="col-md-6 mb-3">
           <strong>Último acceso:</strong>
           {% if usuario.last_login %}
-            {{ usuario.last_login|date:"d M Y, H:i" }}
+          {{ usuario.last_login|date:"d M Y, H:i" }}
           {% else %}
-            Nunca ha iniciado sesión
+          Nunca ha iniciado sesión
           {% endif %}
         </div>
         <div class="col-md-6 mb-3">
           <strong>Estado:</strong>
           {% if usuario.is_active %}
-            <span class="badge bg-success">Activo</span>
+          <span class="badge bg-success">Activo</span>
           {% else %}
-            <span class="badge bg-danger">Inactivo</span>
+          <span class="badge bg-danger">Inactivo</span>
           {% endif %}
         </div>
       </div>
 
-      <p class="text-danger">Zona de riesgo: ¿Está seguro de que desea eliminar este usuario?</p>
+      <p class="text-danger">Zona de riesgo: ¿Está seguro de que desea eliminar
+        este usuario?</p>
 
       <form method="POST">
         {% csrf_token %}
         <div class="d-flex justify-content-between">
           <button type="submit" class="btn btn-danger">
-            Eliminar
+            <i class="bi bi-trash"></i> Eliminar
           </button>
-          <a href="{% url 'usuarioDetails' %}" class="btn btn-outline-secondary">Cancelar</a>
+          <a href="{% url 'usuarioDetails' %}"
+            class="btn btn-outline-secondary">Cancelar</a>
         </div>
       </form>
     </div>
