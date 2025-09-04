@@ -2,6 +2,13 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-class LoginForm(AuthenticationForm):
-    # You can add custom fields here if needed, but AuthenticationForm already includes fields for username and password
-    pass
+class UserRegistrationForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+
+        # Apply Bootstrap styling to fields
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': field.label
+            })
