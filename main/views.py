@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login,logout, authenticate
 from django.contrib import messages
 from .forms import UserRegistrationForm
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
+from .forms import CustomPasswordResetForm,CustomSetPasswordForm
 
 # Create your views here.
 def startpage(request):
@@ -23,7 +26,7 @@ def loginPage(request):
         if user is not None:
             
             login(request, user)
-            return redirect('dash')
+            return redirect('dashboard')
             
         else:
             messages.warning(request, 'Credenciales inválidas. Inténtalo de nuevo.')
@@ -32,3 +35,9 @@ def loginPage(request):
         "message": message
     }
     return render(request, 'login.html', objects)
+
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'registration/password_reset_form.html'
+    form_class = CustomPasswordResetForm
+    success_url = reverse_lazy('password_reset_done')
