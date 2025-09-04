@@ -8,6 +8,8 @@ db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
+*/migrations/
+!*/migrations/__init__.py
 
 # Archivos de IDE/Editor
 .vscode/
