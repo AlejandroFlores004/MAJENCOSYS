@@ -37,7 +37,3 @@ def loginPage(request):
     return render(request, 'login.html', objects)
 
 
-class CustomPasswordResetView(PasswordResetView):
-    template_name = 'registration/password_reset_form.html'
-    form_class = CustomPasswordResetForm
-    success_url = reverse_lazy('password_reset_done')
