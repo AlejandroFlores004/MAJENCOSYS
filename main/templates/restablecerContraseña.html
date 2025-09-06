@@ -1,0 +1,46 @@
+{% extends "baseMainWorkflow.html" %}
+
+{% block title %}Restablecer Contraseña{% endblock title %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Restablecer Contraseña</h2>
+
+  {% if messages %}
+    <div class="mb-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <!-- Download Backup Section -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Download Backup</h5>
+          <p class="card-text">Click the button below to download the latest database backup.</p>
+          <a href="{% url 'download_backup' %}" class="btn btn-primary">Download Backup</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Backup Section -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Restore Database</h5>
+          <p class="card-text">Upload a .sql backup file to restore the database.</p>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+              <input type="file" class="form-control" name="backup_file" accept=".sql" required>
+            </div>
+            <button type="submit" name="restore" class="btn btn-danger">Restore</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
