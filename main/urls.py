@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from .views import startpage, dashboard, loginPage
+from .views import startpage, dashboard, loginPage, database_tools, download_backup
 from .forms import CustomSetPasswordForm,CustomPasswordResetForm
 
 urlpatterns = [
@@ -9,6 +9,8 @@ urlpatterns = [
     path('dashboard/', dashboard, name='dashboard'),
     path('login/', loginPage, name='log'),
     path('admon_usuarios/', include('user.urls'), name='user'),
+    path("herramientas_basedatos/", database_tools, name="database_tools"),
+    path("herramientas_basedatos/download/", download_backup, name="download_backup"),
 
     # ---- Password Reset Flow ----
      path('reset-password/', 
