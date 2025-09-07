@@ -4,23 +4,25 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# OS deps for mysqlclient (compiler + MySQL headers)
+# deps de sistema para mysqlclient
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     default-libmysqlclient-dev \
     pkg-config \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /workspace
+WORKDIR /app
 
-# Install Python deps
+# dependencias Python
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt
 
-# Copy project
+# copiar proyecto
 COPY . .
 
-EXPOSE 8000
+# asegurar carpeta MEDIA_ROOT dentro del contenedor
+RUN mkdir -p /app/files
 
+EXPOSE 8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

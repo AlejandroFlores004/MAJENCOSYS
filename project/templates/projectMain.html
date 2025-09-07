@@ -1,59 +1,114 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}Proyectos{% endblock title %}
+{% block title %}Proyectos{% endblock %}
 
 {% block content %}
 <div class="container my-3">
-  <div class="row g-4">
-    <div class="col-12 col-lg-6">
 
+  {# Mensajes centrados #}
+  {% if messages %}
+    <div id="flashOverlay" class="position-fixed top-50 start-50 translate-middle" style="z-index:1080; min-width:320px;">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'success' }} shadow text-center mb-2">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    <script>setTimeout(()=>{const el=document.getElementById('flashOverlay'); if(el) el.remove();}, 1800);</script>
+  {% endif %}
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-8 col-xl-7">
       <div class="card shadow-sm rounded-3 mb-4">
         <div class="card-header d-flex justify-content-between align-items-center py-2">
           <h5 class="mb-0">Proyectos</h5>
           <div class="d-flex gap-2">
             <a href="{% url 'projectCreate' %}" class="btn btn-primary btn-sm">➕ Crear</a>
-            <a href="{% url 'projectDetailList' %}" class="btn btn-outline-secondary btn-sm">ℹ️ Detalles</a>   <!-- Nuevo botón para detalles completos -->
+            <a href="{% url 'projectDetailList' %}" class="btn btn-outline-secondary btn-sm">ℹ️ Detalles</a>
           </div>
         </div>
 
         <ul class="list-group list-group-flush">
           {% for p in proyectos %}
-            <li class="list-group-item d-flex justify-content-between align-items-start position-relative">
+          <li class="list-group-item">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+              <div class="flex-grow-1 w-100">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <a href="{% url 'projectDetail' p.pk %}"
+                     class="fw-semibold text-decoration-none text-reset text-truncate"
+                     style="max-width: 28rem;">
+                    {{ p.nombre }}
+                  </a>
 
-              <div>
-                <a href="{% url 'projectDetail' p.pk %}"
-                   class="fw-semibold text-decoration-none text-reset d-block text-truncate"
-                   style="max-width: 28rem;">
-                  {{ p.nombre }}
-                </a>
+                  {% with texto=p.get_estado_display %}
+                    {% if p.estado == "PL" %}
+                      <span class="badge bg-secondary">{{ texto }}</span>
+                    {% elif p.estado == "P" %}
+                      <span class="badge bg-warning text-dark">{{ texto }}</span>
+                    {% elif p.estado == "C" %}
+                      <span class="badge bg-success">{{ texto }}</span>
+                    {% else %}
+                      <span class="badge bg-dark">{{ texto }}</span>
+                    {% endif %}
+                  {% endwith %}
+                </div>
                 <div class="small text-muted">
                   Creador: {{ p.usuario }} &middot; Técnico: {{ p.tecnico }}
                 </div>
               </div>
 
-              {% with texto=p.get_estado_display %}
-                {% if p.estado == "PL" %}
-                  <span class="badge bg-secondary align-self-center" title="{{ texto }}">{{ texto }}</span>
-                {% elif p.estado == "P" %}
-                  <span class="badge bg-warning text-dark align-self-center" title="{{ texto }}">{{ texto }}</span>
-                {% elif p.estado == "C" %}
-                  <span class="badge bg-success align-self-center" title="{{ texto }}">{{ texto }}</span>
-                {% else %}
-                  <span class="badge bg-dark align-self-center" title="{{ texto }}">{{ texto }}</span>
-                {% endif %}
-              {% endwith %}
-
-              <div class="d-flex gap-2">
+              <div class="d-flex gap-2 ms-md-auto w-100 w-md-auto">
                 <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-primary btn-sm">Editar</a>
                 <a href="{% url 'projectDelete' p.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
               </div>
-            </li>
+            </div>
+          </li>
           {% empty %}
-            <li class="list-group-item text-muted">No hay proyectos aún.</li>
+          <li class="list-group-item text-muted">No hay proyectos aún.</li>
           {% endfor %}
         </ul>
-      </div>  {# fin .card #}
 
-    </div>  {# fin col #}
-  </div>  {# fin row #}
-</div>  {# fin container #}
-{% endblock content %}
+        <div class="card-footer d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2">
+          <div class="small text-muted">
+            {% if proyectos.paginator and proyectos.paginator.count %}
+              Mostrando {{ proyectos.start_index }}–{{ proyectos.end_index }} de {{ proyectos.paginator.count }}
+            {% else %}
+              Mostrando 0 de 0
+            {% endif %}
+          </div>
+
+          {% if proyectos.paginator and proyectos.paginator.num_pages > 1 %}
+          <nav aria-label="Paginación de proyectos">
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item {% if not proyectos.has_previous %}disabled{% endif %}">
+                {% if proyectos.has_previous %}
+                  <a class="page-link" href="?page={{ proyectos.previous_page_number }}">Anterior</a>
+                {% else %}
+                  <span class="page-link">Anterior</span>
+                {% endif %}
+              </li>
+
+              {% for n in proyectos.paginator.page_range %}
+                <li class="page-item {% if proyectos.number == n %}active{% endif %}">
+                  <a class="page-link" href="?page={{ n }}">{{ n }}</a>
+                </li>
+              {% endfor %}
+
+              <li class="page-item {% if not proyectos.has_next %}disabled{% endif %}">
+                {% if proyectos.has_next %}
+                  <a class="page-link" href="?page={{ proyectos.next_page_number }}">Siguiente</a>
+                {% else %}
+                  <span class="page-link">Siguiente</span>
+                {% endif %}
+              </li>
+            </ul>
+          </nav>
+          {% else %}
+          <div class="small text-muted">Página 1 de 1</div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

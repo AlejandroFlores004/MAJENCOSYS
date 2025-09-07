@@ -1,48 +1,67 @@
-{% extends "baseMainWorkflow.html" %} {# layout base #}
-{% block title %}Detalle del proyecto{% endblock title %}
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Detalle del Proyecto{% endblock %}
 
 {% block content %}
-<div class="container my-3">                                   {# mismo contenedor que el dashboard #}
-  <div class="row g-4">                                        {# fila con separación #}
-    <div class="col-12 col-lg-6">                              {# 100% en móvil, 50% en desktop #}
+<div class="container my-3">
+  <div class="row g-4">
+    <!-- Imagen -->
+    <div class="col-12 col-md-5">
+      <div class="card shadow-sm rounded-3">
+        {% if p.imagen %}
+          <img src="{{ p.imagen.url }}" alt="Imagen del proyecto" class="card-img-top img-fluid">
+          <div class="card-body small text-muted">
+            Archivo: <a href="{{ p.imagen.url }}" target="_blank">{{ p.imagen.url }}</a>
+          </div>
+        {% else %}
+          <div class="card-body text-muted">Sin imagen</div>
+        {% endif %}
+      </div>
+    </div>
 
-      <div class="card shadow-sm rounded-3 mb-4">              {# tarjeta con bordes suaves #}
+    <!-- Info -->
+    <div class="col-12 col-md-7">
+      <div class="card shadow-sm rounded-3">
         <div class="card-header d-flex justify-content-between align-items-center py-2">
-          <h5 class="mb-0">{{ p.nombre }}</h5>                 {# título = nombre del proyecto #}
+          <h5 class="mb-0">{{ p.nombre }}</h5>
           <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
         </div>
+        <div class="card-body">
+          <p class="mb-1"><strong>Descripción:</strong> {{ p.descripcion }}</p>
+          <p class="mb-1"><strong>Cliente:</strong> {{ p.cliente }}</p>
 
-        <div class="card-body">                                {# cuerpo con los datos #}
-          <p class="mb-2">
-            <strong>Descripción:</strong> {{ p.descripcion }}   {# texto principal #}
-          </p>
-
-          <p class="mb-2">
+          <p class="mb-1">
             <strong>Estado:</strong>
             {% with texto=p.get_estado_display %}
               {% if p.estado == "PL" %}
-                <span class="badge bg-secondary" title="{{ texto }}">{{ texto }}</span>
+                <span class="badge bg-secondary">{{ texto }}</span>
               {% elif p.estado == "P" %}
-                <span class="badge bg-warning text-dark" title="{{ texto }}">{{ texto }}</span>
+                <span class="badge bg-warning text-dark">{{ texto }}</span>
               {% elif p.estado == "C" %}
-                <span class="badge bg-success" title="{{ texto }}">{{ texto }}</span>
+                <span class="badge bg-success">{{ texto }}</span>
               {% else %}
-                <span class="badge bg-dark" title="{{ texto }}">{{ texto }}</span>
+                <span class="badge bg-dark">{{ texto }}</span>
               {% endif %}
             {% endwith %}
           </p>
 
-          <p class="mb-2"><strong>Usuario Creador:</strong> {{ p.usuario }}</p>
-          <p class="mb-3"><strong>Técnico asignado:</strong> {{ p.tecnico }}</p>
+          <p class="mb-3">
+            <strong>Tipo:</strong>
+            <span class="badge bg-info text-dark">{{ p.get_type_display }}</span>
+          </p>
+
+          <p class="mb-1"><strong>Técnico asignado:</strong> {{ p.tecnico }}</p>
+          <p class="mb-1"><strong>Creador:</strong> {{ p.usuario }}</p>
+          <p class="mb-1"><strong>Creado el:</strong> {{ p.created_at }}</p>
+          <p class="mb-3"><strong>Última actualización:</strong> {{ p.updated_at }}</p>
 
           <div class="d-flex gap-2">
             <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-primary btn-sm">Editar</a>
-            <a href="{% url 'projectDelete' p.pk %}" class="btn btn-danger btn-sm">Eliminar…</a>
+            <a href="{% url 'projectDelete' p.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
           </div>
         </div>
       </div>
-
     </div>
+
   </div>
 </div>
-{% endblock content %}
+{% endblock %}

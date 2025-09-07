@@ -1,7 +1,5 @@
-{% extends "baseMainWorkflow.html" %}  <!-- Extiende la plantilla base de tu proyecto -->
-{% block title %}
-    Detalles de Proyectos
-{% endblock title %}
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Detalles de Proyectos{% endblock title %}
 
 {% block content %}
 <div class="container my-3">
@@ -10,12 +8,9 @@
             <div class="card shadow-sm rounded-3 mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center py-2">
                     <h5 class="mb-0">Detalles de Proyectos</h5>
-                    <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">
-                        Volver
-                    </a>
+                    <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
                 </div>
                 <div class="card-body">
-                    <!-- Tabla con los detalles de los proyectos -->
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -36,17 +31,12 @@
                                 <td>{{ proyecto.id }}</td>
                                 <td>{{ proyecto.nombre }}</td>
                                 <td>{{ proyecto.descripcion }}</td>
-                                <td>
-                                    {% with texto=proyecto.get_estado_display %}
-                                        {{ texto }}
-                                    {% endwith %}
-                                </td>
+                                <td>{{ proyecto.get_estado_display }}</td>
                                 <td>{{ proyecto.usuario }}</td>
                                 <td>{{ proyecto.tecnico }}</td>
                                 <td>{{ proyecto.created_at }}</td>
                                 <td>{{ proyecto.updated_at }}</td>
                                 <td>
-                                    <!-- Botones de acción para editar y eliminar -->
                                     <a href="{% url 'projectUpdate' proyecto.pk %}" class="btn btn-warning btn-sm">Editar</a>
                                     <a href="{% url 'projectDelete' proyecto.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
                                 </td>

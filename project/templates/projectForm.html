@@ -1,25 +1,105 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}{% if p %}Editar{% else %}Nuevo{% endif %} proyecto{% endblock title %}
+{% block title %}{% if p %}Editar{% else %}Nuevo{% endif %} proyecto{% endblock %}
 
 {% block content %}
-<div class="container my-3">
-  <div class="row g-4">
-    <div class="col-12 col-lg-6">
+<div class="container-fluid my-3">
+  <div class="row">
+    <div class="col-12">
       <div class="card shadow-sm rounded-3 mb-4">
         <div class="card-header d-flex justify-content-between align-items-center py-2">
           <h5 class="mb-0">{% if p %}Editar{% else %}Crear{% endif %} proyecto</h5>
-          <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
+          <a href="{% url 'projectMain' %}" id="cancelBtn" class="btn btn-outline-secondary btn-sm">Volver</a>
         </div>
+
+        {% if form.errors or form.non_field_errors %}
+          <div class="alert alert-danger m-3 mb-0">
+            <div class="fw-semibold">Se encontraron errores:</div>
+            <ul class="mb-0 ps-3">
+              {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+              {% for field in form %}
+                {% for e in field.errors %}<li>{{ e }}</li>{% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
         <div class="card-body">
-          <form method="post">                         {# Siempre POST en formularios #}
-            {% csrf_token %}                           {# Protección CSRF obligatoria #}
-            {{ form.as_p }}                            {# Render simple y directo #}
+          <form method="post" enctype="multipart/form-data" id="projectForm">
+            {% csrf_token %}
+
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre del Proyecto:</label>
+              <input type="text" class="form-control" id="nombre" name="nombre"
+                value="{{ form.nombre.value|default:'' }}" required placeholder="Digite el Nombre del Proyecto">
+              <div class="invalid-feedback">Solo letras, espacios y guiones (sin números).</div>
+            </div>
+
+            <!-- Cliente -->
+            <div class="mb-3">
+              <label for="cliente" class="form-label">Nombre del Cliente:</label>
+              <input type="text" class="form-control" id="cliente" name="cliente"
+                value="{{ form.cliente.value|default:'' }}" required placeholder="Digite el Nombre Completo del Cliente">
+              <div class="invalid-feedback">Solo letras, espacios y guiones (sin números).</div>
+            </div>
+
+            <!-- Técnico -->
+            <div class="mb-3">
+              <label class="form-label">Técnico asignado:</label>
+              {{ form.tecnico }}
+              <div class="invalid-feedback d-block">{% for e in form.tecnico.errors %}{{ e }}{% endfor %}</div>
+            </div>
+
+            <!-- Tipo de Proyecto -->
+            <div class="mb-3">
+              <label class="form-label">Tipo de Proyecto:</label>
+              {{ form.type }}
+              <div class="invalid-feedback d-block">{% for e in form.type.errors %}{{ e }}{% endfor %}</div>
+            </div>
+
+            <!-- Imagen -->
+            <div class="mb-3">
+              <label for="imagen" class="form-label">Imagen del Proyecto:</label>
+              <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*" {% if not p %}required{% endif %}>
+
+              {% if p and p.imagen %}
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="delete_imagen" name="delete_imagen">
+                <label class="form-check-label" for="delete_imagen">Eliminar imagen actual</label>
+              </div>
+              {% endif %}
+
+              <div id="previewWrapper" class="mt-2" style="display:none; width: 220px;">
+                <div class="position-relative rounded border" style="width:220px;height:140px;overflow:hidden;">
+                  <img id="previewImg" alt="Imagen del Proyecto" style="width:100%;height:100%;object-fit:cover;">
+                  <button type="button" id="deleteImageBtn" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" title="Quitar imagen">×</button>
+                </div>
+                <small class="text-muted d-block mt-1">Vista previa</small>
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción del Proyecto:</label>
+              <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required>{{ form.descripcion.value|default:'' }}</textarea>
+              <div class="invalid-feedback">Solo letras, números, espacio, punto, coma y guion. Mínimo 10 caracteres.</div>
+            </div>
+
+            {% if p %}
+            <div class="mb-3">
+              <label for="estado" class="form-label">Estado:</label>
+              <select class="form-select" id="estado" name="estado">
+                <option value="PL" {% if p.estado == "PL" %}selected{% endif %}>Planeación</option>
+                <option value="P"  {% if p.estado == "P"  %}selected{% endif %}>En Proceso</option>
+                <option value="C"  {% if p.estado == "C"  %}selected{% endif %}>Completado</option>
+              </select>
+            </div>
+            {% endif %}
+
             <div class="d-flex gap-2">
               <button class="btn btn-primary" type="submit">Guardar</button>
               <a class="btn btn-outline-secondary" href="{% url 'projectMain' %}">Cancelar</a>
-              {% if p %}
-                <a class="btn btn-danger ms-auto" href="{% url 'projectDelete' p.pk %}">Eliminar…</a>
-              {% endif %}
+              {% if p %}<a class="btn btn-danger ms-auto" href="{% url 'projectDelete' p.pk %}">Eliminar…</a>{% endif %}
             </div>
           </form>
         </div>
@@ -27,4 +107,84 @@
     </div>
   </div>
 </div>
-{% endblock content %}
+
+<!-- Modal Volver -->
+<div class="modal fade" id="confirmExitModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tienes cambios no guardados</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">¿Seguro que quieres salir?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Seguir editando</button>
+        <a id="confirmExitLink" href="{% url 'projectMain' %}" class="btn btn-primary">Salir</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== Validación en vivo (bloquea caracteres) =====
+  const reSoloLetras = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\-]+$/;
+  const reDesc = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s\.\,\-]+$/;
+
+  const nombre = document.getElementById('nombre');
+  const cliente = document.getElementById('cliente');
+  const descripcion = document.getElementById('descripcion');
+
+  function markInvalid(el, cond, msg) {
+    if (cond) { el.classList.add('is-invalid'); el.setCustomValidity(msg); }
+    else      { el.classList.remove('is-invalid'); el.setCustomValidity(''); }
+  }
+
+  nombre.addEventListener('input', () => {
+    nombre.value = nombre.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\-]/g, '');
+    markInvalid(nombre, !reSoloLetras.test(nombre.value) || !nombre.value, 'Solo letras, espacios y guiones.');
+  });
+
+  cliente.addEventListener('input', () => {
+    cliente.value = cliente.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\-]/g, '');
+    markInvalid(cliente, !reSoloLetras.test(cliente.value) || !cliente.value, 'Solo letras, espacios y guiones.');
+  });
+
+  descripcion.addEventListener('input', () => {
+    descripcion.value = descripcion.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s\.\,\-]/g, '');
+    markInvalid(descripcion, descripcion.value.length < 10 || !reDesc.test(descripcion.value), 'Inválida');
+  });
+
+  // ===== Preview imagen =====
+  const fileInput = document.getElementById('imagen');
+  const previewWrapper = document.getElementById('previewWrapper');
+  const previewImg = document.getElementById('previewImg');
+  const deleteBtn = document.getElementById('deleteImageBtn');
+
+  if (fileInput) {
+    fileInput.addEventListener('change', function () {
+      const file = this.files && this.files[0];
+      if (!file) return;
+      const allowed = ['image/jpeg', 'image/png'];
+      if (!allowed.includes(file.type)) { this.value=''; previewWrapper.style.display='none'; alert('Solo JPG o PNG.'); return; }
+      const reader = new FileReader();
+      reader.onload = e => { previewImg.src = e.target.result; previewWrapper.style.display='block'; };
+      reader.readAsDataURL(file);
+    });
+  }
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function () { fileInput.value=''; previewWrapper.style.display='none'; previewImg.src=''; });
+  }
+
+  // ===== Control de cambios y modal Volver =====
+  let formChanged = false;
+  const formEl = document.getElementById("projectForm");
+  formEl.addEventListener("change", () => formChanged = true);
+  formEl.addEventListener("submit", () => { formChanged = false; window.onbeforeunload = null; });
+
+  window.onbeforeunload = () => { if (formChanged) return "Tienes cambios no guardados."; };
+
+  document.getElementById('cancelBtn').addEventListener('click', function (e) {
+    if (formChanged) { e.preventDefault(); new bootstrap.Modal(document.getElementById('confirmExitModal')).show(); }
+  });
+</script>
+{% endblock %}
