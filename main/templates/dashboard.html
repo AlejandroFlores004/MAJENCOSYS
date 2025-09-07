@@ -19,6 +19,13 @@
 
 <!-- Contenido Dashboard -->
 <div class="container py-5">
+  {% if messages %}
+    <div class="mb-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
   <div class="row">
     
     <h6 class="text-primary text-uppercase font-weight-bold">Lista de

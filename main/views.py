@@ -7,7 +7,9 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import login,logout, authenticate
 from django.contrib import messages
 from .forms import UserRegistrationForm
-from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
 
 
 
@@ -15,7 +17,7 @@ from django.contrib import messages
 def startpage(request):
     return render(request, 'starPageClientes.html')
 
-
+@login_required(login_url='log')
 def dashboard(request):
     return render(request, 'dashboard.html')
 
@@ -40,8 +42,25 @@ def loginPage(request):
     }
     return render(request, 'login.html', objects)
 
-
 #Apartados de bases de datos
+def admin_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        # Step 1: Check if the user is logged in
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('log')}?next={request.path}")
+
+        # Step 2: Check if user is superuser
+        if not request.user.is_superuser:
+            messages.warning(request, "No tienes las credenciales necesarias para acceder a esta sección.")
+            return redirect('dashboard')  # Redirect to dashboard
+
+        # Step 3: Allow access
+        return view_func(request, *args, **kwargs)
+    
+    return _wrapped_view
+
+@login_required(login_url='log')
+@admin_required
 def database_tools(request):
     db_settings = settings.DATABASES['default']
 
