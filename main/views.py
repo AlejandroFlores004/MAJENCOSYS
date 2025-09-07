@@ -23,7 +23,7 @@ def loginPage(request):
         if user is not None:
             
             login(request, user)
-            return redirect('dash')
+            return redirect('dashboard')
             
         else:
             messages.warning(request, 'Credenciales inválidas. Inténtalo de nuevo.')
