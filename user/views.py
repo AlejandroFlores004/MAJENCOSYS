@@ -2,8 +2,10 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.models import User,Group
 from .forms import userForm, UserUpdateForm,UserUpdatePasswordForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+@login_required(login_url='log')
 def userMain(request):
     users = User.objects.all()
     groups = Group.objects.all()
@@ -15,7 +17,7 @@ def userMain(request):
     
     return render(request,'usuarioMain.html',objects)
 
-
+@login_required(login_url='log')
 def userFormView(request):
     if request.method == 'POST':
         form = userForm(request.POST)
@@ -31,6 +33,7 @@ def userFormView(request):
     }
     return render(request, 'usuarioForm.html', object)
 
+@login_required(login_url='log')
 def userDetails(request):
     users = User.objects.all()
     groups = Group.objects.all()
@@ -41,6 +44,7 @@ def userDetails(request):
     }
     return render(request, 'usuariosDetails.html', objects)
 
+@login_required(login_url='log')
 def userEdit(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
 
@@ -60,7 +64,7 @@ def userEdit(request, pk):
 
     return render(request, 'usuarioEdit.html', objects)
 
-
+@login_required(login_url='log')
 def userEditPassword(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
 
@@ -93,6 +97,7 @@ def userEditStatus(request, pk):
     }
     return render(request, 'usuarioCambiarEstado.html', object)
 
+@login_required(login_url='log')
 def userDelete(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
 
