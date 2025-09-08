@@ -11,89 +11,112 @@
           <a href="{% url 'projectMain' %}" id="cancelBtn" class="btn btn-outline-secondary btn-sm">Volver</a>
         </div>
 
+        {# Errores del backend #}
         {% if form.errors or form.non_field_errors %}
           <div class="alert alert-danger m-3 mb-0">
             <div class="fw-semibold">Se encontraron errores:</div>
             <ul class="mb-0 ps-3">
               {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
-              {% for field in form %}
-                {% for e in field.errors %}<li>{{ e }}</li>{% endfor %}
-              {% endfor %}
+              {% for field in form %}{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}{% endfor %}
             </ul>
           </div>
         {% endif %}
 
         <div class="card-body">
-          <form method="post" enctype="multipart/form-data" id="projectForm">
+          <form method="post" enctype="multipart/form-data" id="projectForm" novalidate autocomplete="off">
             {% csrf_token %}
 
-            <!-- Nombre -->
+            {# Nombre #}
             <div class="mb-3">
               <label for="nombre" class="form-label">Nombre del Proyecto:</label>
-              <input type="text" class="form-control" id="nombre" name="nombre"
-                value="{{ form.nombre.value|default:'' }}" required placeholder="Digite el Nombre del Proyecto">
+              <input
+                type="text"
+                class="form-control"
+                id="nombre"
+                name="nombre"
+                value="{{ form.nombre.value|default:'' }}"
+                required
+                placeholder="Digite el Nombre del Proyecto">
               <div class="invalid-feedback">Solo letras, espacios y guiones (sin números).</div>
             </div>
 
-            <!-- Cliente -->
+            {# Cliente #}
             <div class="mb-3">
               <label for="cliente" class="form-label">Nombre del Cliente:</label>
-              <input type="text" class="form-control" id="cliente" name="cliente"
-                value="{{ form.cliente.value|default:'' }}" required placeholder="Digite el Nombre Completo del Cliente">
+              <input
+                type="text"
+                class="form-control"
+                id="cliente"
+                name="cliente"
+                value="{{ form.cliente.value|default:'' }}"
+                required
+                placeholder="Digite el Nombre Completo del Cliente">
               <div class="invalid-feedback">Solo letras, espacios y guiones (sin números).</div>
             </div>
 
-            <!-- Técnico -->
+            {# Técnico #}
             <div class="mb-3">
-              <label class="form-label">Técnico asignado:</label>
+              <label for="{{ form.tecnico.id_for_label }}" class="form-label">Técnico asignado:</label>
               {{ form.tecnico }}
-              <div class="invalid-feedback d-block">{% for e in form.tecnico.errors %}{{ e }}{% endfor %}</div>
+              <div class="invalid-feedback d-block">
+                {% for e in form.tecnico.errors %}{{ e }}{% endfor %}
+              </div>
             </div>
 
-            <!-- Tipo de Proyecto -->
+            {# Tipo (choice del form) #}
             <div class="mb-3">
-              <label class="form-label">Tipo de Proyecto:</label>
+              <label for="{{ form.type.id_for_label }}" class="form-label">Tipo de Proyecto:</label>
               {{ form.type }}
-              <div class="invalid-feedback d-block">{% for e in form.type.errors %}{{ e }}{% endfor %}</div>
+              <div class="invalid-feedback d-block">
+                {% for e in form.type.errors %}{{ e }}{% endfor %}
+              </div>
             </div>
 
-            <!-- Imagen -->
+            {# Imagen (requerida solo en creación desde HTML; en edición lo hace el JS/servidor) #}
             <div class="mb-3">
               <label for="imagen" class="form-label">Imagen del Proyecto:</label>
-              <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*" {% if not p %}required{% endif %}>
+              <input
+                type="file"
+                class="form-control"
+                id="imagen"
+                name="imagen"
+                accept="image/*"
+                {% if not p %}required{% endif %}>
 
-              {% if p and p.imagen %}
-              <div class="form-check mt-2">
-                <input class="form-check-input" type="checkbox" id="delete_imagen" name="delete_imagen">
-                <label class="form-check-label" for="delete_imagen">Eliminar imagen actual</label>
+              {# Info corta cuando el usuario pulsa la X #}
+              <div id="imgInfo" class="form-text d-none">
+                La imagen no se elimina aquí. Para <b>reemplazarla</b>, selecciona un nuevo archivo.
               </div>
-              {% endif %}
 
-              <div id="previewWrapper" class="mt-2" style="display:none; width: 220px;">
+              {# Preview: actual o nueva #}
+              <div id="currentImgWrap" class="mt-2" style="display:none; width: 220px;">
                 <div class="position-relative rounded border" style="width:220px;height:140px;overflow:hidden;">
-                  <img id="previewImg" alt="Imagen del Proyecto" style="width:100%;height:100%;object-fit:cover;">
-                  <button type="button" id="deleteImageBtn" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" title="Quitar imagen">×</button>
+                  <img id="currentImg" alt="Imagen del Proyecto" style="width:100%;height:100%;object-fit:cover;">
+                  <button type="button" id="btnRemoveImg"
+                          class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                          title="Reemplazar imagen">×</button>
                 </div>
                 <small class="text-muted d-block mt-1">Vista previa</small>
               </div>
             </div>
 
-            <!-- Descripción -->
+            {# Descripción #}
             <div class="mb-3">
               <label for="descripcion" class="form-label">Descripción del Proyecto:</label>
               <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required>{{ form.descripcion.value|default:'' }}</textarea>
               <div class="invalid-feedback">Solo letras, números, espacio, punto, coma y guion. Mínimo 10 caracteres.</div>
             </div>
 
+            {# Estado solo al editar #}
             {% if p %}
-            <div class="mb-3">
-              <label for="estado" class="form-label">Estado:</label>
-              <select class="form-select" id="estado" name="estado">
-                <option value="PL" {% if p.estado == "PL" %}selected{% endif %}>Planeación</option>
-                <option value="P"  {% if p.estado == "P"  %}selected{% endif %}>En Proceso</option>
-                <option value="C"  {% if p.estado == "C"  %}selected{% endif %}>Completado</option>
-              </select>
-            </div>
+              <div class="mb-3">
+                <label for="estado" class="form-label">Estado:</label>
+                <select class="form-select" id="estado" name="estado">
+                  <option value="PL" {% if form.estado.value == "PL" %}selected{% endif %}>Planeación</option>
+                  <option value="P"  {% if form.estado.value == "P"  %}selected{% endif %}>En Proceso</option>
+                  <option value="C"  {% if form.estado.value == "C"  %}selected{% endif %}>Completado</option>
+                </select>
+              </div>
             {% endif %}
 
             <div class="d-flex gap-2">
@@ -108,25 +131,8 @@
   </div>
 </div>
 
-<!-- Modal Volver -->
-<div class="modal fade" id="confirmExitModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Tienes cambios no guardados</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">¿Seguro que quieres salir?</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Seguir editando</button>
-        <a id="confirmExitLink" href="{% url 'projectMain' %}" class="btn btn-primary">Salir</a>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-  // ===== Validación en vivo (bloquea caracteres) =====
+  // --- Validación simple frontend ---
   const reSoloLetras = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\-]+$/;
   const reDesc = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s\.\,\-]+$/;
 
@@ -134,57 +140,81 @@
   const cliente = document.getElementById('cliente');
   const descripcion = document.getElementById('descripcion');
 
-  function markInvalid(el, cond, msg) {
-    if (cond) { el.classList.add('is-invalid'); el.setCustomValidity(msg); }
-    else      { el.classList.remove('is-invalid'); el.setCustomValidity(''); }
+  function markInvalid(el, cond) {
+    if (!el) return;
+    if (cond) { el.classList.add('is-invalid'); el.setCustomValidity('Inválido'); }
+    else { el.classList.remove('is-invalid'); el.setCustomValidity(''); }
   }
 
-  nombre.addEventListener('input', () => {
+  nombre?.addEventListener('input', () => {
     nombre.value = nombre.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\-]/g, '');
-    markInvalid(nombre, !reSoloLetras.test(nombre.value) || !nombre.value, 'Solo letras, espacios y guiones.');
+    markInvalid(nombre, !reSoloLetras.test(nombre.value) || !nombre.value);
   });
-
-  cliente.addEventListener('input', () => {
+  cliente?.addEventListener('input', () => {
     cliente.value = cliente.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\-]/g, '');
-    markInvalid(cliente, !reSoloLetras.test(cliente.value) || !cliente.value, 'Solo letras, espacios y guiones.');
+    markInvalid(cliente, !reSoloLetras.test(cliente.value) || !cliente.value);
   });
-
-  descripcion.addEventListener('input', () => {
+  descripcion?.addEventListener('input', () => {
     descripcion.value = descripcion.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s\.\,\-]/g, '');
-    markInvalid(descripcion, descripcion.value.length < 10 || !reDesc.test(descripcion.value), 'Inválida');
+    markInvalid(descripcion, descripcion.value.length < 10 || !reDesc.test(descripcion.value));
   });
 
-  // ===== Preview imagen =====
-  const fileInput = document.getElementById('imagen');
-  const previewWrapper = document.getElementById('previewWrapper');
-  const previewImg = document.getElementById('previewImg');
-  const deleteBtn = document.getElementById('deleteImageBtn');
+  // --- Imagen: preview y reemplazo (no borrar) ---
+  const fileInput  = document.getElementById('imagen');
+  const imgWrap    = document.getElementById('currentImgWrap');
+  const currentImg = document.getElementById('currentImg');
+  const btnRemove  = document.getElementById('btnRemoveImg');
+  const imgInfo    = document.getElementById('imgInfo');
 
-  if (fileInput) {
-    fileInput.addEventListener('change', function () {
-      const file = this.files && this.files[0];
-      if (!file) return;
-      const allowed = ['image/jpeg', 'image/png'];
-      if (!allowed.includes(file.type)) { this.value=''; previewWrapper.style.display='none'; alert('Solo JPG o PNG.'); return; }
-      const reader = new FileReader();
-      reader.onload = e => { previewImg.src = e.target.result; previewWrapper.style.display='block'; };
-      reader.readAsDataURL(file);
-    });
-  }
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', function () { fileInput.value=''; previewWrapper.style.display='none'; previewImg.src=''; });
-  }
+  // ¿hay imagen actual? (para validación de edición)
+  const hasCurrent = {% if p and p.imagen %}true{% else %}false{% endif %};
 
-  // ===== Control de cambios y modal Volver =====
+  // Mostrar imagen actual al cargar (edición)
+  {% if p and p.imagen %}
+    imgWrap.style.display = 'block';
+    currentImg.src = '{{ p.imagen.url }}';
+  {% endif %}
+
+  // Al seleccionar nueva imagen -> preview
+  fileInput?.addEventListener('change', function () {
+    const f = this.files && this.files[0];
+    if (!f) return;
+    const ok = ['image/jpeg','image/png','image/webp'].includes(f.type);
+    if (!ok) { this.value=''; alert('Solo JPG, PNG o WEBP.'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      currentImg.src = e.target.result;
+      imgWrap.style.display = 'block';
+      imgInfo?.classList.add('d-none');
+    };
+    reader.readAsDataURL(f);
+  });
+
+  // La “X” ya no borra: solo avisa y enfoca el input file
+  btnRemove?.addEventListener('click', () => {
+    imgInfo?.classList.remove('d-none');
+    try { fileInput?.focus(); } catch(e) {}
+  });
+
+  // Bloquear submit si falta imagen cuando es obligatoria
+  const formEl = document.getElementById('projectForm');
+  formEl?.addEventListener('submit', (e) => {
+    const creating = {% if p %}false{% else %}true{% endif %};
+    const haveNew = fileInput && fileInput.files && fileInput.files.length > 0;
+
+    if ((creating && !haveNew) || (!creating && !hasCurrent && !haveNew)) {
+      e.preventDefault();
+      imgInfo?.classList.remove('d-none');
+      alert('Debes seleccionar una imagen para guardar el proyecto.');
+      fileInput?.focus();
+      return false;
+    }
+  });
+
+  // Aviso al intentar salir con cambios
   let formChanged = false;
-  const formEl = document.getElementById("projectForm");
-  formEl.addEventListener("change", () => formChanged = true);
-  formEl.addEventListener("submit", () => { formChanged = false; window.onbeforeunload = null; });
-
+  formEl?.addEventListener("change", () => formChanged = true);
+  formEl?.addEventListener("submit", () => { formChanged = false; window.onbeforeunload = null; });
   window.onbeforeunload = () => { if (formChanged) return "Tienes cambios no guardados."; };
-
-  document.getElementById('cancelBtn').addEventListener('click', function (e) {
-    if (formChanged) { e.preventDefault(); new bootstrap.Modal(document.getElementById('confirmExitModal')).show(); }
-  });
 </script>
 {% endblock %}

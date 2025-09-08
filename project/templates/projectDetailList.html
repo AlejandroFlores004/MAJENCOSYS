@@ -1,56 +1,198 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}Detalles de Proyectos{% endblock title %}
+{% block title %}Detalles de Proyectos{% endblock %}
 
 {% block content %}
-<div class="container my-3">
-    <div class="row g-4">
-        <div class="col-12">
-            <div class="card shadow-sm rounded-3 mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center py-2">
-                    <h5 class="mb-0">Detalles de Proyectos</h5>
-                    <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Estado</th>
-                                <th>Usuario Creador</th>
-                                <th>Técnico Asignado</th>
-                                <th>Fecha de Creación</th>
-                                <th>Último Acceso</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for proyecto in proyectos %}
-                            <tr>
-                                <td>{{ proyecto.id }}</td>
-                                <td>{{ proyecto.nombre }}</td>
-                                <td>{{ proyecto.descripcion }}</td>
-                                <td>{{ proyecto.get_estado_display }}</td>
-                                <td>{{ proyecto.usuario }}</td>
-                                <td>{{ proyecto.tecnico }}</td>
-                                <td>{{ proyecto.created_at }}</td>
-                                <td>{{ proyecto.updated_at }}</td>
-                                <td>
-                                    <a href="{% url 'projectUpdate' proyecto.pk %}" class="btn btn-warning btn-sm">Editar</a>
-                                    <a href="{% url 'projectDelete' proyecto.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">No hay proyectos aún.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<div class="container-fluid my-3">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm rounded-3">
+
+        {# Encabezado #}
+        <div class="card-header d-flex align-items-center justify-content-between py-2">
+          <h5 class="mb-0">Detalles de Proyectos</h5>
+          <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
         </div>
+
+        {# Filtros (q, type, estado) #}
+        <div class="card-body border-bottom pb-2">
+          <form method="get" class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+              <input type="search"
+                     name="q"
+                     value="{{ request.GET.q|default:'' }}"
+                     class="form-control"
+                     placeholder="Buscar por nombre o cliente">
+            </div>
+
+            <div class="col-6 col-md-3">
+              <select name="type" class="form-select">
+                <option value="">Tipo</option>
+                {% for val, label in type_choices %}
+                  <option value="{{ val }}" {% if request.GET.type == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+              <select name="estado" class="form-select">
+                <option value="">Estado</option>
+                <option value="PL" {% if request.GET.estado == 'PL' %}selected{% endif %}>Planeación</option>
+                <option value="P"  {% if request.GET.estado == 'P'  %}selected{% endif %}>En Proceso</option>
+                <option value="C"  {% if request.GET.estado == 'C'  %}selected{% endif %}>Completado</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-1 d-grid">
+              <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+
+            <div class="col-6 col-md-1 d-grid">
+              <a class="btn btn-link" href="{% url 'projectDetailList' %}">Limpiar</a>
+            </div>
+          </form>
+        </div>
+
+        {# Tabla con scroll vertical #}
+        <div class="table-responsive" style="max-height:65vh;">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light sticky-top shadow-sm">
+              <tr>
+                <th style="width:48px;">#</th>
+                <th style="min-width:220px;">Nombre</th>
+                <th style="min-width:280px;">Descripción</th>
+                <th style="min-width:220px;">Tipo</th>
+                <th style="width:130px;">Estado</th>
+                <th style="min-width:140px;">Usuario Creador</th>
+                <th style="min-width:160px;">Técnico Asignado</th>
+                <th style="min-width:200px;">Fecha de Creación</th>
+                <th style="min-width:200px;">Última Actualización</th>
+                <th style="width:160px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if proyectos %}
+                {% for p in proyectos %}
+                  <tr data-href="{% url 'projectDetail' p.pk %}" class="row-link">
+                    {# índice absoluto de la página #}
+                    <td class="text-muted">{{ forloop.counter0|add:proyectos.start_index }}</td>
+
+                    <td class="fw-semibold">
+                      <a href="{% url 'projectDetail' p.pk %}" class="text-decoration-none">{{ p.nombre }}</a>
+                    </td>
+
+                    <td class="text-truncate" style="max-width: 380px;" title="{{ p.descripcion|default_if_none:'' }}">
+                      {{ p.descripcion }}
+                    </td>
+
+                    <td>
+                      <span class="badge rounded-pill bg-info-subtle text-dark border border-info-subtle">
+                        {{ p.get_type_display }}
+                      </span>
+                    </td>
+
+                    <td>
+                      {% with e=p.estado %}
+                        {% if e == 'PL' %}
+                          <span class="badge rounded-pill text-bg-secondary">Planeación</span>
+                        {% elif e == 'P' %}
+                          <span class="badge rounded-pill text-bg-warning text-dark">En Proceso</span>
+                        {% elif e == 'C' %}
+                          <span class="badge rounded-pill text-bg-success">Completado</span>
+                        {% else %}
+                          <span class="badge rounded-pill text-bg-light text-dark">{{ p.get_estado_display|default:e }}</span>
+                        {% endif %}
+                      {% endwith %}
+                    </td>
+
+                    <td><span class="badge text-bg-light border">{{ p.usuario.username }}</span></td>
+                    <td><span class="badge text-bg-light border">{{ p.tecnico }}</span></td>
+
+                    {# Fechas: visible corto y tooltip largo #}
+                    <td>
+                      <span class="text-body-secondary"
+                            data-bs-toggle="tooltip"
+                            title="{{ p.created_at|date:'d/m/Y H:i:s' }}">
+                        {{ p.created_at|date:"d/m/Y H:i" }}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span class="text-body-secondary"
+                            data-bs-toggle="tooltip"
+                            title="{{ p.updated_at|date:'d/m/Y H:i:s' }}">
+                        {{ p.updated_at|date:"d/m/Y H:i" }}
+                      </span>
+                    </td>
+
+                    <td class="text-nowrap">
+                      <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-sm btn-primary">Editar</a>
+                      <a href="{% url 'projectDelete' p.pk %}" class="btn btn-sm btn-danger">Eliminar…</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="10" class="text-center text-muted py-4">No hay proyectos aún.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        {# Paginación + contador #}
+        <div class="card-footer bg-white">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            {% if proyectos %}
+              <div class="text-muted small">
+                Mostrando {{ proyectos.start_index }}–{{ proyectos.end_index }} de {{ proyectos.paginator.count }}
+              </div>
+            {% else %}
+              <div></div>
+            {% endif %}
+
+            {% if proyectos %}
+              <ul class="pagination mb-0">
+                <li class="page-item {% if not proyectos.has_previous %}disabled{% endif %}">
+                  <a class="page-link"
+                     {% if proyectos.has_previous %}
+                       href="?page={{ proyectos.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}"
+                     {% else %}tabindex="-1" aria-disabled="true"{% endif %}>Anterior</a>
+                </li>
+
+                <li class="page-item disabled">
+                  <span class="page-link">Página {{ proyectos.number }} de {{ proyectos.paginator.num_pages }}</span>
+                </li>
+
+                <li class="page-item {% if not proyectos.has_next %}disabled{% endif %}">
+                  <a class="page-link"
+                     {% if proyectos.has_next %}
+                       href="?page={{ proyectos.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}"
+                     {% else %}tabindex="-1" aria-disabled="true"{% endif %}>Siguiente</a>
+                </li>
+              </ul>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
 </div>
-{% endblock content %}
+
+{# Toques visuales y JS #}
+<style>
+  .table tbody tr:nth-child(odd) { background: rgba(0,0,0,.01); }
+  .table tbody tr:hover { background: rgba(13,110,253,.05); }
+  .row-link { cursor: pointer; }
+</style>
+<script>
+  // Tooltips
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+  // Fila clicable (ignora clicks en enlaces/botones)
+  document.querySelectorAll('.row-link').forEach(tr => {
+    tr.addEventListener('click', function (e) {
+      if (e.target.closest('a, button, .form-check-input, .dropdown-menu, .dropdown-toggle')) return;
+      const href = tr.getAttribute('data-href');
+      if (href) location.href = href;
+    });
+  });
+</script>
+{% endblock %}

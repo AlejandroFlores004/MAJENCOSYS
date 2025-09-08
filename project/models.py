@@ -1,106 +1,85 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db import models
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-import os
-
-# Opciones de estado del proyecto
-opcionesEstadoProyecto = [
-    ('PL', 'Planeación'),
-    ('P', 'En Proceso'),
-    ('C', 'Completado'),
-]
-
-opcionesTypeProyecto = [
-    ('INF', 'Infraestructura'),
-    ('OBM', 'Obras de Mitigación'),
-    ('ALC', 'Alcantarillado'),
-    ('CMRV', 'Construcción y Mantenimiento de Red Vial'),
-]
+from django.core.files.storage import default_storage
 
 def validate_image_size(image):
-    limit = 5 * 1024 * 1024  # 5MB
-    if image.size > limit:
-        raise ValidationError('El tamaño de la imagen no puede superar los 5MB.')
+    """Máximo 5 MB; si el archivo no existe en disco, no revienta."""
+    if not image or not getattr(image, "name", None):
+        return
+    try:
+        if image.size > 5 * 1024 * 1024:
+            raise ValidationError("La imagen no debe superar 5 MB.")
+    except (FileNotFoundError, OSError):
+        # Si el path no existe (caso histórico), no romper validación del form
+        return
 
 def validate_image_extension(image):
-    ext = os.path.splitext(image.name)[1]
-    if ext.lower() not in ['.jpg', '.jpeg', '.png']:
-        raise ValidationError('La imagen debe ser en formato .jpg, .jpeg o .png.')
+    """Solo JPG/PNG/WEBP."""
+    if not image or not getattr(image, "name", None):
+        return
+    ext = image.name.lower().rsplit(".", 1)[-1]
+    if ext not in ("jpg", "jpeg", "png", "webp"):
+        raise ValidationError("La imagen debe ser JPG, PNG o WEBP.")
 
 class Project(models.Model):
-    # Nombre del proyecto
-    nombre = models.CharField(
-        "Nombre",
-        max_length=255,
-        blank=False,
-        null=False,
-        help_text="Nombre del Proyecto a crear"
+    # Catálogos
+    TIPO_ALCANTARILLADO = "AL"
+    TIPO_OBRAS_MITIG = "OBM"
+    TIPO_RED_VIAL = "CMV"      # Construcción y Mantenimiento de Red Vial
+    TIPO_INFRA = "INF"
+
+    TYPE_CHOICES = (
+        (TIPO_ALCANTARILLADO, "Alcantarillado"),
+        (TIPO_OBRAS_MITIG, "Obras de Mitigación"),
+        (TIPO_RED_VIAL, "Construcción y Mantenimiento de Red Vial"),
+        (TIPO_INFRA, "Infraestructura"),
     )
 
-    #Cliente
-    cliente = models.CharField(
-        "Cliente",
-       max_length=255,
-        blank= False,
-        null=False,
-        help_text="Cliente del Proyecto"
+    ESTADO_PLAN = "PL"
+    ESTADO_PROC = "P"
+    ESTADO_COMP = "C"
+
+    ESTADO_CHOICES = (
+        (ESTADO_PLAN, "Planeación"),
+        (ESTADO_PROC, "En Proceso"),
+        (ESTADO_COMP, "Completado"),
     )
 
-    # Descripción del proyecto
-    descripcion = models.TextField(
-        "Descripción",
-        blank=False,
-        null=False,
-        help_text="Descripción del Proyecto"
-    )
+    # Campos
+    nombre = models.CharField("Nombre del Proyecto", max_length=150)
+    cliente = models.CharField("Nombre del Cliente", max_length=150)
 
-    # Estado del proyecto
-    estado = models.CharField(
-        "Estado",
-        max_length=2,
-        choices=opcionesEstadoProyecto,
-        default='PL',
-    )
-
-    # Usuario que creó el proyecto
     usuario = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='usuarioProyecto'
+        User, on_delete=models.PROTECT, related_name="proyectos_creados",
+        verbose_name="Usuario creador",
     )
-
-    # Usuario técnico asignado
     tecnico = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='tecnicoProyecto'
+        User, on_delete=models.PROTECT, related_name="proyectos_asignados",
+        verbose_name="Técnico asignado",
     )
 
-    # Fecha de creación del proyecto
-    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.CharField("Tipo de Proyecto", max_length=3, choices=TYPE_CHOICES)
+    estado = models.CharField("Estado", max_length=2, choices=ESTADO_CHOICES, default=ESTADO_PLAN)
 
-    # Última modificación (último acceso)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    # Tipos de Proyecto
-    type = models.CharField(
-        "Tipo",
-        max_length=4,
-        choices=opcionesTypeProyecto,
-        default='INF',
-    )
-
-    # Imagen de Proyecto
     imagen = models.ImageField(
-        "Imagen Proyecto",
-        upload_to='imgProjects/',
-        null=True,
-        blank=True,
-        validators=[validate_image_size, validate_image_extension]
+    "Imagen Proyecto",
+    upload_to="imgProjects/",
+    blank=True,          # <— importante
+    null=True,           # <— importante
+    validators=[validate_image_size, validate_image_extension],
     )
 
-    # Representación en texto del proyecto
+
+    descripcion = models.TextField("Descripción", blank=False)
+
+    created_at = models.DateTimeField("Fecha de Creación", auto_now_add=True)
+    updated_at = models.DateTimeField("Última Actualización", auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Proyecto"
+        verbose_name_plural = "Proyectos"
+
     def __str__(self):
-        return f"Proyecto {self.nombre} - {self.descripcion[:35]}..."
+        return self.nombre

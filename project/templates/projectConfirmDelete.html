@@ -1,21 +1,36 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}Eliminar proyecto{% endblock title %}
+{% block title %}Confirmar eliminación{% endblock %}
 
 {% block content %}
-<div class="container my-3">
-  <div class="row g-4">
-    <div class="col-12 col-lg-6">
-      <div class="card shadow-sm rounded-3 mb-4">
-        <div class="card-header py-2">
+<div class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+      <div class="card shadow-sm rounded-3">
+        <div class="card-header">
           <h5 class="mb-0">Eliminar proyecto</h5>
         </div>
         <div class="card-body">
-          <p class="mb-3">¿Seguro que quieres eliminar <strong>{{ p.nombre }}</strong>?</p>
+          <p class="mb-3">
+            ¿Seguro que deseas eliminar el proyecto
+            <strong>{{ p.nombre }}</strong>?
+          </p>
+
+          {% if p.imagen %}
+            <div class="mb-3">
+              <small class="text-muted d-block mb-1">Vista previa:</small>
+              <img src="{{ p.imagen.url }}" alt="Imagen" class="img-fluid rounded border" style="max-height:220px;object-fit:cover;">
+            </div>
+          {% endif %}
+
+          <div class="alert alert-warning">
+            Esta acción no se puede deshacer.
+          </div>
+
           <form method="post">
             {% csrf_token %}
             <div class="d-flex gap-2">
-              <button class="btn btn-danger" type="submit">Sí, eliminar</button>
-              <a class="btn btn-outline-secondary" href="{% url 'projectDetail' p.pk %}">No, volver</a>
+              <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-danger">Eliminar definitivamente</button>
             </div>
           </form>
         </div>
@@ -23,4 +38,4 @@
     </div>
   </div>
 </div>
-{% endblock content %}
+{% endblock %}

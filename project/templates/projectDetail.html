@@ -1,67 +1,60 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}Detalle del Proyecto{% endblock %}
+{% block title %}Detalle de Proyecto{% endblock %}
 
 {% block content %}
-<div class="container my-3">
-  <div class="row g-4">
-    <!-- Imagen -->
-    <div class="col-12 col-md-5">
-      <div class="card shadow-sm rounded-3">
-        {% if p.imagen %}
-          <img src="{{ p.imagen.url }}" alt="Imagen del proyecto" class="card-img-top img-fluid">
-          <div class="card-body small text-muted">
-            Archivo: <a href="{{ p.imagen.url }}" target="_blank">{{ p.imagen.url }}</a>
-          </div>
-        {% else %}
-          <div class="card-body text-muted">Sin imagen</div>
-        {% endif %}
+<div class="container-fluid my-3">
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Detalle de Proyecto</h5>
+        <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
       </div>
     </div>
 
-    <!-- Info -->
-    <div class="col-12 col-md-7">
-      <div class="card shadow-sm rounded-3">
-        <div class="card-header d-flex justify-content-between align-items-center py-2">
-          <h5 class="mb-0">{{ p.nombre }}</h5>
-          <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
-        </div>
+    <div class="col-12 col-lg-5">
+      {% if p.imagen %}
+        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="img-fluid rounded border">
+        <div class="small mt-2">Archivo: <a href="{{ p.imagen.url }}">{{ p.imagen.url }}</a></div>
+      {% else %}
+        <div class="alert alert-warning">Este proyecto no tiene imagen.</div>
+      {% endif %}
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm">
         <div class="card-body">
+          <h4 class="card-title mb-3"><strong>Proyecto: </strong>{{ p.nombre }}</h4>
+
           <p class="mb-1"><strong>Descripción:</strong> {{ p.descripcion }}</p>
           <p class="mb-1"><strong>Cliente:</strong> {{ p.cliente }}</p>
 
-          <p class="mb-1">
-            <strong>Estado:</strong>
-            {% with texto=p.get_estado_display %}
-              {% if p.estado == "PL" %}
-                <span class="badge bg-secondary">{{ texto }}</span>
-              {% elif p.estado == "P" %}
-                <span class="badge bg-warning text-dark">{{ texto }}</span>
-              {% elif p.estado == "C" %}
-                <span class="badge bg-success">{{ texto }}</span>
-              {% else %}
-                <span class="badge bg-dark">{{ texto }}</span>
-              {% endif %}
-            {% endwith %}
+          <p class="mb-1"><strong>Estado:</strong>
+            {% if p.estado == 'PL' %}
+              <span class="badge rounded-pill text-bg-secondary">Planeación</span>
+            {% elif p.estado == 'P' %}
+              <span class="badge rounded-pill text-bg-warning text-dark">En Proceso</span>
+            {% elif p.estado == 'C' %}
+              <span class="badge rounded-pill text-bg-success">Completado</span>
+            {% endif %}
           </p>
 
-          <p class="mb-3">
-            <strong>Tipo:</strong>
-            <span class="badge bg-info text-dark">{{ p.get_type_display }}</span>
+          <p class="mb-1"><strong>Tipo:</strong>
+            <span class="badge rounded-pill bg-info-subtle text-dark border border-info-subtle">
+              {{ p.get_type_display }}
+            </span>
           </p>
 
           <p class="mb-1"><strong>Técnico asignado:</strong> {{ p.tecnico }}</p>
-          <p class="mb-1"><strong>Creador:</strong> {{ p.usuario }}</p>
-          <p class="mb-1"><strong>Creado el:</strong> {{ p.created_at }}</p>
-          <p class="mb-3"><strong>Última actualización:</strong> {{ p.updated_at }}</p>
+          <p class="mb-1"><strong>Creador:</strong> {{ p.usuario.username }}</p>
 
-          <div class="d-flex gap-2">
-            <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-primary btn-sm">Editar</a>
-            <a href="{% url 'projectDelete' p.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
-          </div>
+          <p class="mb-1"><strong>Creado el:</strong> {{ p.created_at|date:'j \\d\\e F \\d\\e Y \\a \\l\\a\\s H:i' }}</p>
+          <p class="mb-3"><strong>Última actualización:</strong> {{ p.updated_at|date:'j \\d\\e F \\d\\e Y \\a \\l\\a\\s H:i' }}</p>
+
+          <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-primary">Editar</a>
+          <a href="{% url 'projectDelete' p.pk %}" class="btn btn-danger">Eliminar…</a>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock %}
