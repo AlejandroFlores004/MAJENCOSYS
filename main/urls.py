@@ -29,9 +29,8 @@ urlpatterns = [
      path('reset-password/complete/', 
           auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), 
           name='password_reset_complete'),
-]
 
-    path('admon_usuarios',include('user.urls'),name='user'),
+    path('admon_usuarios/',include('user.urls'),name='user'),
     path('admon_project/', include('project.urls')),
 
 
