@@ -1,27 +1,36 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}Detalles de Proyectos{% endblock %}
+{% block title %}Lista de Proyectos{% endblock %}
 
 {% block content %}
-<div class="container-fluid my-3">
+<!-- Header -->
+<div class="jumbotron2 jumbotron-fluid mb-5">
+  <div class="container text-center py-6">
+    <h1 class="text-white display-3">DETALLE DE PROYECTOS</h1>
+    <div class="d-inline-flex align-items-center text-white">
+      <p class="m-0 text-white">Información</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Estado</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Actualización</p>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <h3 class="mb-3 text-primary">Proyectos Registrados</h3><br>
+
   <div class="row">
     <div class="col-12">
       <div class="card shadow-sm rounded-3">
-
-        {# Encabezado #}
-        <div class="card-header d-flex align-items-center justify-content-between py-2">
-          <h5 class="mb-0">Detalles de Proyectos</h5>
-          <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
-        </div>
-
         {# Filtros (q, type, estado) #}
-        <div class="card-body border-bottom pb-2">
+        <div class="card-header">
           <form method="get" class="row g-2 align-items-center">
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md">
               <input type="search"
                      name="q"
                      value="{{ request.GET.q|default:'' }}"
                      class="form-control"
-                     placeholder="Buscar por nombre o cliente">
+                     placeholder="Buscar por proyecto o cliente">
             </div>
 
             <div class="col-6 col-md-3">
@@ -33,7 +42,7 @@
               </select>
             </div>
 
-            <div class="col-6 col-md-2">
+            <div class="col-6 col-md-3">
               <select name="estado" class="form-select">
                 <option value="">Estado</option>
                 <option value="PL" {% if request.GET.estado == 'PL' %}selected{% endif %}>Planeación</option>
@@ -42,31 +51,28 @@
               </select>
             </div>
 
-            <div class="col-6 col-md-1 d-grid">
-              <button type="submit" class="btn btn-primary">Filtrar</button>
-            </div>
-
-            <div class="col-6 col-md-1 d-grid">
-              <a class="btn btn-link" href="{% url 'projectDetailList' %}">Limpiar</a>
+            <div class="col-auto btn-group">
+              <button type="submit" class="btn btn-primary" title="Filtrar"><i class="fa fa-filter"></i></button>
+              <a class="btn btn-outline-secondary" href="{% url 'projectDetailList' %}" title="Limpiar"><i class="fa fa-trash-alt"></i></a>
             </div>
           </form>
         </div>
 
         {# Tabla con scroll vertical #}
-        <div class="table-responsive" style="max-height:65vh;">
-          <table class="table table-sm align-middle mb-0">
+        <div class="table-responsive shadow-sm rounded">
+          <table class="table table-hover align-middle mb-0">
             <thead class="table-light sticky-top shadow-sm">
               <tr>
-                <th style="width:48px;">#</th>
-                <th style="min-width:220px;">Nombre</th>
-                <th style="min-width:280px;">Descripción</th>
-                <th style="min-width:220px;">Tipo</th>
-                <th style="width:130px;">Estado</th>
-                <th style="min-width:140px;">Usuario Creador</th>
-                <th style="min-width:160px;">Técnico Asignado</th>
-                <th style="min-width:200px;">Fecha de Creación</th>
-                <th style="min-width:200px;">Última Actualización</th>
-                <th style="width:160px;">Acciones</th>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Usuario Creador</th>
+                <th>Técnico Asignado</th>
+                <th>Fecha de Creación</th>
+                <th>Última Actualización</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -77,7 +83,7 @@
                     <td class="text-muted">{{ forloop.counter0|add:proyectos.start_index }}</td>
 
                     <td class="fw-semibold">
-                      <a href="{% url 'projectDetail' p.pk %}" class="text-decoration-none">{{ p.nombre }}</a>
+                      <a href="{% url 'projectDetail' p.pk %}" class="text-decoration-none"><b>{{ p.nombre }}</b></a>
                     </td>
 
                     <td class="text-truncate" style="max-width: 380px;" title="{{ p.descripcion|default_if_none:'' }}">
@@ -85,7 +91,7 @@
                     </td>
 
                     <td>
-                      <span class="badge rounded-pill bg-info-subtle text-dark border border-info-subtle">
+                      <span class="badge rounded-pill bg-info-subtle bg-secondary3 border border-info-subtle">
                         {{ p.get_type_display }}
                       </span>
                     </td>
@@ -93,19 +99,19 @@
                     <td>
                       {% with e=p.estado %}
                         {% if e == 'PL' %}
-                          <span class="badge rounded-pill text-bg-secondary">Planeación</span>
+                          <span class="badge rounded-pill bg-warning border">Planeación</span>
                         {% elif e == 'P' %}
-                          <span class="badge rounded-pill text-bg-warning text-dark">En Proceso</span>
+                          <span class="badge rounded-pill bg-success border">En Proceso</span>
                         {% elif e == 'C' %}
-                          <span class="badge rounded-pill text-bg-success">Completado</span>
+                          <span class="badge rounded-pill bg-danger border">Completado</span>
                         {% else %}
-                          <span class="badge rounded-pill text-bg-light text-dark">{{ p.get_estado_display|default:e }}</span>
+                          <span class="badge rounded-pill bg-info border">{{ p.get_estado_display|default:e }}</span>
                         {% endif %}
                       {% endwith %}
                     </td>
 
-                    <td><span class="badge text-bg-light border">{{ p.usuario.username }}</span></td>
-                    <td><span class="badge text-bg-light border">{{ p.tecnico }}</span></td>
+                    <td><span class="badge rounded-pill bg-info border">{{ p.usuario.username }}</span></td>
+                    <td><span class="badge rounded-pill bg-info border">{{ p.tecnico }}</span></td>
 
                     {# Fechas: visible corto y tooltip largo #}
                     <td>
@@ -124,9 +130,15 @@
                       </span>
                     </td>
 
-                    <td class="text-nowrap">
-                      <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-sm btn-primary">Editar</a>
-                      <a href="{% url 'projectDelete' p.pk %}" class="btn btn-sm btn-danger">Eliminar…</a>
+                    <td class="text-end">
+                      <div class="btn-group btn-group-md" role="group">
+                        <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-3" title="Editar">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'projectDelete' p.pk %}" class="btn btn-1" title="Eliminar">
+                          <i class="bi bi-trash"></i>
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 {% endfor %}
@@ -174,6 +186,13 @@
 
       </div>
     </div>
+  </div>
+  
+  {# Button to return to the main page #}
+  <div class="mt-3 text-center">
+    <a href="{% url 'projectMain' %}" class="btn btn-primary">
+      <i class="bi bi-door-open-fill"></i> REGRESAR
+    </a>
   </div>
 </div>
 

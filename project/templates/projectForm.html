@@ -2,30 +2,37 @@
 {% block title %}{% if p %}Editar{% else %}Nuevo{% endif %} proyecto{% endblock %}
 
 {% block content %}
-<div class="container-fluid my-3">
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm rounded-3 mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center py-2">
-          <h5 class="mb-0">{% if p %}Editar{% else %}Crear{% endif %} proyecto</h5>
-          <a href="{% url 'projectMain' %}" id="cancelBtn" class="btn btn-outline-secondary btn-sm">Volver</a>
-        </div>
+{# Errores del backend #}
+{% if form.errors or form.non_field_errors %}
+<div class="alert alert-danger m-3 mb-0">
+  <div class="fw-semibold">Se encontraron errores:</div>
+  <ul class="mb-0 ps-3">
+    {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+    {% for field in form %}{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}{% endfor %}
+  </ul>
+</div>
+{% endif %}
+<div class="container-fluid py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        {% if p %}
+          <h6 class="text-primary text-uppercase font-weight-bold">Editar Proyecto</h6>
+          <h1 class="mb-2 text-uppercase">{{ form.nombre.value }}</h1>
 
-        {# Errores del backend #}
-        {% if form.errors or form.non_field_errors %}
-          <div class="alert alert-danger m-3 mb-0">
-            <div class="fw-semibold">Se encontraron errores:</div>
-            <ul class="mb-0 ps-3">
-              {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
-              {% for field in form %}{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}{% endfor %}
-            </ul>
+          <!-- Display additional user details -->
+          <div class="mb-3">
+            <p><strong>Cliente: <i>{{ p.cliente }}</i></strong></p>
           </div>
-        {% endif %}
 
-        <div class="card-body">
+        {% else %}
+          <h6 class="text-primary text-uppercase font-weight-bold">Nuevo Proyecto</h6>
+          <h1 class="mb-4">Información Obligatoria</h1>
+        {% endif %} 
+        <div class="contact-form bg-secondary2" style="padding: 30px;">
+          <div id="success"></div>
           <form method="post" enctype="multipart/form-data" id="projectForm" novalidate autocomplete="off">
             {% csrf_token %}
-
             {# Nombre #}
             <div class="mb-3">
               <label for="nombre" class="form-label">Nombre del Proyecto:</label>
@@ -119,10 +126,9 @@
               </div>
             {% endif %}
 
-            <div class="d-flex gap-2">
-              <button class="btn btn-primary" type="submit">Guardar</button>
+            <div class="d-flex justify-content-between">
+              <button class="btn btn-primary" type="submit">{% if p %}<i class="bi bi-pencil"></i> Guardar cambios{% else %}Guardar{% endif %}</button>
               <a class="btn btn-outline-secondary" href="{% url 'projectMain' %}">Cancelar</a>
-              {% if p %}<a class="btn btn-danger ms-auto" href="{% url 'projectDelete' p.pk %}">Eliminar…</a>{% endif %}
             </div>
           </form>
         </div>
@@ -130,7 +136,6 @@
     </div>
   </div>
 </div>
-
 <script>
   // --- Validación simple frontend ---
   const reSoloLetras = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s\-]+$/;

@@ -3,117 +3,103 @@
 {% block title %}Crear Usuario{% endblock title %}
 
 {% block content %}
-<!-- Header -->
-<div class="jumbotron2 jumbotron-fluid mb-5">
-  <div class="container text-center py-6">
-    <h1 class="text-white display-3">REGISTRO DE USUARIOS</h1>
-    <div class="d-inline-flex align-items-center text-white">
-      <p class="m-0 text-white">Información</p>
-      <i class="fa fa-circle px-3"></i>
-      <p class="m-0 text-white">Roles</p>
-    </div>
-  </div>
+{# Error Handling Section #}
+{% if form.errors or form.non_field_errors %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <div class="fw-semibold mb-1">Se encontraron errores:</div>
+  <ul class="mb-0 ps-3">
+    {% for error in form.non_field_errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+    {% for field in form %}
+    {% for error in field.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+    {% endfor %}
+  </ul>
+  <button type="button" class="btn-close" data-bs-dismiss="alert"
+    aria-label="Cerrar"></button>
 </div>
+{% endif %}
+<div class="container-fluid py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <h6 class="text-primary text-uppercase font-weight-bold">Nuevo
+          Usuario</h6>
+        <h1 class="mb-4">Información Obligatoria</h1>
+        <div class="contact-form bg-secondary2" style="padding: 30px;">
+          <div id="success"></div>
+          <form method="POST">
 
-<div class="container mt-4">
-  {# Error Handling Section #}
-  {% if form.errors or form.non_field_errors %}
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <div class="fw-semibold mb-1">Se encontraron errores:</div>
-    <ul class="mb-0 ps-3">
-      {% for error in form.non_field_errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-      {% for field in form %}
-      {% for error in field.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-      {% endfor %}
-    </ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"
-      aria-label="Cerrar"></button>
-  </div>
-  {% endif %}
-  <div class="container-fluid py-4">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12">
-          <h6 class="text-primary text-uppercase font-weight-bold">Nuevo
-            Usuario</h6>
-          <h1 class="mb-4">Información Obligatoria</h1>
-          <div class="contact-form bg-secondary2" style="padding: 30px;">
-            <div id="success"></div>
-            <form method="POST">
+            {% csrf_token %}
 
-              {% csrf_token %}
+            {# Username Field #}
+            <div class="mb-3">
+              <label for="{{ form.username.id_for_label }}"
+                class="form-label">Nombre de usuario</label>
+              {{ form.username }}
+            </div>
 
-              {# Username Field #}
-              <div class="mb-3">
-                <label for="{{ form.username.id_for_label }}"
-                  class="form-label">Nombre de usuario</label>
-                {{ form.username }}
+            {# First and Last Name Fields #}
+            <div class="row g-3">
+
+              <div class="col-md-6">
+                <label for="{{ form.first_name.id_for_label }}"
+                  class="form-label">Nombre</label>
+                {{ form.first_name }}
               </div>
 
-              {# First and Last Name Fields #}
-              <div class="row g-3">
-
-                <div class="col-md-6">
-                  <label for="{{ form.first_name.id_for_label }}"
-                    class="form-label">Nombre</label>
-                  {{ form.first_name }}
-                </div>
-
-                <div class="col-md-6">
-                  <label for="{{ form.last_name.id_for_label }}"
-                    class="form-label">Apellido</label>
-                  {{ form.last_name }}
-                </div>
-
-              </div><br>
-
-              {# Email Field #}
-              <div class="mb-3">
-                <label for="{{ form.email.id_for_label }}"
-                  class="form-label">Correo Electrónico</label>
-                {{ form.email }}
+              <div class="col-md-6">
+                <label for="{{ form.last_name.id_for_label }}"
+                  class="form-label">Apellido</label>
+                {{ form.last_name }}
               </div>
 
-              {# Password Fields #}
-              <div class="row g-3">
+            </div><br>
 
-                <div class="col-md-6">
-                  <label for="{{ form.password1.id_for_label }}"
-                    class="form-label">Contraseña</label>
-                  {{ form.password1 }}
-                </div>
+            {# Email Field #}
+            <div class="mb-3">
+              <label for="{{ form.email.id_for_label }}"
+                class="form-label">Correo Electrónico</label>
+              {{ form.email }}
+            </div>
 
-                <div class="col-md-6">
-                  <label for="{{ form.password2.id_for_label }}"
-                    class="form-label">Confirmar Contraseña</label>
-                  {{ form.password2 }}
-                </div>
+            {# Password Fields #}
+            <div class="row g-3">
 
-              </div><br>
-
-              {# Role Field #}
-              <div class="mb-3">
-                <label for="{{ form.group.id_for_label }}"
-                  class="form-label">Rol</label>
-                {{ form.group }}
+              <div class="col-md-6">
+                <label for="{{ form.password1.id_for_label }}"
+                  class="form-label">Contraseña</label>
+                {{ form.password1 }}
               </div>
 
-              {# Submit Button #}
-              <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary">Registrar</button>
-                <a href="{% url 'usuariosMain' %}"
-                  class="btn btn-outline-secondary">Cancelar</a>
+              <div class="col-md-6">
+                <label for="{{ form.password2.id_for_label }}"
+                  class="form-label">Confirmar Contraseña</label>
+                {{ form.password2 }}
               </div>
 
-            </form>
-          </div>
+            </div><br>
+
+            {# Role Field #}
+            <div class="mb-3">
+              <label for="{{ form.group.id_for_label }}"
+                class="form-label">Rol</label>
+              {{ form.group }}
+            </div>
+
+            {# Submit Button #}
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-primary">Registrar</button>
+              <a href="{% url 'usuariosMain' %}"
+                class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+
+          </form>
         </div>
       </div>
     </div>
   </div>
 </div>
-  {% endblock content %}
+{% endblock content %}

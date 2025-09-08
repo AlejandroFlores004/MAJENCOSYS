@@ -2,19 +2,15 @@
 {% block title %}Detalle de Proyecto{% endblock %}
 
 {% block content %}
-<div class="container-fluid my-3">
+<div class="container mt-4">
+  <h6 class="text-primary text-uppercase font-weight-bold">Detalles del proyecto:</h6>
+  <h1 class="mb-3 text-uppercase"> {{ p.nombre }}</h1>
   <div class="row g-3">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">Detalle de Proyecto</h5>
-        <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary btn-sm">Volver</a>
-      </div>
-    </div>
 
     <div class="col-12 col-lg-5">
       {% if p.imagen %}
         <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="img-fluid rounded border">
-        <div class="small mt-2">Archivo: <a href="{{ p.imagen.url }}">{{ p.imagen.url }}</a></div>
+        <div class="small mt-2"><br><b>Archivo: <i><a href="{{ p.imagen.url }}">{{ p.imagen.url }}</a></i></b></div>
       {% else %}
         <div class="alert alert-warning">Este proyecto no tiene imagen.</div>
       {% endif %}
@@ -23,35 +19,45 @@
     <div class="col-12 col-lg-7">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h4 class="card-title mb-3"><strong>Proyecto: </strong>{{ p.nombre }}</h4>
-
           <p class="mb-1"><strong>Descripción:</strong> {{ p.descripcion }}</p>
           <p class="mb-1"><strong>Cliente:</strong> {{ p.cliente }}</p>
 
           <p class="mb-1"><strong>Estado:</strong>
             {% if p.estado == 'PL' %}
-              <span class="badge rounded-pill text-bg-secondary">Planeación</span>
+              <span class="badge rounded-pill bg-warning border">Planeación</span>
             {% elif p.estado == 'P' %}
-              <span class="badge rounded-pill text-bg-warning text-dark">En Proceso</span>
+              <span class="badge rounded-pill bg-success border">En Proceso</span>
             {% elif p.estado == 'C' %}
-              <span class="badge rounded-pill text-bg-success">Completado</span>
+              <span class="badge rounded-pill bg-danger border">Completado</span>
             {% endif %}
           </p>
 
           <p class="mb-1"><strong>Tipo:</strong>
-            <span class="badge rounded-pill bg-info-subtle text-dark border border-info-subtle">
+            <span class="badge rounded-pill bg-info-subtle bg-secondary3 border border-info-subtle">
               {{ p.get_type_display }}
             </span>
           </p>
 
-          <p class="mb-1"><strong>Técnico asignado:</strong> {{ p.tecnico }}</p>
-          <p class="mb-1"><strong>Creador:</strong> {{ p.usuario.username }}</p>
+          <p class="mb-1"><strong>Técnico asignado:</strong>
+            <span class="badge rounded-pill bg-info border">
+              {{ p.tecnico }}
+            </span>
+          </p>
+          <p class="mb-1"><strong>Creador:</strong>
+            <span class="badge rounded-pill bg-info border">
+              {{ p.usuario.username }}
+            </span>
+          </p>
+          <p class="mb-1"><strong>Creado:</strong> {{ p.created_at|date:'j \\d\\e F \\d\\e Y \\a \\l\\a\\s H:i' }}</p>
+          <p class="mb-3"><strong>Actualizado:</strong> {{ p.updated_at|date:'j \\d\\e F \\d\\e Y \\a \\l\\a\\s H:i' }}</p>
 
-          <p class="mb-1"><strong>Creado el:</strong> {{ p.created_at|date:'j \\d\\e F \\d\\e Y \\a \\l\\a\\s H:i' }}</p>
-          <p class="mb-3"><strong>Última actualización:</strong> {{ p.updated_at|date:'j \\d\\e F \\d\\e Y \\a \\l\\a\\s H:i' }}</p>
-
-          <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-primary">Editar</a>
-          <a href="{% url 'projectDelete' p.pk %}" class="btn btn-danger">Eliminar…</a>
+          <div class="d-flex justify-content-between">
+            <div class="btn-group btn-group-md" role="group">
+              <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-3">Editar</a>
+              <a href="{% url 'projectDelete' p.pk %}" class="btn btn-1">Eliminar</a>
+            </div>
+            <a href="{% url 'projectMain' %}" class="btn btn-outline-secondary">Volver</a>
+          </div>
         </div>
       </div>
     </div>

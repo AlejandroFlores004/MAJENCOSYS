@@ -20,7 +20,7 @@ class CustomPasswordResetForm(PasswordResetForm):
         super(CustomPasswordResetForm, self).__init__(*args, **kwargs)
         self.fields['email'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Enter your email address'
+            'placeholder': 'Ingrese su dirección de correo'
         })
 
 
