@@ -1,50 +1,120 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}
-Proyectos
-{% endblock title %}
-{% block content %} {# inicia la zona de contenido que la base renderiza#}
-<div class="card shadow-sm">  {# tarjeta contenedora #}
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">Proyectos</h5>                   {# título de la tarjeta #}
-    <div class="d-flex gap-2">
-      <a href="#" class="btn btn-primary btn-sm disabled" aria-disabled="true" tabindex="-1">
-  ➕ Crear
-</a>
-     <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true" tabindex="-1">
-  ℹ️ Detalles
-</a>
+{% block title %}Proyectos{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-3">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm rounded-3">
+        <div class="card-header">
+          <form class="row g-2 align-items-center" method="get">
+            <div class="col-12 col-md">
+              <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Buscar por nombre o cliente">
+            </div>
+            <div class="col-6 col-md-3">
+              <select name="type" class="form-select">
+                <option value="">Tipo</option>
+                {% for val, label in type_choices %}
+                  <option value="{{ val }}" {% if t == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <select name="estado" class="form-select">
+                <option value="">Estado</option>
+                <option value="PL" {% if e == "PL" %}selected{% endif %}>Planeación</option>
+                <option value="P"  {% if e == "P"  %}selected{% endif %}>En Proceso</option>
+                <option value="C"  {% if e == "C"  %}selected{% endif %}>Completado</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+              <a class="btn btn-link" href="{% url 'projectMain' %}">Limpiar</a>
+            </div>
+            <div class="col-auto ms-auto">
+              <a href="{% url 'projectCreate' %}" class="btn btn-primary">Crear</a>
+              <a href="{% url 'projectDetailList' %}" class="btn btn-outline-secondary">Detalles</a>
+            </div>
+          </form>
+        </div>
+
+        <div class="list-group list-group-flush">
+          {% if proyectos %}
+            {% for p in proyectos %}
+              <div class="list-group-item d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                <div class="me-3">
+                  <div class="fw-semibold">
+                    <a href="{% url 'projectDetail' p.pk %}" class="text-decoration-none">{{ p.nombre }}</a>
+                  </div>
+                  <div class="text-muted small">
+                    Creador: {{ p.usuario.username }} · Técnico: {{ p.tecnico }}
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  {# Badge de Tipo SIEMPRE visible #}
+                  <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle">
+                    {{ p.get_type_display }}
+                  </span>
+
+                  {# Badge de Estado #}
+                  {% with e=p.estado %}
+                    {% if e == 'PL' %}
+                      <span class="badge text-bg-secondary">Planeación</span>
+                    {% elif e == 'P' %}
+                      <span class="badge text-bg-warning">En Proceso</span>
+                    {% elif e == 'C' %}
+                      <span class="badge text-bg-success">Completado</span>
+                    {% else %}
+                      <span class="badge bg-light text-dark">{{ p.get_estado_display|default:p.estado }}</span>
+                    {% endif %}
+                  {% endwith %}
+
+                  <a href="{% url 'projectUpdate' p.pk %}" class="btn btn-sm btn-primary">Editar</a>
+                  <a href="{% url 'projectDelete' p.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="list-group-item text-muted">No hay proyectos aún.</div>
+          {% endif %}
+        </div>
+
+        <div class="card-footer bg-white">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="text-muted small">
+              Mostrando {{ proyectos.start_index }}–{{ proyectos.end_index }} de {{ proyectos.paginator.count }}
+            </div>
+            <ul class="pagination mb-0">
+              <li class="page-item {% if not prev_page %}disabled{% endif %}">
+                <a class="page-link"
+                   {% if prev_page %}href="?{% if q %}q={{ q }}&{% endif %}{% if t %}type={{ t }}&{% endif %}{% if e %}estado={{ e }}&{% endif %}page={{ prev_page }}"{% else %}tabindex="-1" aria-disabled="true"{% endif %}>
+                  Anterior
+                </a>
+              </li>
+              <li class="page-item disabled"><span class="page-link">Página {{ proyectos.number }} de {{ proyectos.paginator.num_pages }}</span></li>
+              <li class="page-item {% if not next_page %}disabled{% endif %}">
+                <a class="page-link"
+                   {% if next_page %}href="?{% if q %}q={{ q }}&{% endif %}{% if t %}type={{ t }}&{% endif %}{% if e %}estado={{ e }}&{% endif %}page={{ next_page }}"{% else %}tabindex="-1" aria-disabled="true"{% endif %}>
+                  Siguiente
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-<ul class="list-group list-group-flush"> {# lista “pegada” a la card #}
-{% for p in proyectos %} {# recorre la lista 'proyectos' que envia la vista #}
-<li class="list-group-item d-flex justify-content-between align-items-start position-relative"> {#Cada elemento dila de la lista usa flex para separar izquierda/derecha#}
-
-<div> {#columna izquierda con nombres y datos secundarios#}
-<a href="{% url 'projectDetail' p.pk %}" class="fw-semibold text-decoration-none text-reset d-block text-truncate" style="max-width: 28rem;">
-  {{ p.nombre }}
-</a>
-<div class="small text-muted">
-    Creador: {{p.usuario}} &middot; Técnico: {{p.tecnico}}
-    </div> {# Muestra las FKs: usuario creador y tecnico asignado #}
 </div>
 
-{# get_estado_display = muestra la etiqueta legible del choice ("Planeación", "En Proceso", "Completado") #}
-{% with texto=p.get_estado_display %}
-  {% if p.estado == "PL" %}
-    <span class="badge text-bg-secondary align-self-center" title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
-  {% elif p.estado == "P" %}
-    <span class="badge text-bg-warning align-self-center"  title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
-  {% elif p.estado == "C" %}
-    <span class="badge text-bg-success align-self-center"  title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
-  {% else %}
-    <span class="badge text-bg-dark align-self-center"     title="{{ texto }}" aria-label="Estado: {{ texto }}">{{ texto }}</span>
-  {% endif %}
-{% endwith %}
-</li>
-
-{% empty %} {# si 'proyectos' viene vacio, muestra este mensaje #}
-<li class="list-group-item text-muted"> No hay proyectos aún.</li>
-{% endfor %} {# Fin del bucle de proyectos #}
-</ul>
-</div>  {# fin .card #}
-{% endblock content %}
+{% if messages %}
+  <div id="center-toast" class="position-fixed top-50 start-50 translate-middle" style="z-index:1080;min-width:280px;max-width:90vw;">
+    {% for m in messages %}
+      <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
+    {% endfor %}
+  </div>
+  <script>
+    setTimeout(()=>document.getElementById('center-toast')?.remove(), 2600);
+  </script>
+{% endif %}
+{% endblock %}

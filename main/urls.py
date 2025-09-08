@@ -31,3 +31,10 @@ urlpatterns = [
           name='password_reset_complete'),
 ]
 
+    path('admon_usuarios',include('user.urls'),name='user'),
+    path('admon_project/', include('project.urls')),
+
+
+]
+  
+
