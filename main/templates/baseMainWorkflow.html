@@ -52,9 +52,46 @@
                             </div>
                         </div>
                     </div>
-                    <a href
-                        class="btn btn-primary py-2 px-4 d-none d-lg-block"><i
-                            class="fa fa-user mr-2"></i> USUARIO ACTIVO</a>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-lg dropdown-toggle d-flex align-items-center px-4 py-3 shadow-sm"
+                                type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"
+                                style="min-width: 220px;">
+
+                            <!-- User Icon -->
+                            <i class="fa fa-user-circle me-2 fs-4"></i>
+
+                            <!-- User Info -->
+                            <div class="text-start">
+                            <!-- Groups -->
+                            <div class="fw-semibold">
+                                {% for g in request.user.groups.all %}
+                                {{ g.name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                Sin grupo
+                                {% endfor %}
+                            </div>
+
+                            <!-- First Name -->
+                            <small class="text-light">{{ request.user.first_name }}</small>
+                            </div>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownMenuButton1">
+                            <li>
+                            <a class="dropdown-item d-flex align-items-center" href="{% url "infoUser" %}">
+                                <i class="fa fa-info-circle me-2 text-primary"></i> Información
+                            </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                            <a class="dropdown-item d-flex align-items-center text-danger" href="#">
+                                <i class="fa fa-sign-out-alt me-2"></i> Cerrar Sesión
+                            </a>
+                            </li>
+                        </ul>
+                    </div>
+
                 </div>
             </nav>
         </div>

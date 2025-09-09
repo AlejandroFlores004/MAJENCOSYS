@@ -81,13 +81,17 @@ def userDetails(request):
 @login_required(login_url='log')
 def userEdit(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
+    next_url = request.GET.get('next', None)
 
     if request.method == 'POST':
         form = UserUpdateForm(request.POST, instance=user_obj)
         if form.is_valid():
             form.save()
             messages.success(request, '¡Usuario actualizado correctamente!')
-            return redirect('usuarioDetails')  # vuelve a la tabla
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect('usuarioDetails')  # vuelve a la tabla
     else:
         form = UserUpdateForm(instance=user_obj)
 

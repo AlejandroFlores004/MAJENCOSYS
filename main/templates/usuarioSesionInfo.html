@@ -1,0 +1,76 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Usuario Sesión{% endblock title %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">
+            <i class="fa fa-user me-2"></i> Información del Usuario
+          </h3>
+        </div>
+
+        <div class="card-body">
+          <!-- Información Principal -->
+          <h5 class="card-title mb-4">Datos Personales</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <strong>Nombre de usuario:</strong> {{ usuario.username }}
+            </li>
+            <li class="list-group-item">
+              <strong>Nombre:</strong> {{ usuario.first_name }}
+            </li>
+            <li class="list-group-item">
+              <strong>Apellido:</strong> {{ usuario.last_name }}
+            </li>
+            <li class="list-group-item">
+              <strong>Correo electrónico:</strong> {{ usuario.email }}
+            </li>
+          </ul>
+
+          <!-- Roles / Grupos -->
+          <h5 class="card-title mt-4">Roles</h5>
+          <ul class="list-group list-group-flush">
+            {% for group in usuario.groups.all %}
+              <li class="list-group-item">
+                <i class="fa fa-users text-primary me-2"></i> {{ group.name }}
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted">
+                <em>No pertenece a ningún grupo.</em>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="card-footer text-end">
+          <!-- Botón para regresar -->
+          <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left me-1"></i> Regresar
+          </a>
+
+          <!-- Botón para editar usuario -->
+          <a href="{% url 'usuarioEdit' usuario.id %}?next={% url 'infoUser' %}" class="btn btn-warning">
+            <i class="fa fa-edit me-1"></i> Editar Perfil
+          </a>
+
+          <!-- Botón para cambiar contraseña -->
+          <a href="{% url 'usuarioEditPass' usuario.id %}" class="btn btn-info">
+            <i class="fa fa-key me-1"></i> Cambiar Contraseña
+          </a>
+
+          <!-- Botón para cerrar sesión -->
+          <a href="#" class="btn btn-danger">
+            <i class="fa fa-sign-out-alt me-1"></i> Cerrar Sesión
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

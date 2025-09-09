@@ -10,8 +10,8 @@ from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from project.models import Project
-
-
+from django.core.paginator import Paginator
+from django.db.models import Count
 
 
 # Create your views here.
@@ -20,12 +20,32 @@ def startpage(request):
 
 @login_required(login_url='log')
 def dashboard(request):
-    projects = Project.objects.all()
-    
-    objects = {
-        "projects": projects
+    # Get all projects
+    projects_list = Project.objects.all().order_by('-created_at')  
+
+    # Pagination
+    paginator = Paginator(projects_list, 4)
+    page_number = request.GET.get('page')
+    projects = paginator.get_page(page_number)
+
+    # Count projects by type
+    project_types = (
+        Project.objects
+        .values('type')  # Group by 'type'
+        .annotate(total=Count('id'))  # Count projects
+        .order_by('type')
+    )
+
+    # Convert codes to human-readable names
+    type_choices_dict = dict(Project.TYPE_CHOICES)
+    for pt in project_types:
+        pt['type_name'] = type_choices_dict.get(pt['type'], pt['type'])
+
+    context = {
+        "projects": projects,
+        "project_types": project_types,
     }
-    return render(request, 'dashboard.html', objects)
+    return render(request, 'dashboard.html', context)
 
 def loginPage(request):
     message = ''
@@ -47,6 +67,12 @@ def loginPage(request):
         "message": message
     }
     return render(request, 'login.html', objects)
+
+def userInfo(request):
+   objects = {
+       "usuario":request.user
+   }
+   return render(request, 'usuarioSesionInfo.html',objects) 
 
 #Apartados de bases de datos
 def admin_required(view_func):
