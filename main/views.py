@@ -9,6 +9,7 @@ from django.contrib import messages
 from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from project.models import Project
 
 
 
@@ -19,7 +20,12 @@ def startpage(request):
 
 @login_required(login_url='log')
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    projects = Project.objects.all()
+    
+    objects = {
+        "projects": projects
+    }
+    return render(request, 'dashboard.html', objects)
 
 def loginPage(request):
     message = ''

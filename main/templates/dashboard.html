@@ -35,130 +35,38 @@
     <!-- Proyectos Pendientes -->
     <div class="col-lg-8">
       <div class="row">
-        <div class="col-md-6 mb-3">
-          <div class="position-relative">
-            <img class="img-fluid w-100"
-              style="height: 225px; object-fit: cover;"
-              src="{% static 'img/Trab1.jpg' %}" alt>
-            <div
-              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
-              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
-              <h4 class="font-weight-bold mb-n1">09</h4>
-              <small class="text-white text-uppercase">SEP</small>
-            </div>
-          </div>
-          <div class="bg-secondary mb-3" style="padding: 30px;">
-            <div class="d-flex mb-3">
-              <div class="d-flex align-items-center">
-                <p class="text-muted ml-2">Cliente</p>
-              </div>
-              <div class="d-flex align-items-center ml-4">
-                <p class="text-muted ml-2">Tipo de
-                  Trab.</p>
+        {% for p in projects %}
+          <div class="col-md-6 mb-3">
+            <div class="position-relative">
+              <img class="img-fluid w-100"
+                style="height: 225px; object-fit: cover;"
+                src="{% static 'img/Trab1.jpg' %}" alt>
+              <div
+                class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
+                style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
+                <h4 class="font-weight-bold mb-n1">09</h4>
+                <small class="text-white text-uppercase">SEP</small>
               </div>
             </div>
-            <h4 class="font-weight-bold mb-3">Trabajo
-              Pendiente 1</h4>
-            <p>Dolor sea ipsum ipsum et. Erat duo lorem
-              magna vero dolor dolores. Rebum eirmod no
-              dolor diam dolor amet ipsum. Lorem lorem sea
-              sed diam est lorem magna</p>
-          </div>
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <div class="position-relative">
-            <img class="img-fluid w-100"
-              style="height: 225px; object-fit: cover;"
-              src="{% static 'img/Trab2.jpg' %}" alt>
-            <div
-              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
-              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
-              <h4 class="font-weight-bold mb-n1">12</h4>
-              <small class="text-white text-uppercase">SEP</small>
+            <div class="bg-secondary mb-3" style="padding: 30px;">
+              <div class="d-flex mb-3">
+                <div class="d-flex align-items-center">
+                  <p class="text-muted ml-2">Cliente</p>
+                </div>
+                <div class="d-flex align-items-center ml-4">
+                  <p class="text-muted ml-2">Tipo de
+                    Trab.</p>
+                </div>
+              </div>
+              <h4 class="font-weight-bold mb-3">Trabajo
+                Pendiente 1</h4>
+              <p>Dolor sea ipsum ipsum et. Erat duo lorem
+                magna vero dolor dolores. Rebum eirmod no
+                dolor diam dolor amet ipsum. Lorem lorem sea
+                sed diam est lorem magna</p>
             </div>
           </div>
-          <div class="bg-secondary mb-3" style="padding: 30px;">
-            <div class="d-flex mb-3">
-              <div class="d-flex align-items-center">
-                <p class="text-muted ml-2">Cliente</p>
-              </div>
-              <div class="d-flex align-items-center ml-4">
-                <p class="text-muted ml-2">Tipo de
-                  Trab.</p>
-              </div>
-            </div>
-            <h4 class="font-weight-bold mb-3">Trabajo
-              Pendiente 2</h4>
-            <p>Dolor sea ipsum ipsum et. Erat duo lorem
-              magna vero dolor dolores. Rebum eirmod no
-              dolor diam dolor amet ipsum. Lorem lorem sea
-              sed diam est lorem magna</p>
-          </div>
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <div class="position-relative">
-            <img class="img-fluid w-100"
-              style="height: 225px; object-fit: cover;"
-              src="{% static 'img/Trab1.jpg' %}" alt>
-            <div
-              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
-              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
-              <h4 class="font-weight-bold mb-n1">13</h4>
-              <small class="text-white text-uppercase">SEP</small>
-            </div>
-          </div>
-          <div class="bg-secondary mb-3" style="padding: 30px;">
-            <div class="d-flex mb-3">
-              <div class="d-flex align-items-center">
-                <p class="text-muted ml-2">Cliente</p>
-              </div>
-              <div class="d-flex align-items-center ml-4">
-                <p class="text-muted ml-2">Tipo de
-                  Trab.</p>
-              </div>
-            </div>
-            <h4 class="font-weight-bold mb-3">Trabajo
-              Pendiente 3</h4>
-            <p>Dolor sea ipsum ipsum et. Erat duo lorem
-              magna vero dolor dolores. Rebum eirmod no
-              dolor diam dolor amet ipsum. Lorem lorem sea
-              sed diam est lorem magna</p>
-          </div>
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <div class="position-relative">
-            <img class="img-fluid w-100"
-              style="height: 225px; object-fit: cover;"
-              src="{% static 'img/Trab2.jpg' %}" alt>
-            <div
-              class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
-              style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
-              <h4 class="font-weight-bold mb-n1">14</h4>
-              <small class="text-white text-uppercase">SEP</small>
-            </div>
-          </div>
-          <div class="bg-secondary mb-3" style="padding: 30px;">
-            <div class="d-flex mb-3">
-              <div class="d-flex align-items-center">
-                <p class="text-muted ml-2">Cliente</p>
-              </div>
-              <div class="d-flex align-items-center ml-4">
-                <p class="text-muted ml-2">Tipo de
-                  Trab.</p>
-              </div>
-            </div>
-            <h4 class="font-weight-bold mb-3">Trabajo
-              Pendiente 4</h4>
-            <p>Dolor sea ipsum ipsum et. Erat duo lorem
-              magna vero dolor dolores. Rebum eirmod no
-              dolor diam dolor amet ipsum. Lorem lorem sea
-              sed diam est lorem magna</p>
-          </div>
-        </div>
-
+        {% endfor %}
       </div>
       <div class="row">
         <div class="col-12">
