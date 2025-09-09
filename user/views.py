@@ -3,6 +3,8 @@ from django.contrib.auth.models import User,Group
 from .forms import userForm, UserUpdateForm,UserUpdatePasswordForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Q
 
 # Create your views here.
 @login_required(login_url='log')
@@ -35,14 +37,46 @@ def userFormView(request):
 
 @login_required(login_url='log')
 def userDetails(request):
-    users = User.objects.all()
+    qs = User.objects.select_related().order_by("-date_joined")
     groups = Group.objects.all()
 
-    objects = {
-        "usuarios" : users,
-        "grupos" : groups
+    # Get filter params
+    q = (request.GET.get("q") or "").strip()
+    g = (request.GET.get("group") or "").strip()
+    s = (request.GET.get("status") or "").strip()
+
+    # Apply filters
+    if q:
+        qs = qs.filter(
+            Q(username__icontains=q) |
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(email__icontains=q)
+        )
+    if g:
+        qs = qs.filter(groups__id=g)
+    if s:
+        if s == "active":
+            qs = qs.filter(is_active=True)
+        elif s == "inactive":
+            qs = qs.filter(is_active=False)
+
+    # Pagination
+    paginator = Paginator(qs, 10)  # 10 users per page
+    page_number = request.GET.get("page") or 1
+    try:
+        page_obj = paginator.page(page_number)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    context = {
+        "usuarios": page_obj,
+        "grupos": groups,
+        "q": q,
+        "g": g,
+        "s": s,
     }
-    return render(request, 'usuariosDetails.html', objects)
+    return render(request, 'usuariosDetails.html', context)
 
 @login_required(login_url='log')
 def userEdit(request, pk):

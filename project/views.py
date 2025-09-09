@@ -9,7 +9,7 @@ from .models import Project
 from .forms import ProjectForm
 
 
-@login_required
+@login_required(login_url='log')
 def projectMain(request):
     qs = Project.objects.select_related("usuario", "tecnico").order_by("-created_at")
 
@@ -41,13 +41,13 @@ def projectMain(request):
     return render(request, "projectMain.html", ctx)
 
 
-@login_required
+@login_required(login_url='log')
 def projectDetail(request, pk):
     p = get_object_or_404(Project, pk=pk)
     return render(request, "projectDetail.html", {"p": p})
 
 
-@login_required
+@login_required(login_url='log')
 def projectCreate(request):
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES)
@@ -63,7 +63,7 @@ def projectCreate(request):
     return render(request, "projectForm.html", {"form": form})
 
 
-@login_required
+@login_required(login_url='log')
 def projectUpdate(request, pk):
     p = get_object_or_404(Project, pk=pk)
     old_file = p.imagen  # para limpiar si suben otro

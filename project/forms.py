@@ -41,8 +41,12 @@ class ProjectForm(forms.ModelForm):
 
         # FK técnico
         fk_model = Project._meta.get_field("tecnico").remote_field.model
-        self.fields["tecnico"].queryset = fk_model.objects.all().order_by("id")
-
+        self.fields["tecnico"].queryset = fk_model.objects.filter(
+            groups__name="Supervisor", is_active=True
+        )
+        
+        self.fields["tecnico"].label_from_instance = lambda obj: f"{obj.first_name} {obj.last_name} ({obj.username})"
+        
         # Choices de tipo (con "---------")
         type_field = Project._meta.get_field("type")
         self.fields["type"] = forms.ChoiceField(
