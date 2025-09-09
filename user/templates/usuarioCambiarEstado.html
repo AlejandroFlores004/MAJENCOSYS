@@ -5,7 +5,12 @@
 {% block content %}
 <div class="container mt-4">
   <h6 class="text-primary text-uppercase font-weight-bold">Detalles de usuario:</h6>
-  <h1 class="mb-3"> {{ usuario.username }}</h1>
+  <h1 class="mb-2"> {{ usuario.username }}</h1>
+
+  <!-- Display additional user details -->
+  <div class="mb-3">
+    <p><strong>{% for group in usuario.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</strong></p>
+  </div>
 
   <div class="card shadow-sm">
     <div class="card-body">

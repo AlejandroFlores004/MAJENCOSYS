@@ -37,34 +37,31 @@
       <div class="row">
         {% for p in projects %}
           <div class="col-md-6 mb-3">
+            <a class="" href="{% url 'projectDetail' p.pk %}">
             <div class="position-relative">
               <img class="img-fluid w-100"
                 style="height: 225px; object-fit: cover;"
-                src="{% static 'img/Trab1.jpg' %}" alt>
+                src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
               <div
                 class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
                 style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
-                <h4 class="font-weight-bold mb-n1">09</h4>
-                <small class="text-white text-uppercase">SEP</small>
+                <h4 class="font-weight-bold mb-n1">{{ p.created_at|date:'d' }}</h4>
+                <small class="text-white text-uppercase">{{ p.created_at|date:'M y' }}</small>
               </div>
             </div>
             <div class="bg-secondary mb-3" style="padding: 30px;">
               <div class="d-flex mb-3">
                 <div class="d-flex align-items-center">
-                  <p class="text-muted ml-2">Cliente</p>
+                  <p class="text-muted ml-2">{{ p.cliente }}</p>
                 </div>
                 <div class="d-flex align-items-center ml-4">
-                  <p class="text-muted ml-2">Tipo de
-                    Trab.</p>
+                  <p class="text-muted ml-2">{{ p.get_type_display }}</p>
                 </div>
               </div>
-              <h4 class="font-weight-bold mb-3">Trabajo
-                Pendiente 1</h4>
-              <p>Dolor sea ipsum ipsum et. Erat duo lorem
-                magna vero dolor dolores. Rebum eirmod no
-                dolor diam dolor amet ipsum. Lorem lorem sea
-                sed diam est lorem magna</p>
+              <h4 class="font-weight-bold mb-3 text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h4>
+              <p>{{ p.descripcion }}</p>
             </div>
+            </a>
           </div>
         {% endfor %}
       </div>
@@ -96,21 +93,6 @@
 
     <!-- Barra Lateral -->
     <div class="col-lg-4 mt-5 mt-lg-0">
-
-      <!-- Buscador -->
-      <div class="mb-5">
-        <div class="bg-secondary2" style="padding: 30px;">
-          <div class="input-group">
-            <input type="text" class="form-control border-0 p-4"
-              placeholder="Buscador...">
-            <div class="input-group-append">
-              <span
-                class="input-group-text bg-primary border-primary text-white"><i
-                  class="fa fa-search"></i></span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Tipos  -->
       <div class="mb-5">

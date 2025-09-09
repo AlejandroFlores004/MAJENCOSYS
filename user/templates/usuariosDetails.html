@@ -18,7 +18,7 @@
 </div>
 
 <div class="container-fluid">
-  <h3 class="mb-3 text-primary">Usuarios Registrados</h3>
+  <h3 class="mb-3 text-primary">Usuarios Registrados</h3><br>
 
   <!-- Alert messages -->
   {% if messages %}
@@ -107,12 +107,12 @@
             <td>
               {% if u.groups.all %}
                 {% for g in u.groups.all %}
-                  <span class="badge rounded-pill bg-secondary3 text-white me-1">{{ g.name }}</span>
+                  <span class="badge bg-info text-white me-1">{{ g.name }}</span>
                 {% empty %}
-                  <span class="text-muted">—</span>
+                  <span class="badge bg-danger text-white me-1">—</span>
                 {% endfor %}
               {% else %}
-                <span class="text-muted">—</span>
+                <span class="badge bg-danger text-white me-1">—</span>
               {% endif %}
             </td>
             <td>
