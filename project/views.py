@@ -105,7 +105,7 @@ def projectUpdate(request, pk):
     return render(request, "projectForm.html", {"form": form, "p": p})
 
 
-@login_required
+@login_required(login_url='log')
 def projectDelete(request, pk):
     p = get_object_or_404(Project, pk=pk)
     if request.method == "POST":
@@ -121,7 +121,7 @@ def projectDelete(request, pk):
     return render(request, "projectConfirmDelete.html", {"p": p})
 
 
-@login_required
+@login_required(login_url='log')
 def projectDetailList(request):
     qs = Project.objects.select_related("usuario", "tecnico").order_by("-created_at")
 
@@ -172,7 +172,7 @@ def _clasifica_tipo_archivo(nombre: str, mime: str | None) -> str:
     return "otros"
 
 # -------------------- LISTAR + SUBIR (múltiple) ------------------------------
-@login_required
+@login_required(login_url='log')
 def project_file_list_create(request: HttpRequest, pk: int) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
 
@@ -237,7 +237,7 @@ def project_file_list_create(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "projectArchivosTecnicos.html", ctx)
 
 # --------------------------- DESCARGAR ----------------------------------------
-@login_required
+@login_required(login_url='log')
 def project_file_download(request: HttpRequest, pk: int, file_id: int) -> HttpResponse:
     f = get_object_or_404(ArchivoTecnico, pk=file_id, project_id=pk)
     if not f.archivo:
@@ -245,7 +245,7 @@ def project_file_download(request: HttpRequest, pk: int, file_id: int) -> HttpRe
     return FileResponse(f.archivo.open("rb"), as_attachment=True, filename=f.nombre_original)
 
 # ---------------------------- ELIMINAR ----------------------------------------
-@login_required
+@login_required(login_url='log')
 def project_file_delete(request: HttpRequest, pk: int, file_id: int) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     f = get_object_or_404(ArchivoTecnico, pk=file_id, project=project)
