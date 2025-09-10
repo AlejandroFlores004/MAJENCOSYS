@@ -13,7 +13,7 @@
             </div>
             <div class="col-6 col-md-3">
               <select name="type" class="form-select">
-                <option value="">Tipo</option>
+                <option value="">Tipos</option>
                 {% for val, label in type_choices %}
                   <option value="{{ val }}" {% if t == val %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
