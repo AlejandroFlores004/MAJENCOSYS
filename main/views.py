@@ -58,10 +58,11 @@ def loginPage(request):
         if user is not None:
             
             login(request, user)
+            messages.success(request, 'Has iniciado sesión correctamente.')
             return redirect('dashboard')
             
         else:
-            messages.warning(request, 'Credenciales inválidas. Inténtalo de nuevo.')
+            messages.error(request, 'Credenciales inválidas. Inténtalo de nuevo.')
     objects = {
         "form": UserRegistrationForm(),
         "message": message
@@ -109,7 +110,7 @@ def database_tools(request):
         # ---- RESTORE ----
         backup_file = request.FILES.get("backup_file")
         if not backup_file:
-            messages.error(request, "Please select a backup file to upload.")
+            messages.error(request, "Por favor selecciona un archivo de respaldo para subir.")
             return redirect("database_tools")
 
         temp_path = os.path.join(settings.BASE_DIR, "temp_restore.sql")
@@ -143,11 +144,11 @@ def database_tools(request):
                 )
 
             os.remove(temp_path)  # Clean up
-            messages.success(request, "Database restored successfully!")
+            messages.success(request, "¡Base de datos restaurada con éxito!")
 
         except subprocess.CalledProcessError as e:
             error_msg = e.stderr.decode() if e.stderr else str(e)
-            messages.error(request, f"Error restoring database: {error_msg}")
+            messages.error(request, f"Error al restaurar la base de datos: {error_msg}")
 
         return redirect("database_tools")
     

@@ -5,13 +5,6 @@
 <div class="container mt-5">
   <h2 class="mb-4">Acciones Backup</h2>
 
-  {% if messages %}
-    <div class="mb-3">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
 
   <div class="row">
     <!-- Download Backup Section -->
@@ -43,4 +36,14 @@
     </div>
   </div>
 </div>
+{% if messages %}
+    <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+      {% for m in messages %}
+        <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => document.getElementById('top-right-toast')?.remove(), 2600);
+    </script>
+  {% endif %}
 {% endblock %}
