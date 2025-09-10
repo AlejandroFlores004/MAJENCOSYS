@@ -5,10 +5,10 @@
 <div class="container my-4">
 
   <!-- Encabezado -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Archivos técnicos de: <strong>{{ project.nombre }}</strong></h5>
-    <a href="{% url 'projectDetail' project.id %}" class="btn btn-outline-secondary btn-sm">Volver</a>
-  </div>
+    <h6 class="text-primary text-uppercase font-weight-bold">Archivos del proyecto:</h6>
+    <h1 class="mb-3 text-uppercase"> {{ project.nombre }}</h1>
+
+    <a href="{% url 'projectDetail' project.id %}" class="btn btn-primary mb-4">Volver</a>
 
   <!-- Mensajes flash -->
   {% if messages %}
@@ -17,9 +17,43 @@
     {% endfor %}
   {% endif %}
 
+  <!-- ========================= Subir archivos ========================= -->
+  <div class="card p-3 mb-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <h6 class="mb-0 text-primary font-weight-bold">Subir archivos</h6>
+      <small class="text-muted">
+        Extensiones: pdf, dwg, docx, xlsx, mp4, bak, jpg, jpeg, png · Máx: 100 MB por archivo
+      </small>
+    </div>
+
+    <form id="upload-form" method="post" enctype="multipart/form-data" class="row g-2 mt-2">
+      {% csrf_token %}
+      <input type="hidden" name="__action" value="upload">
+
+      <!-- Input de archivos -->
+      <div class="col-12 col-lg-6">
+        <label class="form-label">{{ upload_form.archivos.label }}</label>
+        {{ upload_form.archivos }}
+        <div id="files-preview" class="form-text"></div>
+        <div class="text-danger small">{{ upload_form.archivos.errors }}</div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="col-12 col-lg-6">
+        <label class="form-label">{{ upload_form.descripcion.label }}</label>
+        {{ upload_form.descripcion }}
+        <div class="text-danger small">{{ upload_form.descripcion.errors }}</div>
+      </div>
+
+      <div class="col-12 d-flex justify-content-end">
+        <button type="submit" class="btn btn-3"><i class="bi bi-cloud-upload"></i> Subir archivo</button>
+      </div>
+    </form>
+  </div>
+
   <!-- ========================= Filtros ========================= -->
   <div class="card p-3 mb-3">
-    <h6 class="mb-3">Filtros</h6>
+    <h6 class="mb-0 text-primary font-weight-bold">Filtros</h6>
 
     <form method="get" class="row g-3 align-items-end">
 
@@ -46,67 +80,33 @@
         <label class="form-label d-block">Rango de fechas</label>
         <div class="row g-2">
           <div class="col-6">
+            <small class="form-text d-block">Desde</small>
             <div class="input-group">
               {{ filter_form.fecha_desde }}
               <span class="input-group-text">📅</span>
             </div>
-            <small class="form-text text-muted">Desde</small>
           </div>
           <div class="col-6">
+            <small class="form-text d-block">Hasta</small>
             <div class="input-group">
               {{ filter_form.fecha_hasta }}
               <span class="input-group-text">📅</span>
             </div>
-            <small class="form-text text-muted">Hasta</small>
           </div>
         </div>
       </div>
 
       <!-- Acciones de filtro -->
       <div class="col-12 d-flex gap-2">
-        <button type="submit" class="btn btn-warning btn-sm">Filtrar</button>
-        <a href="{% url 'projectFiles' project.id %}" class="btn btn-link btn-sm">Limpiar</a>
-      </div>
-    </form>
-  </div>
-
-  <!-- ========================= Subir archivos ========================= -->
-  <div class="card p-3 mb-3">
-    <div class="d-flex justify-content-between align-items-center">
-      <h6 class="mb-0">Subir archivos</h6>
-      <small class="text-muted">
-        Extensiones: pdf, dwg, docx, xlsx, mp4, bak, jpg, jpeg, png · Máx: 100 MB por archivo
-      </small>
-    </div>
-
-    <form id="upload-form" method="post" enctype="multipart/form-data" class="row g-2 mt-2">
-      {% csrf_token %}
-      <input type="hidden" name="__action" value="upload">
-
-      <!-- Input de archivos -->
-      <div class="col-12 col-lg-6">
-        <label class="form-label">{{ upload_form.archivos.label }}</label>
-        {{ upload_form.archivos }}
-        <div id="files-preview" class="form-text"></div>
-        <div class="text-danger small">{{ upload_form.archivos.errors }}</div>
-      </div>
-
-      <!-- Descripción -->
-      <div class="col-12 col-lg-6">
-        <label class="form-label">{{ upload_form.descripcion.label }}</label>
-        {{ upload_form.descripcion }}
-        <div class="text-danger small">{{ upload_form.descripcion.errors }}</div>
-      </div>
-
-      <div class="col-12 d-flex justify-content-end">
-        <button type="submit" class="btn btn-primary btn-sm">Subir archivos</button>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i></button>
+        <a href="{% url 'projectFiles' project.id %}" class="btn btn-outline-secondary"><i class="fa fa-trash-alt"></i></a>
       </div>
     </form>
   </div>
 
   <!-- ========================= Listado ========================= -->
   <div class="card p-3">
-    <h6 class="mb-3">Listado</h6>
+    <h6 class="mb-3 text-primary font-weight-bold">Listado</h6>
 
     {% if files %}
       <div class="table-responsive">
@@ -130,8 +130,10 @@
                 <td>{{ f.subido_por.username|default:"—" }}</td>
                 <td>{{ f.subido_en|date:"d/m/Y H:i" }}</td> {# dd/mm/aaaa HH:mm #}
                 <td class="text-end">
-                  <a href="{% url 'projectFileDownload' project.id f.id %}" class="btn btn-outline-secondary btn-sm">Descargar</a>
-                  <a href="{% url 'projectFileDelete' project.id f.id %}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                  <div class="btn-group btn-group-md" role="group">
+                    <a href="{% url 'projectFileDownload' project.id f.id %}" class="btn btn-2"><i class="bi bi-file-earmark-arrow-down"></i></a>
+                    <a href="{% url 'projectFileDelete' project.id f.id %}" class="btn btn-1"><i class="bi bi-trash"></i></a>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
