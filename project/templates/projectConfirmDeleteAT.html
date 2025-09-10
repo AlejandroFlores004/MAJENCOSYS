@@ -1,0 +1,40 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Confirmar eliminación{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+      <div class="card shadow-sm rounded-3">
+        <div class="card-header">
+          <h5 class="mb-0">Eliminar archivo técnico</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-3">
+            ¿Seguro que deseas eliminar el archivo
+            <strong>{{ f.nombre_original }}</strong> del proyecto
+            <strong>{{ project.nombre }}</strong>?
+          </p>
+
+          <ul class="small text-muted mb-3">
+            <li>Tamaño: {{ f.tamano_bytes|filesizeformat }}</li>
+            <li>Fecha: {{ f.subido_en|date:"d/m/Y H:i" }}</li>
+          </ul>
+
+          <div class="alert alert-warning">
+            Esta acción no se puede deshacer.
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+              <a href="{% url 'projectFiles' project.id %}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-danger">Eliminar definitivamente</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

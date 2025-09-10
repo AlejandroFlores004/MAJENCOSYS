@@ -1,0 +1,39 @@
+{# Muestra hasta 5 archivos recientes del proyecto (solo lectura). #}
+<div class="card mt-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Archivos técnicos recientes</strong>
+    <a href="{% url 'projectFiles' p.id %}" class="btn btn-sm btn-outline-secondary">Gestión archivos</a>
+  </div>
+  <div class="card-body p-0">
+    {% if files_preview %}
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Tamaño</th>
+              <th>Fecha</th>
+              <th class="text-end">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in files_preview %}
+              <tr>
+                <td>{{ f.nombre_original }}</td>
+                <td>{{ f.mime_type|default:"application/octet-stream" }}</td>
+                <td>{{ f.tamano_bytes|filesizeformat }}</td>
+                <td>{{ f.subido_en|date:"d/m/Y H:i" }}</td>
+                <td class="text-end">
+                  <a href="{% url 'projectFileDownload' p.id f.id %}" class="btn btn-outline-secondary btn-sm">Descargar</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="p-3 text-muted">Sin archivos aún.</div>
+    {% endif %}
+  </div>
+</div>

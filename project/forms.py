@@ -5,9 +5,16 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile
 from .models import Project
 import re
+from django.utils.translation import gettext_lazy as _
+from django.forms.widgets import ClearableFileInput
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 ALLOWED_IMAGE_TYPES = ("image/jpeg", "image/png", "image/webp")
 
+# Widget para permitir selección múltiple en <input type="file">
+class MultiFileInput(ClearableFileInput):           # heredamos del ClearableFileInput estándar
+    allow_multiple_selected = True                  # <-- habilita multiple=True
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -160,3 +167,113 @@ class ProjectForm(forms.ModelForm):
                     pass
 
         return instance
+
+#Crud Carda de Archivos Tecnicos
+
+# ---------- Config (overridable por settings) ----------
+def _allowed_exts():
+    return getattr(settings, "ALLOWED_FILE_EXTS",
+                   ["pdf", "dwg", "docx", "xlsx", "mp4", "bak", "jpg", "jpeg", "png"])
+
+def _max_upload_mb():
+    return int(getattr(settings, "MAX_UPLOAD_MB", 100))  # MB por archivo
+
+def _bytes_limit():
+    return _max_upload_mb() * 1024 * 1024
+
+def _max_files_per_upload():
+    return getattr(settings, "MAX_FILES_PER_UPLOAD", 50)  # por lote
+
+# ---------- Widget <input type=file multiple> ----------
+class MultiFileInput(forms.FileInput):
+    allow_multiple_selected = True
+    def __init__(self, attrs=None):
+        base = {"class": "form-control", "multiple": True}
+        attrs = {**base, **(attrs or {})}
+        super().__init__(attrs=attrs)
+    def value_from_datadict(self, data, files, name):
+        return files.getlist(name)  # siempre lista
+
+# ---------- Field para lista con validación por lote ----------
+class MultiFileField(forms.Field):
+    widget = MultiFileInput
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("required", False)
+        super().__init__(*args, **kwargs)
+    def clean(self, data):
+        files = data or []
+        if not files:
+            raise ValidationError(_("Debes seleccionar al menos un archivo."))
+        max_files = _max_files_per_upload()
+        if isinstance(max_files, int) and max_files > 0 and len(files) > max_files:
+            raise ValidationError(_("Máximo %(n)s archivos por subida."), params={"n": max_files})
+        for f in files:
+            size = int(getattr(f, "size", 0) or 0)
+            if size <= 0:
+                raise ValidationError(_("Uno de los archivos está vacío o es ilegible."))
+            if size > _bytes_limit():
+                raise ValidationError(_("Un archivo supera %(mb)s MB."), params={"mb": _max_upload_mb()})
+            name = getattr(f, "name", "")
+            ext = (name.rsplit(".", 1)[-1] if "." in name else "").lower()
+            if ext not in _allowed_exts():
+                raise ValidationError(_("Extensión no permitida: .%(ext)s"), params={"ext": ext})
+        return files
+
+# ---------- Form de subida múltiple ----------
+class ArchivoTecnicoUploadForm(forms.Form):
+    archivos = MultiFileField(label=_("Seleccionar archivos"))
+    descripcion = forms.CharField(
+        label=_("Descripción (opcional)"), required=False,
+        widget=forms.Textarea(attrs={"rows": 2, "class": "form-control",
+                                     "placeholder": _("Descripción (opcional)")})
+    )
+
+# ---------- Form de filtros del listado ----------
+FILE_TYPE_CHOICES = (
+    ("", "Todos"),
+    ("img", "Imágenes"),
+    ("pdf", "PDF"),
+    ("doc", "Office"),
+    ("dwg", "CAD"),
+    ("video", "Video"),
+    ("bak", "Backups"),
+    ("otros", "Otros"),
+)
+
+class ArchivoTecnicoFilterForm(forms.Form):
+    q = forms.CharField(
+        label=_("Nombre o descripción"), required=False,
+        widget=forms.TextInput(attrs={"class": "form-control",
+                                      "placeholder": _("Nombre o descripción")}),
+    )
+    tipo = forms.ChoiceField(
+        label=_("Tipo"), required=False, choices=FILE_TYPE_CHOICES,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    usuario = forms.ChoiceField(
+        label=_("Subido por"), required=False, choices=[("", "Todos")],
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    fecha_desde = forms.DateField(
+        label=_("Desde"), required=False,
+        widget=forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+    )
+    fecha_hasta = forms.DateField(
+        label=_("Hasta"), required=False,
+        widget=forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Poblar combo de usuarios (ordenado)
+        User = get_user_model()
+        self.fields["usuario"].choices = [("", "Todos")] + [
+            (u.id, getattr(u, "username", str(u))) for u in User.objects.order_by("username")
+        ]
+
+    def clean(self):
+        data = super().clean()
+        d1, d2 = data.get("fecha_desde"), data.get("fecha_hasta")
+        if d1 and d2 and d1 > d2:
+            raise ValidationError(_("Rango de fechas inválido."))
+        return data

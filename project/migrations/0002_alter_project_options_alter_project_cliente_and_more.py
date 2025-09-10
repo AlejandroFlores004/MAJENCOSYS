@@ -51,7 +51,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='project',
             name='type',
-            field=models.CharField(choices=[('AL', 'Alcantarillado'), ('OBM', 'Obras de Mitigación'), ('CMV', 'Construcción y Mantenimiento de Red Vial'), ('INF', 'Infraestructura')], max_length=3, verbose_name='Tipo de Proyecto'),
+            field=models.CharField( max_length=60,
+            choices=[('AL', 'Alcantarillado'), ('OBM', 'Obras de Mitigación'), ('CMV', 'Construcción y Mantenimiento de Red Vial'), ('INF', 'Infraestructura')], verbose_name='Tipo de Proyecto'),
         ),
         migrations.AlterField(
             model_name='project',
