@@ -32,7 +32,7 @@
           </ul>
 
           <!-- Roles / Grupos -->
-          <h5 class="card-title mt-4">Roles</h5>
+          <h5 class="card-title mt-4">Rol</h5>
           <ul class="list-group list-group-flush">
             {% for group in usuario.groups.all %}
               <li class="list-group-item">
@@ -58,7 +58,7 @@
           </a>
 
           <!-- Botón para cambiar contraseña -->
-          <a href="{% url 'usuarioEditPass' usuario.id %}" class="btn btn-info">
+          <a href="{% url 'usuarioEditPass' usuario.id %}?next={% url 'infoUser' %}" class="btn btn-info">
             <i class="fa fa-key me-1"></i> Cambiar Contraseña
           </a>
 

@@ -105,13 +105,17 @@ def userEdit(request, pk):
 @login_required(login_url='log')
 def userEditPassword(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
+    next_url = request.GET.get('next', None)
 
     if request.method == 'POST':
         form = UserUpdatePasswordForm(user=user_obj, data=request.POST)
         if form.is_valid():
             form.save()  # hashes and sets the new password
             messages.success(request, '¡Contraseña actualizada correctamente!')
-            return redirect('usuarioDetails')  # adjust to your detail URL
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect('usuarioDetails')  # adjust to your detail URL
     else:
         form = UserUpdatePasswordForm(user=user_obj)
 

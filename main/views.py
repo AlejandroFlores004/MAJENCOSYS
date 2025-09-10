@@ -68,11 +68,20 @@ def loginPage(request):
     }
     return render(request, 'login.html', objects)
 
+@login_required(login_url='log')
 def userInfo(request):
    objects = {
        "usuario":request.user
    }
    return render(request, 'usuarioSesionInfo.html',objects) 
+
+@login_required(login_url='log')
+def logoutUser(request):
+    if request.method == 'POST':
+        logout(request)
+        messages.success(request, "Has cerrado sesión correctamente.")
+        return redirect('log')
+    return render(request, 'logout.html')
 
 #Apartados de bases de datos
 def admin_required(view_func):
