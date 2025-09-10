@@ -2,18 +2,30 @@
 
 {% block title %}Backup{% endblock title %}
 {% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Acciones Backup</h2>
+<!-- Header -->
+<div class="jumbotron2 jumbotron-fluid mb-5">
+  <div class="container text-center py-6">
+    <h1 class="text-white display-3">BASE DE DATOS</h1>
+    <div class="d-inline-flex align-items-center text-white">
+      <p class="m-0 text-white">Descargar</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Restablecer</p>
+    </div>
+  </div>
+</div>
 
+<div class="container mb-4">
+  <h6 class="text-primary text-uppercase font-weight-bold">Herramientas:</h6>
+  <h1 class="mb-3 text-uppercase">Backup</h1>
+  <div class="row g-3">
 
-  <div class="row">
     <!-- Download Backup Section -->
     <div class="col-md-6">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Descargar Backup</h5>
+          <h5 class="card-title text-primary font-weight-bold">Descargar</h5>
           <p class="card-text">Haz clic en el boton para descargarte la base de datos hasta este punto.</p>
-          <a href="{% url 'download_backup' %}" class="btn btn-primary">Descargar</a>
+          <a href="{% url 'download_backup' %}" class="btn btn-2"><i class="bi bi-file-earmark-arrow-down"></i></a>
         </div>
       </div>
     </div>
@@ -22,14 +34,14 @@
     <div class="col-md-6">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Restablecer Database</h5>
-          <p class="card-text">Sube tu .sql backup para restablecer la base de datos.</p>
+          <h5 class="card-title text-primary font-weight-bold">Restablecer</h5>
+          <p class="card-text">Sube tu backup (.sql) para restablecer la base de datos.</p>
           <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="mb-3">
               <input type="file" class="form-control" name="backup_file" accept=".sql" required>
             </div>
-            <button type="submit" name="restore" class="btn btn-danger">Restablecer</button>
+            <button type="submit" name="restore" class="btn btn-1"><i class="bi bi-cloud-upload"></i></button>
           </form>
         </div>
       </div>

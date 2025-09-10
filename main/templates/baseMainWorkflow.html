@@ -48,39 +48,30 @@
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">HTA.</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="/herramientas_basedatos" class="dropdown-item">BACKUP</a>
+                                <a href="/herramientas_basedatos" class="dropdown-item d-flex align-items-center">BACKUP</a>
                             </div>
                         </div>
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-secondary btn-lg dropdown-toggle d-flex align-items-center px-4 py-3 shadow-sm"
-                                type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"
-                                style="min-width: 220px;">
-
-                            <!-- User Icon -->
+                                type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa fa-user-circle me-2 fs-4"></i>
-
-                            <!-- User Info -->
-                            <div class="text-start">
-                            <!-- Groups -->
-                            <div class="fw-semibold">
+                            <small class="fw-semibold">{{ request.user.username }}</small>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownMenuButton1">
+                            <li class="dropdown-item d-flex align-items-center">
+                                <i class="fa fa-users me-2 text-primary"></i> 
                                 {% for g in request.user.groups.all %}
                                 {{ g.name }}{% if not forloop.last %}, {% endif %}
                                 {% empty %}
                                 Sin grupo
                                 {% endfor %}
-                            </div>
-
-                            <!-- First Name -->
-                            <small class="text-light">{{ request.user.first_name }}</small>
-                            </div>
-                        </button>
-
-                        <!-- Dropdown Menu -->
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownMenuButton1">
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                             <a class="dropdown-item d-flex align-items-center" href="{% url "infoUser" %}">
-                                <i class="fa fa-info-circle me-2 text-primary"></i> Información
+                                <i class="fa fa-info-circle me-2 text-info"></i> Información
                             </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
@@ -98,7 +89,6 @@
         {% block content %}
 
         {% endblock content %}
-
         <!-- Footer -->
         <br><div
             class="container-fluid bg-dark2 text-white border-top py-4 px-sm-3 px-md-5"

@@ -30,7 +30,7 @@
       <div class="row">
         {% for p in projects %}
           <div class="col-md-6 mb-3">
-            <a class="" href="{% url 'projectDetail' p.pk %}">
+            <a class="text-decoration-none" href="{% url 'projectDetail' p.pk %}">
             <div class="position-relative">
               <img class="img-fluid w-100"
                 style="height: 225px; object-fit: cover;"
@@ -52,7 +52,8 @@
                 </div>
               </div>
               <h4 class="font-weight-bold mb-3 text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h4>
-              <p>{{ p.descripcion }}</p>
+              <p class="text-truncate" title="{{ p.descripcion }}"><b><i>Descripción:</i>
+                <br>-</b> {{ p.descripcion }}</p>
             </div>
             </a>
           </div>
@@ -151,6 +152,7 @@
 
 
       <!-- Actividades -->
+      <!--
       <div class="mb-5">
         <h3 class="mb-4">Actividades Proximas</h3>
         <div class="d-flex mb-3">
@@ -190,8 +192,9 @@
           </a>
         </div>
       </div>
-
+      -->
       <!-- Extra -->
+      <!--
       <div>
         <h3 class="mb-4">Informacion Extra...</h3>
         <div class="bg-secondary2 text-center" style="padding: 30px;">
@@ -201,6 +204,7 @@
           <a href class="btn btn-primary py-2 px-4">MAS</a>
         </div>
       </div>
+      -->
 
     </div>
 

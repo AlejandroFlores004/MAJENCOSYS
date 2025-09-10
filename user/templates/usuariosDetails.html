@@ -20,18 +20,6 @@
 <div class="container-fluid">
   <h3 class="mb-3 text-primary">Usuarios Registrados</h3><br>
 
-  <!-- Alert messages -->
-  {% if messages %}
-    <div class="col-12">
-      {% for message in messages %}
-        <div class="alert alert-success alert-dismissible">
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
   <!-- Filters -->
   <div class="card shadow-sm rounded-3 mb-3">
     <div class="card-header">
@@ -138,7 +126,7 @@
             </td>
             <td class="text-end">
               <div class="btn-group btn-group-md" role="group">
-                <a href="{% url 'usuarioEditPass' u.id %}" class="btn btn-2" title="Cambiar password">
+                <a href="{% url 'usuarioEditPass' u.id %}" class="btn btn-2" title="Cambiar contraseña">
                   <i class="bi bi-key"></i>
                 </a>
                 <a href="{% url 'usuarioEdit' u.id %}" class="btn btn-3" title="Editar">
@@ -199,4 +187,14 @@
   </div>
 </div>
 
+{% if messages %}
+    <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+      {% for m in messages %}
+        <div class="alert alert-{{ m.tags }} shadow text-center mb-2">{{ m }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+    </script>
+{% endif %}
 {% endblock content %}

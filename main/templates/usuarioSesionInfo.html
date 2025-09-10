@@ -2,73 +2,82 @@
 {% block title %}Usuario Sesión{% endblock title %}
 {% block content %}
 
-<div class="container py-5">
+<!-- Header -->
+<div class="jumbotron2 jumbotron-fluid mb-5">
+  <div class="container text-center py-6">
+    <h1 class="text-white display-3"> USUARIO</h1>
+    <div class="d-inline-flex align-items-center text-white">
+      <p class="m-0 text-white">Usuario</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Nombre</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Rol</p>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid mb-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
-
       <div class="card shadow-lg border-0">
         <div class="card-header bg-primary text-white">
-          <h3 class="mb-0">
-            <i class="fa fa-user me-2"></i> Información del Usuario
+          <h3 class="mb-0 text-light">
+            <i class="bi bi-person-fill me-2"></i> {{ usuario.username }}
           </h3>
         </div>
 
         <div class="card-body">
           <!-- Información Principal -->
-          <h5 class="card-title mb-4">Datos Personales</h5>
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              <strong>Nombre de usuario:</strong> {{ usuario.username }}
+              <strong>N. Usuario: </strong>{{ usuario.username }}
             </li>
             <li class="list-group-item">
-              <strong>Nombre:</strong> {{ usuario.first_name }}
+              <strong>Nombre: </strong>{{ usuario.first_name }}
             </li>
             <li class="list-group-item">
-              <strong>Apellido:</strong> {{ usuario.last_name }}
+              <strong>Apellido: </strong>{{ usuario.last_name }}
             </li>
             <li class="list-group-item">
-              <strong>Correo electrónico:</strong> {{ usuario.email }}
+              <strong>Correo: </strong>{{ usuario.email }}
             </li>
-          </ul>
-
-          <!-- Roles / Grupos -->
-          <h5 class="card-title mt-4">Rol</h5>
-          <ul class="list-group list-group-flush">
-            {% for group in usuario.groups.all %}
-              <li class="list-group-item">
-                <i class="fa fa-users text-primary me-2"></i> {{ group.name }}
-              </li>
-            {% empty %}
-              <li class="list-group-item text-muted">
-                <em>No pertenece a ningún grupo.</em>
-              </li>
-            {% endfor %}
+            <li class="list-group-item">
+              {% for group in usuario.groups.all %}
+                <strong>Rol: </strong>{{ group.name }}  <i class="fa fa-users text-primary me-2"></i>
+              {% empty %}
+                <strong>Rol: </strong>Ninguno  <i class="fa fa-ban text-primary me-2"></i>
+              {% endfor %}
+            </li>
           </ul>
         </div>
 
         <div class="card-footer text-end">
-          <!-- Botón para regresar -->
-          <a href="{% url 'dashboard' %}" class="btn btn-secondary">
-            <i class="fa fa-arrow-left me-1"></i> Regresar
-          </a>
+          <div class="d-flex justify-content-between m-3">
+            <!-- Botón para regresar -->
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+              <i class="bi bi-door-open"></i> Regresar
+            </a>
 
-          <!-- Botón para editar usuario -->
-          <a href="{% url 'usuarioEdit' usuario.id %}?next={% url 'infoUser' %}" class="btn btn-warning">
-            <i class="fa fa-edit me-1"></i> Editar Perfil
-          </a>
+            <div class="btn-group btn-group-md" role="group">
+              <!-- Botón para cambiar contraseña -->
+              <a href="{% url 'usuarioEditPass' usuario.id %}?next={% url 'infoUser' %}" class="btn btn-2"  title="Cambiar contraseña">
+                <i class="bi bi-key"></i>
+              </a>
 
-          <!-- Botón para cambiar contraseña -->
-          <a href="{% url 'usuarioEditPass' usuario.id %}?next={% url 'infoUser' %}" class="btn btn-info">
-            <i class="fa fa-key me-1"></i> Cambiar Contraseña
-          </a>
+              <!-- Botón para editar usuario -->
+              <a href="{% url 'usuarioEdit' usuario.id %}?next={% url 'infoUser' %}" class="btn btn-3" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </div>
 
-          <!-- Botón para cerrar sesión -->
-          <a href="#" class="btn btn-danger">
-            <i class="fa fa-sign-out-alt me-1"></i> Cerrar Sesión
-          </a>
+            <!-- Botón para cerrar sesión -->
+            <a href="{% url 'logout' %}" class="btn btn-1">
+              <i class="bi bi-backspace-reverse"></i> Salir
+            </a>
+          </div>
         </div>
+        
       </div>
-
     </div>
   </div>
 </div>
