@@ -7,6 +7,8 @@ from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 
 # Create your views here.
+
+# Apartado principal de los usuarios
 @login_required(login_url='log')
 def userMain(request):
     users = User.objects.all()
@@ -19,6 +21,7 @@ def userMain(request):
     
     return render(request,'usuarioMain.html',objects)
 
+# Formulario para crear un nuevo usuario
 @login_required(login_url='log')
 def userFormView(request):
     if request.method == 'POST':
@@ -35,6 +38,7 @@ def userFormView(request):
     }
     return render(request, 'usuarioForm.html', object)
 
+# Vista para mostrar los detalles de los usuarios con paginacion y filtros
 @login_required(login_url='log')
 def userDetails(request):
     qs = User.objects.select_related().order_by("-date_joined")
@@ -78,6 +82,7 @@ def userDetails(request):
     }
     return render(request, 'usuariosDetails.html', context)
 
+# Formulario para editar los datos de un usuario
 @login_required(login_url='log')
 def userEdit(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
@@ -102,6 +107,7 @@ def userEdit(request, pk):
 
     return render(request, 'usuarioEdit.html', objects)
 
+# Formulario para editar la contraseña de un usuario
 @login_required(login_url='log')
 def userEditPassword(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
@@ -125,6 +131,8 @@ def userEditPassword(request, pk):
     }
     return render(request, 'usuarioEditPassword.html', context)
 
+# Formulario para cambiar el estado activo/inactivo de un usuario
+@login_required(login_url='log')
 def userEditStatus(request, pk):
     user_obj = get_object_or_404(User, pk=pk)
 
@@ -139,6 +147,7 @@ def userEditStatus(request, pk):
     }
     return render(request, 'usuarioCambiarEstado.html', object)
 
+# Formulario para eliminar un usuario
 @login_required(login_url='log')
 def userDelete(request, pk):
     user_obj = get_object_or_404(User, pk=pk)

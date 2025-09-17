@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
 
-
+# --- Modelos personalizados para el formulario de autenticación y restablecimiento de contraseña ---
 class UserRegistrationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)

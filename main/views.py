@@ -15,9 +15,11 @@ from django.db.models import Count
 
 
 # Create your views here.
+# Pagina inicial
 def startpage(request):
     return render(request, 'starPageClientes.html')
 
+# Dashboard de area de trabajo
 @login_required(login_url='log')
 def dashboard(request):
     # Get all projects
@@ -47,6 +49,7 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
+# Login de usuarios
 def loginPage(request):
     message = ''
     if request.method == 'POST':
@@ -69,6 +72,7 @@ def loginPage(request):
     }
     return render(request, 'login.html', objects)
 
+# Información general de usuario en sesión
 @login_required(login_url='log')
 def userInfo(request):
    objects = {
@@ -84,7 +88,7 @@ def logoutUser(request):
         return redirect('log')
     return render(request, 'logout.html')
 
-#Apartados de bases de datos
+# ------ Herramientas de base de datos (Backup y Restore) ------
 def admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         # Step 1: Check if the user is logged in

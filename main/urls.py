@@ -5,6 +5,7 @@ from .views import startpage, dashboard, loginPage, database_tools, download_bac
 from .forms import CustomSetPasswordForm,CustomPasswordResetForm
 
 urlpatterns = [
+    # ---- Rutas principales ----
     path('', startpage, name='startpage'),
     path('dashboard/', dashboard, name='dashboard'),
     path('login/', loginPage, name='log'),
@@ -15,7 +16,7 @@ urlpatterns = [
     path('admon_project',include('project.urls'),name='project'),
     path('usuario_informacion', userInfo, name="infoUser"),
 
-    # ---- Password Reset Flow ----
+    # ---- Rutas para el cambio de contraseña ----
      path('reset-password/', 
           auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html',
           form_class=CustomPasswordResetForm), 
@@ -32,6 +33,7 @@ urlpatterns = [
           auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), 
           name='password_reset_complete'),
 
+     # ---- Administradores de apps ----
     path('admon_usuarios/',include('user.urls'),name='user'),
     path('admon_project/', include('project.urls')),
 
