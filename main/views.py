@@ -88,6 +88,10 @@ def logoutUser(request):
         return redirect('log')
     return render(request, 'logout.html')
 
+@login_required(login_url='log')
+def dashboardProject(request, pk):
+    return render(request, 'dashboardProject.html')
+
 # ------ Herramientas de base de datos (Backup y Restore) ------
 def admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
