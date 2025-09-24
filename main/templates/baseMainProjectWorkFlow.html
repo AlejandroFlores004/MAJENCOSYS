@@ -29,7 +29,7 @@
         <div class="container-fluid p-0">
             <nav
                 class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-lg-5">
-                <a href="/dashboard" class="navbar-brand ml-lg-3">
+                <a href="{% url "dashboardProject" project.id %}" class="navbar-brand ml-lg-3">
                     <h1 class="m-0 display-5 text-uppercase text-primary"><i
                             class="fa fa-wrench mr-2"></i>MAJENCO</h1>
                 </a>
@@ -40,20 +40,33 @@
                 <div
                     class="collapse navbar-collapse justify-content-between px-lg-3"
                     id="navbarCollapse">
-                    <!-- 
+                    
                     <div class="navbar-nav m-auto py-0">
-                        <a href="/admon_usuarios"
-                            class="nav-item nav-link">USUARIOS</a>
-                        <a href="/admon_project" 
-                            class="nav-item nav-link">PROYECTOS</a>
+                        
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">HTA.</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">ACTIVIDADES</a>
                             <div class="dropdown-menu rounded-0 m-0">
-                                <a href="/herramientas_basedatos" class="dropdown-item d-flex align-items-center">BACKUP</a>
+                                {% if project.type == "AL" %}
+                                    <a href="{% url "activity_alcantarillado" project.id %}" class="dropdown-item d-flex align-items-center">DETALLE</a>
+                                {% endif %}
+                                {% if project.type == "OBM" %}
+                                    <a href="{% url "activity_obras_mitigacion" project.id %}" class="dropdown-item d-flex align-items-center">DETALLE</a>
+                                {% endif %}
+                                {% if project.type == "CMV" %}
+                                    <a href="{% url "activity_cmrv" project.id %}" class="dropdown-item d-flex align-items-center">DETALLE</a>
+                                {% endif %}
+                                {% if project.type == "INF" %}
+                                    <a href="{% url "mainActivityInfraestructura" project.id %}" class="dropdown-item d-flex align-items-center">DETALLE</a>
+                                {% endif %}
+                                <a href="#" class="dropdown-item d-flex align-items-center">CATALOGO</a>
                             </div>
                         </div>
+                        <a href="#" 
+                            class="nav-item nav-link">CRONOGRAMAS</a>
+                         
+                        
                     </div>
-                    -->
+                    
                     <div class="dropdown">
                         <button class="btn btn-secondary btn-lg dropdown-toggle d-flex align-items-center px-4 py-3 shadow-sm"
                                 type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">

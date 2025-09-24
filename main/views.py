@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import login,logout, authenticate
 from django.contrib import messages
 from .forms import UserRegistrationForm
@@ -90,7 +90,11 @@ def logoutUser(request):
 
 @login_required(login_url='log')
 def dashboardProject(request, pk):
-    return render(request, 'dashboardProject.html')
+    project = get_object_or_404(Project, pk=pk)
+    objects = {
+        "project": project
+    }
+    return render(request, 'dashboardProject.html', objects)
 
 # ------ Herramientas de base de datos (Backup y Restore) ------
 def admin_required(view_func):
