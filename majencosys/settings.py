@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'activity_alcantarillado',
     'activity_obras_mitigacion',
     'activity_cmrv',
+    'activity_catalogs'
 ]
 
 MIDDLEWARE = [
