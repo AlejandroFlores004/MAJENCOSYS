@@ -79,8 +79,8 @@ class Labour(models.Model):
     
 class Tool(models.Model):
     name = models.CharField("Nombre", max_length=100, null=False, blank= False)
-    hourCost = models.DecimalField(
-        "Valor por hora",
+    dayCost = models.DecimalField(
+        "Valor por día",
         max_digits=10,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.01"))]
@@ -94,7 +94,7 @@ class Tool(models.Model):
     )
     
     def __str__(self):
-        return f"{self.name} - ${self.hourCost}"
+        return f"{self.name} - ${self.dayCost}"
     
     class Meta:
         verbose_name = "Herramienta o equipo"

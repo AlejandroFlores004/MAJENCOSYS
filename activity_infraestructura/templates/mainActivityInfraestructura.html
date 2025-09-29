@@ -1,14 +1,29 @@
 {% extends "baseMainProjectWorkFlow.html" %}
 {% load static %}
+
 {% block title %}Proyecto{% endblock title %}
 {% block id_project %}{{ project.id }}{% endblock id_project %}
+
 {% block content %}
-    <div class="container-fluid pt-5">
-        <div class="container">
-            <div class="text-center pb-2">
-                <h6 class="text-primary text-uppercase font-weight-bold">PROYECTO</h6>
-                <h1 class="mb-4">Aquí se comenzara a desarrollar las actividades para un proyecto de tipo INFRAESTRUCTURA</h1>
-            </div>
-        </div>
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Actividades del Proyecto</h2>
+        <button class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Crear actividad
+        </button>
     </div>
+    {% if activities %}
+        {% include "partials/_activity_list.html" %}
+    {% else %}
+        <div cla0ss="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">No hay actividades registradas</h4>
+            <p class="text-muted">Agrega una nueva actividad para este proyecto.</p>
+            <button class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Crear actividad
+            </button>
+        </div>
+    {% endif %} 
+</div>
 {% endblock content %}
