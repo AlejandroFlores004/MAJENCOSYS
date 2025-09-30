@@ -8,10 +8,10 @@
 <div class="container mt-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Actividades del Proyecto</h2>
-        <button class="btn btn-primary">
+        <h2 class="mb-0">Actividades del Proyecto <br>{{project.nombre}}</h2>
+        <a href="{% url "create_new_activity_infraestructura" project.id %}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Crear actividad
-        </button>
+        </a>
     </div>
     {% if activities %}
         {% include "partials/_activity_list.html" %}
@@ -20,10 +20,17 @@
             <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
             <h4 class="mt-3">No hay actividades registradas</h4>
             <p class="text-muted">Agrega una nueva actividad para este proyecto.</p>
-            <button class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Crear actividad
-            </button>
         </div>
     {% endif %} 
 </div>
+{% if messages %}
+    <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+      {% for m in messages %}
+        <div class="alert alert-{{ m.tags }} shadow text-center mb-2">{{ m }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+    </script>
+{% endif %}
 {% endblock content %}
