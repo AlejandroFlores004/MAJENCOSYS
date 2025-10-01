@@ -1,19 +1,8 @@
 {% extends "baseMainProjectWorkFlow.html" %}
 {% load static %}
 
-{% block title %}Proyecto{% endblock title %}
-{% block id_project %}{{ project.id }}{% endblock id_project %}
-
 {% block content %}
 <div class="container py-4">
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="h3 mb-1">Nueva actividad para el proyecto</h2>
-      <p class="text-muted mb-0">{{ project.nombre }} <span class="text-body-secondary">(#{{ project.id }})</span></p>
-    </div>
-  </div>
-
   <div class="row justify-content-center">
     <div class="col-12 col-lg-10">
       <div class="card border-0 shadow-sm">
@@ -24,77 +13,12 @@
               {{ formActivity.non_field_errors }}
             </div>
           {% endif %}
-
           <form method="POST" novalidate>
             {% csrf_token %}
 
-            <!-- Activity fields -->
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label for="{{ formActivity.name.id_for_label }}" class="form-label">Nombre de la actividad</label>
-                <input
-                  type="text"
-                  name="{{ formActivity.name.html_name }}"
-                  id="{{ formActivity.name.id_for_label }}"
-                  value="{{ formActivity.name.value|default_if_none:'' }}"
-                  class="form-control{% if formActivity.name.errors %} is-invalid{% endif %}"
-                  placeholder="Ej.: Excavación de zanja"
-                >
-                {% for error in formActivity.name.errors %}
-                  <div class="invalid-feedback">{{ error }}</div>
-                {% endfor %}
-              </div>
-
-              <div class="col-md-6">
-                <label for="{{ formActivity.unit.id_for_label }}" class="form-label">Unidad</label>
-                <input
-                  type="text"
-                  name="{{ formActivity.unit.html_name }}"
-                  id="{{ formActivity.unit.id_for_label }}"
-                  value="{{ formActivity.unit.value|default_if_none:'' }}"
-                  class="form-control{% if formActivity.unit.errors %} is-invalid{% endif %}"
-                  placeholder="Ej.: m, m², m³, hr"
-                >
-                {% for error in formActivity.unit.errors %}
-                  <div class="invalid-feedback">{{ error }}</div>
-                {% endfor %}
-              </div>
-
-              <div class="col-12">
-                <label for="{{ formActivity.description.id_for_label }}" class="form-label">Descripción</label>
-                <textarea
-                  name="{{ formActivity.description.html_name }}"
-                  id="{{ formActivity.description.id_for_label }}"
-                  rows="5"
-                  class="form-control{% if formActivity.description.errors %} is-invalid{% endif %}"
-                  placeholder="Describe alcance, criterios y método constructivo…"
-                >{{ formActivity.description.value|default_if_none:'' }}</textarea>
-                {% for error in formActivity.description.errors %}
-                  <div class="invalid-feedback">{{ error }}</div>
-                {% endfor %}
-              </div>
-            </div>
-
+            {% include "partials/forms/_activity_form.html" %}
             <hr class="my-4">
-
-            <!-- MemoryMaterial fields (optional) -->
-            <h5 class="mb-3">Memoria de materiales (opcional)</h5>
-            <div class="row g-3">
-              <div class="col-md-8">
-                <label for="{{ formMemoryMaterial.material.id_for_label }}" class="form-label">Material</label>
-                {{ formMemoryMaterial.material }}
-                {% for error in formMemoryMaterial.material.errors %}
-                  <div class="invalid-feedback d-block">{{ error }}</div>
-                {% endfor %}
-              </div>
-              <div class="col-md-4">
-                <label for="{{ formMemoryMaterial.quantity.id_for_label }}" class="form-label">Cantidad</label>
-                {{ formMemoryMaterial.quantity }}
-                {% for error in formMemoryMaterial.quantity.errors %}
-                  <div class="invalid-feedback d-block">{{ error }}</div>
-                {% endfor %}
-              </div>
-            </div>
+            {% include "partials/forms/_memory_material_form.html" %}
 
             <div class="d-flex gap-2 justify-content-end mt-4">
               <a href="{% url 'mainActivityInfraestructura' project.id %}" class="btn btn-outline-secondary">
@@ -105,13 +29,8 @@
               </button>
             </div>
           </form>
-
         </div>
       </div>
-
-      <p class="small text-muted mt-3">
-        Consejo: usa nombres claros, p. ej., “Relleno compactado al 95% Proctor Modificado”.
-      </p>
     </div>
   </div>
 </div>

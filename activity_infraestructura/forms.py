@@ -1,6 +1,7 @@
 # forms.py
 from django import forms
 from .models import Activity, memoryMaterial, Material
+from django.forms import BaseInlineFormSet
 
 class ActivityForm(forms.ModelForm):
     class Meta:
@@ -40,3 +41,13 @@ class MemoryMaterialForm(forms.ModelForm):
         if project is not None:
             self.fields["material"].queryset = Material.objects.filter(project=project)
         # Si no tienes esa FK, elimina el bloque anterior.
+
+
+
+class BaseMemoryMaterialFormSet(BaseInlineFormSet):
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if project is not None:
+            for form in self.forms:
+                if "material" in form.fields:
+                    form.fields["material"].queryset = Material.objects.filter(project=project)

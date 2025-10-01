@@ -1,0 +1,65 @@
+<h5 class="mb-3">Memoria de materiales</h5>
+
+<div id="materials-formset">
+  {{ formset.management_form }}
+  
+  {% for form in formset %}
+    <div class="row g-3 mb-3 border-bottom pb-3 material-form">
+      <div class="col-md-8">
+        {{ form.material.label_tag }}
+        {{ form.material }}
+        {% for error in form.material.errors %}
+          <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div class="col-md-4">
+        {{ form.quantity.label_tag }}
+        {{ form.quantity }}
+        {% for error in form.quantity.errors %}
+          <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {% if form.DELETE %}
+        <div class="col-12">
+          <label class="form-check-label">
+            {{ form.DELETE }} Eliminar
+          </label>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+  
+  <button type="button" id="add-material" class="btn btn-outline-primary mt-2">+ Agregar material</button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const addButton = document.getElementById("add-material");
+  const formset = document.getElementById("materials-formset");
+  const totalForms = document.getElementById("id_memorymaterial_set-TOTAL_FORMS");
+
+  addButton.addEventListener("click", function() {
+    let currentCount = parseInt(totalForms.value);
+
+    // Clonar el primer formulario
+    let firstForm = formset.querySelector(".material-form");
+    let newForm = firstForm.cloneNode(true);
+
+    // Limpiar valores de inputs y selects
+    newForm.querySelectorAll("input, select, textarea").forEach(function(input){
+        input.value = "";
+        if(input.type === "checkbox") input.checked = false;
+    });
+
+    // Actualizar todos los índices de name y id
+    newForm.innerHTML = newForm.innerHTML.replace(/memorymaterial_set-0/g, `memorymaterial_set-${currentCount}`);
+
+    // Insertar antes del botón
+    formset.insertBefore(newForm, addButton);
+
+    // Actualizar el contador TOTAL_FORMS
+    totalForms.value = currentCount + 1;
+  });
+});
+</script>

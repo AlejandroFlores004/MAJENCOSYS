@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from project.models import Project
 from .models import Activity, memoryMaterial, memoryLabour, memoryTool
-from .forms import ActivityForm, MemoryMaterialForm
+from .forms import ActivityForm, BaseMemoryMaterialFormSet, MemoryMaterialForm
 from django.contrib import messages
+from django.forms import inlineformset_factory
 
 # Create your views here.
 def mainActivityInfraestructura(request, pk):
@@ -20,23 +21,31 @@ def mainActivityInfraestructura(request, pk):
     }
     return render(request, 'mainActivityInfraestructura.html', objects)
 
+
+MemoryMaterialFormSet = inlineformset_factory(
+    Activity,
+    memoryMaterial,
+    form=MemoryMaterialForm,
+    formset=BaseMemoryMaterialFormSet,
+    extra=2,
+    can_delete=True
+)
+
 def createActivityInfraestructura(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
     if request.method == "POST":
         formActivity = ActivityForm(request.POST)
-        formMemoryMaterial = MemoryMaterialForm(request.POST, project=project)
+        formset = MemoryMaterialFormSet(request.POST)
 
         if formActivity.is_valid():
             activity = formActivity.save(commit=False)
             activity.project = project
             activity.save()
 
-            # Guardar un registro de memoria de material si el usuario lo llenó
-            if formMemoryMaterial.has_changed() and formMemoryMaterial.is_valid():
-                mm = formMemoryMaterial.save(commit=False)
-                mm.activity = activity
-                mm.save()
+            # Importante: asociar los materiales a la activity
+            formset.instance = activity
+            formset.save()
 
             messages.success(request, "Actividad guardada satisfactoriamente.")
             return redirect('mainActivityInfraestructura', pk=project.id)
@@ -44,11 +53,11 @@ def createActivityInfraestructura(request, pk):
         # si Activity no es válida, caerá a render con errores de ambos forms
     else:
         formActivity = ActivityForm()
-        formMemoryMaterial = MemoryMaterialForm(project=project)
+        formset = MemoryMaterialFormSet(queryset=memoryMaterial.objects.none(), project=project)
 
     objects = {
         "project":project,
         "formActivity": formActivity,
-        "formMemoryMaterial": formMemoryMaterial
+        "formset": formset
     }
     return render(request,'createActivityInfraestructura.html',objects)

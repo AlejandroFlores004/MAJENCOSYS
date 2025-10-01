@@ -65,12 +65,12 @@
                                     <tr>
                                         <td>{{ material.material.name }}</td>
                                         <td class="text-center">
-                                            {{ material.material.unit.name|default:"Sin unidad" }}
+                                            {{ material.material.unit.abbreviation|default:"Sin unidad" }}
                                         </td>
                                         <td class="text-center">{{ material.quantity }}</td>
-                                        <td class="text-end">{{ material.material.price }}</td>
+                                        <td class="text-end">${{ material.material.price }}</td>
                                         <td class="text-end">
-                                            {{ material.material.price|multiply:material.quantity }}
+                                            ${{ material.material.price|multiply:material.quantity }}
                                         </td>
                                     </tr>
                                 {% endif %}
@@ -84,10 +84,11 @@
                     <div class="d-inline-block px-3 py-2 bg-light rounded shadow-sm">
                         <strong>Total:</strong>
                         <span class="fs-5 text-primary">
-                            {{ materials|sum_total_by_activity:activity }}
+                            ${{ materials|sum_total_by_activity:activity }}
                         </span>
                     </div>
                 </div>
+            </div>
         </div>
     {% endfor %}
 </div>

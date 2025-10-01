@@ -1,0 +1,25 @@
+<div class="row g-3">
+  <div class="col-md-6">
+    <label for="{{ formActivity.name.id_for_label }}" class="form-label">Nombre de la actividad</label>
+    {{ formActivity.name }}
+    {% for error in formActivity.name.errors %}
+      <div class="invalid-feedback d-block">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="col-md-6">
+    <label for="{{ formActivity.unit.id_for_label }}" class="form-label">Unidad</label>
+    {{ formActivity.unit }}
+    {% for error in formActivity.unit.errors %}
+      <div class="invalid-feedback d-block">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="col-12">
+    <label for="{{ formActivity.description.id_for_label }}" class="form-label">Descripción</label>
+    {{ formActivity.description }}
+    {% for error in formActivity.description.errors %}
+      <div class="invalid-feedback d-block">{{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
