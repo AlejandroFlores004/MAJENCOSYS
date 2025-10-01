@@ -4,6 +4,8 @@ from .models import Activity, memoryMaterial, memoryLabour, memoryTool
 from .forms import ActivityForm, BaseMemoryMaterialFormSet, MemoryMaterialForm
 from django.contrib import messages
 from django.forms import inlineformset_factory
+from django.db import transaction
+
 
 # Create your views here.
 def mainActivityInfraestructura(request, pk):
@@ -27,7 +29,7 @@ MemoryMaterialFormSet = inlineformset_factory(
     memoryMaterial,
     form=MemoryMaterialForm,
     formset=BaseMemoryMaterialFormSet,
-    extra=2,
+    extra=1,           # usamos empty_form para agregar dinámicamente
     can_delete=True
 )
 
@@ -36,28 +38,31 @@ def createActivityInfraestructura(request, pk):
 
     if request.method == "POST":
         formActivity = ActivityForm(request.POST)
-        formset = MemoryMaterialFormSet(request.POST)
 
         if formActivity.is_valid():
-            activity = formActivity.save(commit=False)
-            activity.project = project
-            activity.save()
+            with transaction.atomic():
+                activity = formActivity.save(commit=False)
+                activity.project = project
+                activity.save()
 
-            # Importante: asociar los materiales a la activity
-            formset.instance = activity
-            formset.save()
+                formset = MemoryMaterialFormSet(request.POST, instance=activity)
+                if formset.is_valid():
+                    formset.save()
+                    messages.success(request, "Actividad guardada satisfactoriamente.")
+                    return redirect('mainActivityInfraestructura', pk=project.id)
+                else:
+                    # Si el formset falla, revertimos la actividad creada
+                    transaction.set_rollback(True)
+        else:
+            # Si activity no es válida, crea un formset vacío para re-renderizar con errores
+            formset = MemoryMaterialFormSet()
 
-            messages.success(request, "Actividad guardada satisfactoriamente.")
-            return redirect('mainActivityInfraestructura', pk=project.id)
-
-        # si Activity no es válida, caerá a render con errores de ambos forms
     else:
         formActivity = ActivityForm()
-        formset = MemoryMaterialFormSet(queryset=memoryMaterial.objects.none(), project=project)
+        formset = MemoryMaterialFormSet()  # vacío; renderiza 0 y usas el botón para agregar
 
-    objects = {
-        "project":project,
+    return render(request, 'createActivityInfraestructura.html', {
+        "project": project,
         "formActivity": formActivity,
         "formset": formset
-    }
-    return render(request,'createActivityInfraestructura.html',objects)
+    })
