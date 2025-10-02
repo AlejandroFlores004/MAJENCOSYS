@@ -29,3 +29,35 @@ def sum_total_by_activity(materials, activity):
         return round(total, 2)
     except:
         return Decimal('0.00')
+    
+@register.filter
+def cal_jornal_total(jornal, prestaciones):
+    try:
+        return round(jornal / (1 - prestaciones),2)
+    except (TypeError, ValueError):
+        return 0
+    
+@register.simple_tag
+def sub_total_jornal(jornal, prestaciones,rendimiento):
+    try:
+        return round((jornal / (1 - prestaciones))/rendimiento, 2)
+    except (TypeError, ValueError):
+        return 0
+
+@register.filter
+def sum_total_labour_by_activity(labours, activity):
+    """
+    Suma el total de price * quantity de los materiales
+    que pertenecen a una actividad específica.
+    """
+    try:
+        total = Decimal('0.00')
+        for m in labours:
+            if (
+                m.activity.id == activity.id and 
+                m.labour
+            ):
+                total += (m.labour.price / (1- m.prestation)) / m.performance
+        return round(total, 2)
+    except:
+        return Decimal('0.00')

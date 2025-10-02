@@ -8,17 +8,31 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body p-4">
 
+          {# Si tu base no pinta mensajes, añade aquí un bloque para messages #}
+          
+          
+  
+
           {% if formActivity.non_field_errors %}
             <div class="alert alert-danger mb-4">
               {{ formActivity.non_field_errors }}
             </div>
           {% endif %}
+
           <form method="POST" novalidate>
             {% csrf_token %}
 
             {% include "partials/forms/_activity_form.html" %}
+
             <hr class="my-4">
-            {% include "partials/forms/_memory_material_form.html" %}
+
+            {# Materiales: este parcial usa la variable 'formset' #}
+            {% include "partials/forms/_memory_material_form.html" with formset=materials_formset %}
+
+            <hr class="my-4">
+
+            {# Mano de obra: este parcial usa 'labour_formset' #}
+            {% include "partials/forms/_memory_labour_form.html" with labour_formset=labours_formset %}
 
             <div class="d-flex gap-2 justify-content-end mt-4">
               <a href="{% url 'mainActivityInfraestructura' project.id %}" class="btn btn-outline-secondary">
@@ -29,6 +43,7 @@
               </button>
             </div>
           </form>
+
         </div>
       </div>
     </div>

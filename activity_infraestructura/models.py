@@ -29,7 +29,7 @@ class Activity(models.Model):
     
 class memoryMaterial(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='memory_materials')
-    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='memory_catalogue_materials')
+    material = models.ForeignKey(Material, on_delete=models.SET_NULL, related_name='memory_catalogue_materials', null=True)
     quantity = models.DecimalField("Cantidad", max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))], null=False, blank=False)
 
     class Meta:
@@ -43,7 +43,7 @@ class memoryMaterial(models.Model):
 
 class memoryLabour(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='memory_labours')
-    labour = models.ForeignKey(Labour, on_delete=models.CASCADE, related_name='memory_catalogue_labours')
+    labour = models.ForeignKey(Labour, on_delete=models.SET_NULL, related_name='memory_catalogue_labours', null=True)
     prestation = models.DecimalField("Prestación", max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01")), MaxValueValidator(Decimal("1"))], null=False, blank=False)
     performance = models.DecimalField("Total Jornadas de Trabajo", max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))], null=False, blank=False)
     class Meta:
@@ -57,7 +57,7 @@ class memoryLabour(models.Model):
 
 class memoryTool(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='memory_tools')
-    tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name='memory_catalogue_tools')
+    tool = models.ForeignKey(Tool, on_delete=models.SET_NULL, related_name='memory_catalogue_tools', null=True)
     performance = models.DecimalField("Rendimiento", max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))], null=False, blank=False)
     class Meta:
         verbose_name = "Memoria de Cálculo de Herramienta"
