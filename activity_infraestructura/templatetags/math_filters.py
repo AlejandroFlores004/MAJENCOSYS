@@ -61,3 +61,23 @@ def sum_total_labour_by_activity(labours, activity):
         return round(total, 2)
     except:
         return Decimal('0.00')
+    
+@register.filter
+def sum_total_tool_by_activity(tools, activity):
+    """
+    Suma el total de price * quantity de los materiales
+    que pertenecen a una actividad específica.
+    """
+    try:
+        total = Decimal('0.00')
+        for t in tools:
+            if (
+                t.activity.id == activity.id and 
+                t.tool and 
+                t.tool.dayCost is not None and 
+                t.performance is not None
+            ):
+                total += t.tool.dayCost * t.performance
+        return round(total, 2)
+    except:
+        return Decimal('0.00')

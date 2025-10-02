@@ -143,9 +143,8 @@
                     <thead class="table-light">
                         <tr class="text-center">
                         <th>Descripción</th>
-                        <th>Unidad</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
+                        <th>Rendimiento</th>
+                        <th>Costo dia</th>
                         <th>Subtotal</th>
                         </tr>
                     </thead>
@@ -155,13 +154,10 @@
                             <tr>
                             <td>{{ t.tool.name }}</td>
                             <td class="text-center">
-                               Cambiar
+                               {{ t.performance }}
                             </td>
-                            <td class="text-center">{{ t.quantity }}</td>
-                            <td class="text-end">${{ t.tool.price|floatformat:2 }}</td>
-                            <td class="text-end">
-                               Cambiar
-                            </td>
+                            <td class="text-center">{{ t.tool.dayCost }}</td>
+                            <td class="text-end">${{ t.tool.dayCost|multiply:t.performance }}</td>
                             </tr>
                         {% endif %}
                         {% endfor %}
@@ -173,7 +169,7 @@
                     <div class="d-inline-block px-3 py-2 bg-light rounded shadow-sm">
                     <strong>Total Herramientas:</strong>
                     <span class="fs-5 text-primary">
-                        Cambiar
+                        ${{ tools|sum_total_tool_by_activity:activity }}
                     </span>
                     </div>
                 </div>

@@ -1,7 +1,9 @@
 # forms.py
 from django import forms
 from django.forms import BaseInlineFormSet, ValidationError
-from .models import Activity, memoryMaterial, Material, memoryLabour, Labour
+
+from activity_catalogs.models import Tool
+from .models import Activity, memoryMaterial, Material, memoryLabour, Labour, memoryTool, Tool
 
 
 class ActivityForm(forms.ModelForm):
@@ -99,7 +101,6 @@ class MemoryLabourForm(forms.ModelForm):
                 pass
 
 
-# forms.py (solo este método corregido)
 class BaseMemoryLabourFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
@@ -120,12 +121,63 @@ class BaseMemoryLabourFormSet(BaseInlineFormSet):
                 used_count += 1
                 if not labour:
                     # Usa el NOMBRE del campo, no el label
-                    form.add_error("labour", "Este campo es obligatorio.")
+                    form.add_error("Mano de obra", "Este campo es obligatorio.")
                 if prestation is None:
-                    form.add_error("prestation", "Este campo es obligatorio.")
+                    form.add_error("Prestación", "Este campo es obligatorio.")
                 if performance is None:
-                    form.add_error("performance", "Este campo es obligatorio.")
+                    form.add_error("Rendimiento", "Este campo es obligatorio.")
 
         if used_count < 1:
             # Error no asociado a un campo: mínimo 1 fila
             raise ValidationError("Debes agregar al menos una mano de obra.")
+
+
+class MemoryToolForm(forms.ModelForm):
+    class Meta:
+        model = memoryTool    # ✅ antes estaba mal
+        fields = ["tool", "performance"]
+        labels = {
+            "tool": "Herramienta",
+            "performance": "Rendimiento",
+        }
+        widgets = {
+            "tool": forms.Select(attrs={"class": "form-select"}),
+            "performance": forms.NumberInput(attrs={
+                "class": "form-control",
+                "placeholder": "Rendimiento (ej.: 10.00)",
+                "step": "0.01", "min": "0.01"
+            }),
+        }
+
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if project is not None and "tool" in self.fields:
+            try:
+                self.fields["tool"].queryset = Tool.objects.filter(project=project)
+            except Exception:
+                pass
+
+
+class BaseMemoryToolFormSet(BaseInlineFormSet):   # ✅ ahora sí es clase
+    def clean(self):
+        super().clean()
+
+        used_count = 0
+        for form in self.forms:
+            if not hasattr(form, "cleaned_data"):
+                continue
+            if form.cleaned_data.get("DELETE", False):
+                continue
+
+            tool = form.cleaned_data.get("tool")
+            performance = form.cleaned_data.get("performance")
+
+            if tool or performance is not None:
+                used_count += 1
+                if not tool:
+                    form.add_error("tool", "Este campo es obligatorio.")  # ✅ usa el nombre del campo
+                if performance is None:
+                    form.add_error("performance", "Este campo es obligatorio.")
+
+        if used_count < 1:
+            raise ValidationError("Debes agregar al menos una herramienta.")

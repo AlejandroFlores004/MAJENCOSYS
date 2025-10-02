@@ -1,0 +1,90 @@
+<h5 class="mb-3">Memoria de herramientas</h5>
+{% if formset.non_form_errors %}
+  <div class="alert alert-danger">
+    {% for err in formset.non_form_errors %}
+      <div>{{ err }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+<div id="tools-formset">
+  {{ formset.management_form }}
+
+  {# Forms actuales #}
+  {% for form in formset %}
+    <div class="row g-3 mb-3 border-bottom pb-3 tool-form">
+      <div class="col-md-8">
+        {{ form.tool.label_tag }}
+        {{ form.tool }}
+        {% for error in form.tool.errors %}
+          <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div class="col-md-4">
+        {{ form.performance.label_tag }}
+        {{ form.performance }}
+        {% for error in form.performance.errors %}
+          <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {% if form.DELETE %}
+        <div class="col-12">
+          <label class="form-check-label">
+            {{ form.DELETE }} Eliminar
+            </label>
+        </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    <button type="button" id="add-tool" class="btn btn-outline-primary mt-2">+ Agregar herramienta</button>
+
+</div>
+{# PROTOTIPO: empty_form con __prefix__ #}
+<template id="tool-empty-form">
+  <div class="row g-3 mb-3 border-bottom pb-3 tool-form">
+    <div class="col-md-8">
+      {{ formset.empty_form.tool.label_tag }}
+      {{ formset.empty_form.tool }}
+    </div>
+    <div class="col-md-4">
+      {{ formset.empty_form.performance.label_tag }}
+      {{ formset.empty_form.performance }}
+    </div>
+    {% if formset.can_delete %}
+      <div class="col-12">
+        <label class="form-check-label">
+          {{ formset.empty_form.DELETE }} Eliminar
+        </label>
+      </div>
+    {% endif %}
+  </div>
+</template>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const container   = document.getElementById("tools-formset");
+  const addButton   = document.getElementById("add-tool");
+  // Detecta el TOTAL_FORMS sin depender del prefijo exacto:
+  const totalForms  = container.querySelector('input[name$="-TOTAL_FORMS"]');
+  const templateEl  = document.getElementById("tool-empty-form");
+
+  addButton.addEventListener("click", function() {
+    const formIndex = parseInt(totalForms.value, 10);
+    const html      = templateEl.innerHTML.replaceAll(/__prefix__/g, String(formIndex));
+
+    // Inserta el nuevo form antes del botón
+    addButton.insertAdjacentHTML("beforebegin", html);
+
+    // Incrementa TOTAL_FORMS
+    totalForms.value = formIndex + 1;
+  });
+
+  // (Opcional) Delegación para marcar eliminar y ocultar visualmente
+  container.addEventListener("change", function(e) {
+    if (e.target.type === "checkbox" && e.target.name.endsWith("-DELETE")) {
+      const row = e.target.closest(".material-form");
+      if (row) row.classList.toggle("opacity-50", e.target.checked);
+    }
+  });
+});
+</script>

@@ -9,7 +9,8 @@ from .models import Activity, memoryMaterial, memoryLabour, memoryTool
 from .forms import (
     ActivityForm,
     BaseMemoryMaterialFormSet, MemoryMaterialForm,
-    BaseMemoryLabourFormSet,  MemoryLabourForm
+    BaseMemoryLabourFormSet,  MemoryLabourForm,
+    BaseMemoryToolFormSet, MemoryToolForm
 )
 
 
@@ -46,6 +47,15 @@ MemoryLabourFormSet = inlineformset_factory(
     can_delete=True
 )
 
+MemoryToolFormSet = inlineformset_factory(
+    Activity,
+    memoryTool,
+    form=MemoryToolForm,
+    formset=BaseMemoryToolFormSet,
+    extra=1,
+    can_delete=True
+)
+
 
 def createActivityInfraestructura(request, pk):
     project = get_object_or_404(Project, pk=pk)
@@ -59,6 +69,9 @@ def createActivityInfraestructura(request, pk):
             request.POST, instance=temp_activity, form_kwargs={'project': project}
         )
         labours_formset = MemoryLabourFormSet(
+            request.POST, instance=temp_activity, form_kwargs={'project': project}
+        )
+        tools_formset = MemoryToolFormSet(
             request.POST, instance=temp_activity, form_kwargs={'project': project}
         )
 
@@ -75,14 +88,19 @@ def createActivityInfraestructura(request, pk):
                 labours_formset = MemoryLabourFormSet(
                     request.POST, instance=activity, form_kwargs={'project': project}
                 )
+                tools_formset = MemoryToolFormSet(
+                    request.POST, instance=activity, form_kwargs={'project': project}
+                )
 
                 # ⚠️ Validar por separado (NO usar "and" para evitar short-circuit)
                 valid_materials = materials_formset.is_valid()
                 valid_labours   = labours_formset.is_valid()
+                valid_tools     = tools_formset.is_valid()
 
-                if valid_materials and valid_labours:
+                if valid_materials and valid_labours and valid_tools:
                     materials_formset.save()
                     labours_formset.save()
+                    tools_formset.save()
                     messages.success(request, "Actividad guardada satisfactoriamente.")
                     return redirect('mainActivityInfraestructura', pk=project.id)
                 else:
@@ -93,6 +111,9 @@ def createActivityInfraestructura(request, pk):
                     if not valid_labours:
                         for e in labours_formset.non_form_errors():
                             messages.error(request, f"Mano de obra: {e}")
+                    if not valid_tools:
+                        for e in tools_formset.non_form_errors():
+                            messages.error(request, f"Herramientas: {e}")
 
                     # Marca rollback de la Activity creada
                     transaction.set_rollback(True)
@@ -105,10 +126,13 @@ def createActivityInfraestructura(request, pk):
         formActivity = ActivityForm()
         materials_formset = MemoryMaterialFormSet(form_kwargs={'project': project})
         labours_formset   = MemoryLabourFormSet(form_kwargs={'project': project})
+        tools_formset     = MemoryToolFormSet(form_kwargs={'project': project})
 
     return render(request, 'createActivityInfraestructura.html', {
         "project": project,
         "formActivity": formActivity,
         "materials_formset": materials_formset,
-        "labours_formset": labours_formset
+        "labours_formset": labours_formset,
+        "tools_formset": tools_formset
     })
+
