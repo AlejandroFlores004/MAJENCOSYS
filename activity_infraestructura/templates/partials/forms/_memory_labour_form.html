@@ -14,6 +14,7 @@
 
   {% for form in labour_formset %}
     <div class="row g-3 mb-3 border-bottom pb-3 labour-form">
+      {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
       <div class="col-md-6">
         {{ form.labour.label_tag }} 
         {{ form.labour }}
@@ -52,6 +53,7 @@
 
 <template id="labour-empty-form">
   <div class="row g-3 mb-3 border-bottom pb-3 labour-form">
+    {% for hidden in labour_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
     <div class="col-md-6">
       {{ labour_formset.empty_form.labour.label_tag }}
       {{ labour_formset.empty_form.labour }}

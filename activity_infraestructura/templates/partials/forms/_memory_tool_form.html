@@ -12,6 +12,7 @@
   {# Forms actuales #}
   {% for form in formset %}
     <div class="row g-3 mb-3 border-bottom pb-3 tool-form">
+        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
       <div class="col-md-8">
         {{ form.tool.label_tag }}
         {{ form.tool }}
@@ -42,6 +43,7 @@
 {# PROTOTIPO: empty_form con __prefix__ #}
 <template id="tool-empty-form">
   <div class="row g-3 mb-3 border-bottom pb-3 tool-form">
+    {% for hidden in labour_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
     <div class="col-md-8">
       {{ formset.empty_form.tool.label_tag }}
       {{ formset.empty_form.tool }}
