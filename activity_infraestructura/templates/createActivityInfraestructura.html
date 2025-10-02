@@ -8,10 +8,22 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body p-4">
 
-          {# Si tu base no pinta mensajes, añade aquí un bloque para messages #}
-          
-          
-  
+          {% if messages %}
+            <div id="top-right-toast" class="position-relative mb-3" style="z-index:1080;">
+              {% for m in messages %}
+                <div class="alert alert-{{ m.tags }} shadow text-center mb-2">{{ m }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">
+              {% if mode == 'edit' %}Editar actividad{% else %}Nueva actividad{% endif %}
+            </h3>
+            <small class="text-muted">
+              Proyecto: <strong>{{ project.nombre }}</strong>
+            </small>
+          </div>
 
           {% if formActivity.non_field_errors %}
             <div class="alert alert-danger mb-4">
@@ -19,40 +31,97 @@
             </div>
           {% endif %}
 
-          <form method="POST" novalidate>
+          {# ==== Construimos la URL de acción de forma segura ==== #}
+          {% if mode == 'edit' and activity %}
+            {% url 'update_activity_infraestructura' project.id activity.id as action_url %}
+          {% else %}
+            {% url 'create_new_activity_infraestructura' project.id as action_url %}
+          {% endif %}
+
+          <form method="POST" action="{{ action_url }}" novalidate>
             {% csrf_token %}
 
+            {# === Datos de la actividad === #}
             {% include "partials/forms/_activity_form.html" %}
 
             <hr class="my-4">
 
-            {# Materiales: este parcial usa la variable 'formset' #}
+            {# === Materiales: este parcial usa la variable 'formset' === #}
             {% include "partials/forms/_memory_material_form.html" with formset=materials_formset %}
 
             <hr class="my-4">
 
-            {# Mano de obra: este parcial usa 'labour_formset' #}
+            {# === Mano de obra: este parcial usa 'labour_formset' === #}
             {% include "partials/forms/_memory_labour_form.html" with labour_formset=labours_formset %}
+
             <hr class="my-4">
 
-            {# Herramientas: este parcial usa 'tool_formset' #}
+            {# === Herramientas: este parcial usa 'formset' === #}
             {% include "partials/forms/_memory_tool_form.html" with formset=tools_formset %}
 
-            {# Botones de acción #}
+            {# === Bloque para ver errores si algo no valida === #}
+            {% if formActivity.errors %}
+              <div class="alert alert-danger mt-4">
+                <strong>Errores en Actividad:</strong>
+                <ul class="mb-0">
+                  {% for field, errs in formActivity.errors.items %}
+                    {% for e in errs %}<li>{{ field }}: {{ e }}</li>{% endfor %}
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            {% if materials_formset.non_form_errors %}
+              <div class="alert alert-danger mt-3">
+                <strong>Materiales:</strong>
+                <ul class="mb-0">
+                  {% for e in materials_formset.non_form_errors %}<li>{{ e }}</li>{% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            {% if labours_formset.non_form_errors %}
+              <div class="alert alert-danger mt-3">
+                <strong>Mano de obra:</strong>
+                <ul class="mb-0">
+                  {% for e in labours_formset.non_form_errors %}<li>{{ e }}</li>{% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            {% if tools_formset.non_form_errors %}
+              <div class="alert alert-danger mt-3">
+                <strong>Herramientas:</strong>
+                <ul class="mb-0">
+                  {% for e in tools_formset.non_form_errors %}<li>{{ e }}</li>{% endfor %}
+                </ul>
+              </div>
+            {% endif %}
 
             <div class="d-flex gap-2 justify-content-end mt-4">
               <a href="{% url 'mainActivityInfraestructura' project.id %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left-short me-1"></i> Cancelar
               </a>
               <button type="submit" class="btn btn-primary">
-                <i class="bi bi-save2 me-1"></i> Guardar
+                <i class="bi bi-save2 me-1"></i>
+                {% if mode == 'edit' %}Guardar cambios{% else %}Guardar{% endif %}
               </button>
             </div>
           </form>
+
+          {# ——— DEBUG opcional: ver a qué URL está posteando ———
+          <div class="mt-3 small text-muted">POST a: {{ action_url }}</div>
+          #}
 
         </div>
       </div>
     </div>
   </div>
 </div>
+
+{% if messages %}
+<script>
+  setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+</script>
+{% endif %}
 {% endblock content %}

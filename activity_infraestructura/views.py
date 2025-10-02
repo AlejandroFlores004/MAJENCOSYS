@@ -34,7 +34,7 @@ MemoryMaterialFormSet = inlineformset_factory(
     memoryMaterial,
     form=MemoryMaterialForm,
     formset=BaseMemoryMaterialFormSet,
-    extra=1,          # 1 fila inicial visible
+    extra=0,          # 1 fila inicial visible
     can_delete=True
 )
 
@@ -43,7 +43,7 @@ MemoryLabourFormSet = inlineformset_factory(
     memoryLabour,
     form=MemoryLabourForm,
     formset=BaseMemoryLabourFormSet,
-    extra=1,
+    extra=0,
     can_delete=True
 )
 
@@ -52,7 +52,7 @@ MemoryToolFormSet = inlineformset_factory(
     memoryTool,
     form=MemoryToolForm,
     formset=BaseMemoryToolFormSet,
-    extra=1,
+    extra=0,
     can_delete=True
 )
 
@@ -136,3 +136,64 @@ def createActivityInfraestructura(request, pk):
         "tools_formset": tools_formset
     })
 
+def updateActivityInfraestructura(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    if request.method == "POST":
+        formActivity = ActivityForm(request.POST, instance=activity)
+
+        materials_formset = MemoryMaterialFormSet(
+            request.POST, instance=activity, form_kwargs={'project': project}
+        )
+        labours_formset = MemoryLabourFormSet(
+            request.POST, instance=activity, form_kwargs={'project': project}
+        )
+        tools_formset = MemoryToolFormSet(
+            request.POST, instance=activity, form_kwargs={'project': project}
+        )
+
+        if formActivity.is_valid():
+            with transaction.atomic():
+                formActivity.save()
+
+                valid_materials = materials_formset.is_valid()
+                valid_labours   = labours_formset.is_valid()
+                valid_tools     = tools_formset.is_valid()
+
+                if valid_materials and valid_labours and valid_tools:
+                    materials_formset.save()
+                    labours_formset.save()
+                    tools_formset.save()
+
+                    messages.success(request, "Actividad actualizada correctamente.")
+                    return redirect('mainActivityInfraestructura', pk=project.id)
+                else:
+                    if not valid_materials:
+                        for e in materials_formset.non_form_errors():
+                            messages.error(request, f"Materiales: {e}")
+                    if not valid_labours:
+                        for e in labours_formset.non_form_errors():
+                            messages.error(request, f"Mano de obra: {e}")
+                    if not valid_tools:
+                        for e in tools_formset.non_form_errors():
+                            messages.error(request, f"Herramientas: {e}")
+        else:
+            messages.error(request, "Revisa los datos de la actividad.")
+    else:
+        formActivity = ActivityForm(instance=activity)
+        materials_formset = MemoryMaterialFormSet(instance=activity, form_kwargs={'project': project})
+        labours_formset   = MemoryLabourFormSet(instance=activity, form_kwargs={'project': project})
+        tools_formset     = MemoryToolFormSet(instance=activity, form_kwargs={'project': project})
+
+    return render(request, 'createActivityInfraestructura.html', {  # reutilizamos la misma plantilla
+        "mode": "edit",
+        "project": project,
+        "activity": activity,
+        "formActivity": formActivity,
+        "materials_formset": materials_formset,
+        "labours_formset": labours_formset,
+        "tools_formset": tools_formset,
+        # Útil para que el template sepa a dónde enviar el form
+        "post_url": 'update_activity_infraestructura',
+    })
