@@ -16,6 +16,7 @@ urlpatterns = [
     path('admon_project',include('project.urls'),name='project'),
     path('usuario_informacion', userInfo, name="infoUser"),
     path('dashboard/project/<int:pk>/', dashboardProject, name='dashboardProject'),
+    path('dashboard/project/<int:pk>/catalogos/', include('activity_catalogs.urls'), name='activity_catalogs'),
     path('dashboard/project/<int:pk>/infraestructura/', include('activity_infraestructura.urls'), name='activity_infraestructura'),
     path('dashboard/project/<int:pk>/alcantarillado/', include('activity_alcantarillado.urls'), name='activity_alcantarillado'),
     path('dashboard/project/<int:pk>/obras_mitigacion/', include('activity_obras_mitigacion.urls'), name='activity_obras_mitigacion'),

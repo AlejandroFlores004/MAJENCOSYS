@@ -27,7 +27,14 @@
           <div class="invalid-feedback d-block">{{ error }}</div>
         {% endfor %}
       </div>
-
+      <button type="button" class="btn btn-outline-success btn-sm"
+          onclick="openToolPopup({{ project.id }})">
+        +
+    </button>
+    <button type="button" class="btn btn-outline-primary btn-sm"
+          onclick="openEditToolPopup({{ project.id }}, this)">
+      ✎
+    </button>
       {% if form.DELETE %}
         <div class="col-12">
           <label class="form-check-label">
@@ -52,6 +59,14 @@
       {{ formset.empty_form.performance.label_tag }}
       {{ formset.empty_form.performance }}
     </div>
+    <button type="button" class="btn btn-outline-success btn-sm"
+          onclick="openToolPopup({{ project.id }})">
+        +
+    </button>
+    <button type="button" class="btn btn-outline-primary btn-sm"
+          onclick="openEditToolPopup({{ project.id }}, this)">
+      ✎
+    </button>
     {% if formset.can_delete %}
       <div class="col-12">
         <label class="form-check-label">
@@ -89,4 +104,57 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 });
+function openToolPopup(projectId) {
+  const url = `/dashboard/project/${projectId}/catalogos/tools/?popup=1`;  // Ajusta al path real de tu url
+  window.open(url, "Agregar Herramienta",
+              "width=600,height=400,resizable=yes,scrollbars=yes");
+}
+
+// Esta función será llamada desde el popup al guardar
+function closePopupAndAddTool(pk, text) {
+  // Encuentra el último select de herramienta agregado (o todos si quieres actualizar)
+  const selects = document.querySelectorAll("select[name$='-tool']");
+  if (selects.length > 0) {
+    const select = selects[selects.length - 1];
+    const option = new Option(text, pk, true, true); // seleccionado = true
+    select.insertBefore(option, select.firstChild);  // al inicio
+    select.value = pk; // selecciona el nuevo
+    select.dispatchEvent(new Event("change")); // dispara evento por si usas JS extra
+  }
+}
+
+
+function openEditToolPopup(projectId, btn) {
+  const select = btn.closest(".row").querySelector("select[name$='-tool']");
+  const toolId = select.value;
+  if (!toolId) {
+    alert("Selecciona una herramienta para editar.");
+    return;
+  }
+  const url = `/dashboard/project/${projectId}/catalogos/tools/edit/${toolId}/?popup=1`;
+  window.open(url, "Editar Herramienta", "width=600,height=400,resizable=yes,scrollbars=yes");
+}
+
+function closePopupAndAddTool(pk, text) {
+  const selects = document.querySelectorAll("select[name$='-tool']");
+  if (selects.length > 0) {
+    const select = selects[selects.length - 1];
+    const option = new Option(text, pk, true, true);
+    select.insertBefore(option, select.firstChild);
+    select.value = pk;
+    select.dispatchEvent(new Event("change"));
+  }
+}
+
+// ✅ Actualiza la opción existente al editar
+function updateToolInSelect(pk, text) {
+  const selects = document.querySelectorAll("select[name$='-tool']");
+  selects.forEach(select => {
+    const option = select.querySelector(`option[value="${pk}"]`);
+    if (option) {
+      option.text = text;
+    }
+  });
+}
+
 </script>
