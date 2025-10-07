@@ -1,4 +1,3 @@
-{# templates/partials/activities/_activity_list.html #}
 {% load math_filters %}
 
 <div class="list-group">
@@ -23,8 +22,8 @@
         <div class="col-12 col-md-2 text-center text-md-end">
           <div class="btn-group">
             <a href="{% url 'update_activity_infraestructura' project.id activity.id %}"
-                class="btn btn-outline-warning btn-sm" title="Editar">
-                <i class="bi bi-pencil"></i>
+               class="btn btn-outline-warning btn-sm" title="Editar">
+              <i class="bi bi-pencil"></i>
             </a>
             <form action="#" method="post" class="d-inline">
               {% csrf_token %}
@@ -36,12 +35,26 @@
         </div>
       </div>
 
-      {# ======= incluye parciales por bloque ======= #}
-      {% include "partials/tables/_materials_table.html" with activity=activity materials=materials only %}
+      {# ======= BOTÓN PARA MOSTRAR / OCULTAR DETALLES ======= #}
+      <div class="text-center mt-3">
+        <button class="btn btn-sm btn-outline-secondary"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#activity-details-{{ activity.id }}"
+                aria-expanded="false"
+                aria-controls="activity-details-{{ activity.id }}">
+          <i class="bi bi-chevron-down me-1"></i> Detalles
+        </button>
+      </div>
 
-      {% include "partials/tables/_labours_table.html" with activity=activity labours=labours only %}
-
-      {% include "partials/tables/_tools_table.html" with activity=activity tools=tools only %}
+      {# ======= CONTENIDO COLAPSABLE ======= #}
+      <div class="collapse mt-3" id="activity-details-{{ activity.id }}">
+        <div class="card card-body border-0 p-0">
+          {% include "partials/tables/_materials_table.html" with activity=activity materials=materials only %}
+          {% include "partials/tables/_labours_table.html" with activity=activity labours=labours only %}
+          {% include "partials/tables/_tools_table.html" with activity=activity tools=tools only %}
+        </div>
+      </div>
     </div>
   {% endfor %}
 </div>

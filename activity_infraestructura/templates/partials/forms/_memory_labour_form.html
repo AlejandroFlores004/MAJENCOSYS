@@ -1,11 +1,9 @@
-{# partials/forms/_memory_labour_form.html #}
+{% load static %}
 <h5 class="mb-3">Memoria de mano de obra</h5>
 
 {% if labour_formset.non_form_errors %}
   <div class="alert alert-danger">
-    {% for err in labour_formset.non_form_errors %}
-      <div>{{ err }}</div>
-    {% endfor %}
+    {% for err in labour_formset.non_form_errors %}<div>{{ err }}</div>{% endfor %}
   </div>
 {% endif %}
 
@@ -13,90 +11,117 @@
   {{ labour_formset.management_form }}
 
   {% for form in labour_formset %}
-    <div class="row g-3 mb-3 border-bottom pb-3 labour-form">
+    <div class="mb-3 border-bottom pb-3 labour-form">
       {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-      <div class="col-md-6">
-        {{ form.labour.label_tag }} 
-        {{ form.labour }}
-        {% for error in form.labour.errors %}
-          <div class="invalid-feedback d-block">{{ error }}</div>
-        {% endfor %}
-      </div>
-      <div class="col-md-3">
-        {{ form.prestation.label_tag }}
-        {{ form.prestation }}
-        <small class="text-muted d-block">Valor entre 0.01 y 1.00</small>
-        {% for error in form.prestation.errors %}
-          <div class="invalid-feedback d-block">{{ error }}</div>
-        {% endfor %}
-      </div>
-      <div class="col-md-3">
-        {{ form.performance.label_tag }}
-        {{ form.performance }}
-        {% for error in form.performance.errors %}
-          <div class="invalid-feedback d-block">{{ error }}</div>
-        {% endfor %}
+
+      {# FILA: SELECT arriba + botones separados #}
+      <div class="row g-2 align-items-end">
+        <div class="col">
+          {{ form.labour.label_tag }}
+          {{ form.labour }}
+          {% for error in form.labour.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-auto d-flex gap-2 pb-1">
+          <button type="button"
+                  class="btn btn-outline-success btn-sm"
+                  onclick="openLabourPopup({{ project.id }})"
+                  title="Agregar mano de obra">
+            <i class="bi bi-plus"></i>
+          </button>
+          <button type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="openEditLabourPopup({{ project.id }}, this)"
+                  title="Editar mano de obra">
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
       </div>
 
-      {% if form.DELETE %}
-        <div class="col-12">
-          <label class="form-check-label">
-            {{ form.DELETE }} Eliminar
-          </label>
+      {# FILA: RESTO DE CAMPOS #}
+      <div class="row g-3 mt-2">
+        <div class="col-12 col-md-6 col-lg-4">
+          {{ form.prestation.label_tag }}
+          {{ form.prestation }}
+          <small class="text-muted d-block">Valor entre 0.01 y 1.00</small>
+          {% for error in form.prestation.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+          {% endfor %}
         </div>
-      {% endif %}
+
+        <div class="col-12 col-md-6 col-lg-4">
+          {{ form.performance.label_tag }}
+          {{ form.performance }}
+          {% for error in form.performance.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        {% if form.DELETE %}
+          <div class="col-12 col-lg-4 d-flex align-items-center">
+            <div class="form-check">
+              {{ form.DELETE }} <label class="form-check-label">Eliminar</label>
+            </div>
+          </div>
+        {% endif %}
+      </div>
     </div>
   {% endfor %}
 
-  <button type="button" id="add-labour" class="btn btn-outline-primary mt-2">+ Agregar mano de obra</button>
+  <button type="button" id="add-labour" class="btn btn-outline-primary mt-2">
+    + Agregar mano de obra
+  </button>
 </div>
 
 <template id="labour-empty-form">
-  <div class="row g-3 mb-3 border-bottom pb-3 labour-form">
+  <div class="mb-3 border-bottom pb-3 labour-form">
     {% for hidden in labour_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
-    <div class="col-md-6">
-      {{ labour_formset.empty_form.labour.label_tag }}
-      {{ labour_formset.empty_form.labour }}
-    </div>
-    <div class="col-md-3">
-      {{ labour_formset.empty_form.prestation.label_tag }}
-      {{ labour_formset.empty_form.prestation }}
-      <small class="text-muted d-block">Valor entre 0.01 y 1.00</small>
-    </div>
-    <div class="col-md-3">
-      {{ labour_formset.empty_form.performance.label_tag }}
-      {{ labour_formset.empty_form.performance }}
-    </div>
-    {% if labour_formset.can_delete %}
-      <div class="col-12">
-        <label class="form-check-label">
-          {{ labour_formset.empty_form.DELETE }} Eliminar
-        </label>
+
+    {# FILA: SELECT arriba + botones separados #}
+    <div class="row g-2 align-items-end">
+      <div class="col">
+        {{ labour_formset.empty_form.labour.label_tag }}
+        {{ labour_formset.empty_form.labour }}
       </div>
-    {% endif %}
+      <div class="col-auto d-flex gap-2 pb-1">
+        <button type="button"
+                class="btn btn-outline-success btn-sm"
+                onclick="openLabourPopup({{ project.id }})"
+                title="Agregar mano de obra">
+          <i class="bi bi-plus"></i>
+        </button>
+        <button type="button"
+                class="btn btn-outline-primary btn-sm"
+                onclick="openEditLabourPopup({{ project.id }}, this)"
+                title="Editar mano de obra">
+          <i class="bi bi-pencil"></i>
+        </button>
+      </div>
+    </div>
+
+    {# FILA: RESTO DE CAMPOS #}
+    <div class="row g-3 mt-2">
+      <div class="col-12 col-md-6 col-lg-4">
+        {{ labour_formset.empty_form.prestation.label_tag }}
+        {{ labour_formset.empty_form.prestation }}
+        <small class="text-muted d-block">Valor entre 0.01 y 1.00</small>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        {{ labour_formset.empty_form.performance.label_tag }}
+        {{ labour_formset.empty_form.performance }}
+      </div>
+
+      {% if labour_formset.can_delete %}
+        <div class="col-12 col-lg-4 d-flex align-items-center">
+          <div class="form-check">
+            {{ labour_formset.empty_form.DELETE }} <label class="form-check-label">Eliminar</label>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </div>
 </template>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const container  = document.getElementById("labours-formset");
-  const addButton  = document.getElementById("add-labour");
-  const totalForms = container.querySelector('input[name$="-TOTAL_FORMS"]');
-  const proto      = document.getElementById("labour-empty-form");
-
-  addButton.addEventListener("click", function() {
-    const index = parseInt(totalForms.value, 10);
-    const html  = proto.innerHTML.replaceAll(/__prefix__/g, String(index));
-    addButton.insertAdjacentHTML("beforebegin", html);
-    totalForms.value = index + 1;
-  });
-
-  // (Opcional) marcar DELETE y bajar opacidad al eliminar
-  container.addEventListener("change", function(e) {
-    if (e.target.type === "checkbox" && e.target.name.endsWith("-DELETE")) {
-      const row = e.target.closest(".labour-form");
-      if (row) row.classList.toggle("opacity-50", e.target.checked);
-    }
-  });
-});
-</script>
+<script src="{% static 'js/form_labours.js' %}"></script>

@@ -1,93 +1,114 @@
+{% load static %}
 <h5 class="mb-3">Memoria de materiales</h5>
+
 {% if formset.non_form_errors %}
   <div class="alert alert-danger">
-    {% for err in formset.non_form_errors %}
-      <div>{{ err }}</div>
-    {% endfor %}
+    {% for err in formset.non_form_errors %}<div>{{ err }}</div>{% endfor %}
   </div>
 {% endif %}
+
 <div id="materials-formset">
   {{ formset.management_form }}
 
   {# Forms actuales #}
   {% for form in formset %}
-    <div class="row g-3 mb-3 border-bottom pb-3 material-form">
+    <div class="mb-3 border-bottom pb-3 material-form">
       {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-      <div class="col-md-8">
-        {{ form.material.label_tag }}
-        {{ form.material }}
-        {% for error in form.material.errors %}
-          <div class="invalid-feedback d-block">{{ error }}</div>
-        {% endfor %}
-      </div>
-      <div class="col-md-4">
-        {{ form.quantity.label_tag }}
-        {{ form.quantity }}
-        {% for error in form.quantity.errors %}
-          <div class="invalid-feedback d-block">{{ error }}</div>
-        {% endfor %}
+
+      {# FILA: SELECT arriba + botones separados #}
+      <div class="row g-2 align-items-end">
+        <div class="col">
+          {{ form.material.label_tag }}
+          {{ form.material }}
+          {% for error in form.material.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-auto d-flex gap-2 pb-1">
+          <button type="button"
+                  class="btn btn-outline-success"
+                  onclick="openMaterialPopup({{ project.id }})"
+                  title="Agregar material">
+            <i class="bi bi-plus"></i>
+          </button>
+          <button type="button"
+                  class="btn btn-outline-primary"
+                  onclick="openEditMaterialPopup({{ project.id }}, this)"
+                  title="Editar material seleccionado">
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
       </div>
 
-      {% if form.DELETE %}
-        <div class="col-12">
-          <label class="form-check-label">
-            {{ form.DELETE }} Eliminar
-          </label>
+      {# FILA: RESTO DE CAMPOS #}
+      <div class="row g-3 mt-2">
+        <div class="col-12 col-md-6 col-lg-4">
+          {{ form.quantity.label_tag }}
+          {{ form.quantity }}
+          {% for error in form.quantity.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+          {% endfor %}
         </div>
-      {% endif %}
+
+        {% if form.DELETE %}
+          <div class="col-12 col-md-6 d-flex align-items-center">
+            <div class="form-check">
+              {{ form.DELETE }} <label class="form-check-label">Eliminar</label>
+            </div>
+          </div>
+        {% endif %}
+      </div>
     </div>
   {% endfor %}
 
-  <button type="button" id="add-material" class="btn btn-outline-primary mt-2">+ Agregar material</button>
+  <button type="button" id="add-material" class="btn btn-outline-primary mt-2">
+    + Agregar material
+  </button>
 </div>
 
 {# PROTOTIPO: empty_form con __prefix__ #}
 <template id="material-empty-form">
-  <div class="row g-3 mb-3 border-bottom pb-3 material-form">
-    {% for hidden in labour_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
-    <div class="col-md-8">
-      {{ formset.empty_form.material.label_tag }}
-      {{ formset.empty_form.material }}
-    </div>
-    <div class="col-md-4">
-      {{ formset.empty_form.quantity.label_tag }}
-      {{ formset.empty_form.quantity }}
-    </div>
-    {% if formset.can_delete %}
-      <div class="col-12">
-        <label class="form-check-label">
-          {{ formset.empty_form.DELETE }} Eliminar
-        </label>
+  <div class="mb-3 border-bottom pb-3 material-form">
+    {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+
+    {# FILA: SELECT arriba + botones separados #}
+    <div class="row g-2 align-items-end">
+      <div class="col">
+        {{ formset.empty_form.material.label_tag }}
+        {{ formset.empty_form.material }}
       </div>
-    {% endif %}
+      <div class="col-auto d-flex gap-2 pb-1">
+        <button type="button"
+                class="btn btn-outline-success"
+                onclick="openMaterialPopup({{ project.id }})"
+                title="Agregar material">
+          <i class="bi bi-plus"></i>
+        </button>
+        <button type="button"
+                class="btn btn-outline-primary"
+                onclick="openEditMaterialPopup({{ project.id }}, this)"
+                title="Editar material seleccionado">
+          <i class="bi bi-pencil"></i>
+        </button>
+      </div>
+    </div>
+
+    {# FILA: RESTO DE CAMPOS #}
+    <div class="row g-3 mt-2">
+      <div class="col-12 col-md-6 col-lg-4">
+        {{ formset.empty_form.quantity.label_tag }}
+        {{ formset.empty_form.quantity }}
+      </div>
+
+      {% if formset.can_delete %}
+        <div class="col-12 col-md-6 d-flex align-items-center">
+          <div class="form-check">
+            {{ formset.empty_form.DELETE }} <label class="form-check-label">Eliminar</label>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </div>
 </template>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const container   = document.getElementById("materials-formset");
-  const addButton   = document.getElementById("add-material");
-  // Detecta el TOTAL_FORMS sin depender del prefijo exacto:
-  const totalForms  = container.querySelector('input[name$="-TOTAL_FORMS"]');
-  const templateEl  = document.getElementById("material-empty-form");
-
-  addButton.addEventListener("click", function() {
-    const formIndex = parseInt(totalForms.value, 10);
-    const html      = templateEl.innerHTML.replaceAll(/__prefix__/g, String(formIndex));
-
-    // Inserta el nuevo form antes del botón
-    addButton.insertAdjacentHTML("beforebegin", html);
-
-    // Incrementa TOTAL_FORMS
-    totalForms.value = formIndex + 1;
-  });
-
-  // (Opcional) Delegación para marcar eliminar y ocultar visualmente
-  container.addEventListener("change", function(e) {
-    if (e.target.type === "checkbox" && e.target.name.endsWith("-DELETE")) {
-      const row = e.target.closest(".material-form");
-      if (row) row.classList.toggle("opacity-50", e.target.checked);
-    }
-  });
-});
-</script>
+<script src="{% static 'js/form_materials.js' %}"></script>

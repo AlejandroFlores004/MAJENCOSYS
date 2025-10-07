@@ -49,7 +49,7 @@ class Material(models.Model):
 
     def __str__(self):
         u = self.unit.abbreviation if self.unit else "sin unidad"
-        return f"{self.name} - {u} - ${self.price} ({self.project})"
+        return f"{self.name} - {u} - ${self.price}"
 
 
 class Labour(models.Model):
@@ -75,7 +75,7 @@ class Labour(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return f"{self.name} - ${self.price} ({self.project})"
+        return f"{self.name} - ${self.price}"
     
 class Tool(models.Model):
     name = models.CharField("Nombre", max_length=100, null=False, blank= False)

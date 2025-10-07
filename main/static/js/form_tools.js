@@ -44,12 +44,37 @@
   // ====== Helpers para actualizar selects ======
   function _ensureSelect2Change(el) {
     if (!el) return;
-    if (isSelect2Available()) {
-      jQuery(el).trigger("change.select2");
-    } else {
-      el.dispatchEvent(new Event("change"));
+    // Select2 4.x escucha 'change' normal.
+    try {
+      if (isSelect2Available() && jQuery(el).data('select2')) {
+        jQuery(el).trigger('change'); // <- clave
+      } else {
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    } catch {
+      el.dispatchEvent(new Event('change', { bubbles: true }));
     }
   }
+
+  function _refreshSelect2(sel) {
+    if (!sel) return;
+    try {
+      if (isSelect2Available() && jQuery(sel).data('select2')) {
+        // forzar que Select2 rehaga el render del label seleccionado
+        jQuery(sel).trigger('change'); // <- NO usar change.select2
+      } else {
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    } catch {
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+
+function _findOption(sel, id) {
+  const vid = String(id);
+  return Array.from(sel.options).find(o => String(o.value) === vid) || null;
+}
+
 
   function _refreshSelect2(sel) {
   if (!sel) return;
@@ -212,17 +237,45 @@ function _findOption(sel, id) {
 
   // Actualizar el texto de la herramienta editada en TODOS los selects que la tengan
   window.updateToolInSelect = function (id, label) {
+    const vid = String(id);
     const selects = document.querySelectorAll('select[name$="-tool"]');
+
     selects.forEach(sel => {
-      const opt = Array.from(sel.options).find(o => String(o.value) === String(id));
-      if (opt) {
-        const isSelected = sel.value === String(id);
-        opt.text = label;
-        if (isSelected) sel.value = id; // re-asignar por si select2 necesita refresco
-        _ensureSelect2Change(sel);
+      // 1) Busca (o crea) la opción
+      let opt = _findOption(sel, vid);
+      if (!opt) {
+        opt = new Option(label, vid, false, false);
+        sel.add(opt);
+      }
+
+      // 2) Actualiza el texto SIEMPRE (seleccionada o no)
+      opt.text = label;
+
+      // 3) Si está seleccionada en este select, re-asigna el valor para asegurar estado
+      const wasSelected = String(sel.value) === vid;
+      if (wasSelected) {
+        sel.value = vid; // reafirma selección
+      }
+
+      // 4) Dispara el cambio para que Select2 repinte
+      _ensureSelect2Change(sel);
+
+      // 5) (Opcional) Si por alguna razón no repintó (algunas versiones de Select2 cachean),
+      //    fuerza un reinit rápido SOLO cuando estaba seleccionada y el texto visible no cambió.
+      if (isSelect2Available() && jQuery(sel).data('select2') && wasSelected) {
+        const $sel = jQuery(sel);
+        // Chequeo simple del render actual
+        const rendered = $sel.next('.select2').find('.select2-selection__rendered');
+        if (rendered.length && rendered.text().trim() !== label.trim()) {
+          // re-init suave
+          $sel.select2('destroy');
+          initSelect2On(sel);
+          $sel.val(vid).trigger('change');
+        }
       }
     });
   };
+
 
   // ---- LABOUR: (dejamos tus funciones tal como estaban) ----
   window.openLabourPopup = function (projectId) {
@@ -260,4 +313,158 @@ function _findOption(sel, id) {
       console.error("[tools_formset] openEditLabourPopup error", err);
     }
   };
+
+  // ====== Estado: select activo de mano de obra ======
+  window._labourActiveSelect = null;
+
+  const _rememberActiveLabourSelectFromButton = (btnEl) => {
+    try {
+      const row = (btnEl && btnEl.closest(".labour-form")) || null;
+      window._labourActiveSelect = row ? row.querySelector('select[name$="-labour"]') : null;
+    } catch {
+      window._labourActiveSelect = null;
+    }
+  };
+
+  const _rememberActiveLabourSelectFromRow = (btnEl) => {
+    try {
+      const row = (btnEl && (btnEl.closest(".labour-form") || btnEl.closest(".row"))) || null;
+      window._labourActiveSelect = row ? row.querySelector('select[name$="-labour"]') : null;
+    } catch {
+      window._labourActiveSelect = null;
+    }
+  };
+
+  // ====== DOM ready (bloque adicional para Mano de Obra) ======
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("labours-formset");
+    if (!container) return; // puede no estar en todas las páginas
+
+    const addButton = document.getElementById("add-labour");
+    const templateEl = document.getElementById("labour-empty-form");
+    const totalFormsInput = container.querySelector('input[name$="-TOTAL_FORMS"]');
+
+    if (!addButton || !templateEl || !totalFormsInput) {
+      console.error("[labours_formset] faltan elementos (botón/template/TOTAL_FORMS)");
+      return;
+    }
+
+    // init Select2 en selects existentes
+    container.querySelectorAll('select[name$="-labour"]').forEach(s => initSelect2On(s));
+
+    // Agregar fila
+    addButton.addEventListener("click", function () {
+      const formIndex = Number.parseInt(totalFormsInput.value, 10) || container.querySelectorAll('.labour-form').length;
+      const html = templateEl.innerHTML.replace(/__prefix__/g, String(formIndex));
+      addButton.insertAdjacentHTML("beforebegin", html);
+      totalFormsInput.value = String(formIndex + 1);
+
+      // init Select2 en el nuevo select
+      const rows = container.querySelectorAll(".labour-form");
+      const newRow = rows[rows.length - 1] || null;
+      if (newRow) {
+        const newSelect = newRow.querySelector('select[name$="-labour"]');
+        initSelect2On(newSelect);
+      }
+    });
+
+    // Opacidad si se marca DELETE
+    container.addEventListener("change", function (e) {
+      if (e.target && e.target.type === "checkbox" && e.target.name && e.target.name.endsWith("-DELETE")) {
+        const row = e.target.closest(".labour-form");
+        if (row) row.classList.toggle("opacity-50", e.target.checked);
+      }
+    });
+  });
+
+  // ====== POPUPS Mano de Obra ======
+  window.openLabourPopup = function (projectId) {
+    const width = 600, height = 400;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+
+    const btn = document.activeElement;
+    _rememberActiveLabourSelectFromButton(btn);
+
+    const url = `/dashboard/project/${projectId}/catalogos/mano_obra/?popup=1`;
+    window.open(url, "Agregar Mano de Obra",
+      `width=${width},height=${height},resizable=yes,scrollbars=yes,left=${left},top=${top}`);
+  };
+
+  window.openEditLabourPopup = function (projectId, btnElement) {
+    const width = 600, height = 400;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+
+    try {
+      const row = btnElement.closest(".row") || btnElement.closest(".labour-form");
+      if (!row) { alert("No se pudo localizar la fila de la mano de obra."); return; }
+      const select = row.querySelector('select[name$="-labour"]');
+      const labourId = select ? select.value : null;
+      if (!labourId) { alert("Selecciona una mano de obra para editar."); return; }
+
+      _rememberActiveLabourSelectFromRow(btnElement);
+
+      const url = `/dashboard/project/${projectId}/catalogos/mano_obra/edit/${labourId}/?popup=1`;
+      window.open(url, "Editar Mano de Obra",
+        `width=${width},height=${height},resizable=yes,scrollbars=yes,left=${left},top=${top}`);
+    } catch (err) {
+      console.error("[labours_formset] openEditLabourPopup error", err);
+    }
+  };
+
+  // ====== Callbacks desde el popup (Mano de Obra) ======
+  window.closePopupAndAddLabour = function (id, label) {
+    // Usa el select activo; si no hay, toma el último
+    let sel = window._labourActiveSelect;
+    if (!sel) {
+      const all = document.querySelectorAll('select[name$="-labour"]');
+      sel = all.length ? all[all.length - 1] : null;
+    }
+    if (!sel) return;
+
+    const vid = String(id);
+    let opt = _findOption(sel, vid);
+    if (!opt) {
+      opt = new Option(label, vid, true, true);
+      sel.add(opt);
+    } else {
+      opt.text = label;
+      sel.value = vid;
+    }
+
+    sel.value = vid;
+    _refreshSelect2(sel);
+  };
+
+  window.updateLabourInSelect = function (id, label) {
+    const vid = String(id);
+    const selects = document.querySelectorAll('select[name$="-labour"]');
+
+    selects.forEach(sel => {
+      let opt = _findOption(sel, vid);
+      if (!opt) {
+        opt = new Option(label, vid, false, false);
+        sel.add(opt);
+      }
+      const wasSelected = String(sel.value) === vid;
+
+      opt.text = label;
+      if (wasSelected) sel.value = vid;
+
+      _ensureSelect2Change(sel);
+
+      // Re-init suave si hiciera falta (texto visible no coincide)
+      if (isSelect2Available() && jQuery(sel).data("select2") && wasSelected) {
+        const $sel = jQuery(sel);
+        const rendered = $sel.next(".select2").find(".select2-selection__rendered");
+        if (rendered.length && rendered.text().trim() !== label.trim()) {
+          $sel.select2("destroy");
+          initSelect2On(sel);
+          $sel.val(vid).trigger("change");
+        }
+      }
+    });
+  };
+
 })(); // IIFE
