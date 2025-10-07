@@ -1,0 +1,50 @@
+{% extends "baseCatalogs.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{% if machine %}Editar Maquinaria Pesada{% else %}Nueva Maquinaria Pesada{% endif %}</h2>
+  <form method="post" class="card p-3 shadow-sm">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.function.label_tag }}
+      {{ form.function }}
+      {{ form.function.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.capacity.label_tag }}
+      {{ form.capacity }}
+      {{ form.capacity.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.price.label_tag }}
+      {{ form.price }}
+      {{ form.price.errors }}
+    </div>
+
+    <div class="d-flex gap-2 justify-content-end mt-4">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+      <button type="button" class="btn btn-secondary" onclick="handleCancel('{{ project.id }}')">
+        Cancelar
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+function handleCancel(projectId) {
+  if (window.location.search.includes("popup=1")) {
+    window.close();
+  } else {
+    window.location.href = `/dashboard/project/${projectId}/catalogos/`;
+  }
+}
+</script>
+{% endblock %}
