@@ -1,0 +1,60 @@
+{% load math_filters %}
+
+<div class="list-group">
+  {% for activity in activities %}
+    <div class="list-group-item shadow-sm rounded mb-4 p-4">
+      <div class="row align-items-center">
+        <div class="col-12 col-md-1 text-center mb-3 mb-md-0">
+          <span class="badge bg-primary fs-6 px-3 py-2">{{ activity.number }}</span>
+        </div>
+
+        <div class="col-12 col-md-7">
+          <h4 class="mb-1">{{ activity.name }}</h4>
+          <p class="mb-2 text-muted small">{{ activity.description }}</p>
+          <p class="mb-0"><strong>Unidad:</strong> {{ activity.unit }}</p>
+        </div>
+
+        <div class="col-12 col-md-2 text-muted text-center text-md-end mb-3 mb-md-0">
+          <small class="d-block">Creado el:</small>
+          <small class="fw-semibold">{{ activity.created_at|date:"d M Y" }}</small>
+        </div>
+
+        <div class="col-12 col-md-2 text-center text-md-end">
+          <div class="btn-group">
+            <a href="{% url 'update_activity_infraestructura' project.id activity.id %}"
+               class="btn btn-outline-warning btn-sm" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form action="#" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {# ======= BOTÓN PARA MOSTRAR / OCULTAR DETALLES ======= #}
+      <div class="text-center mt-3">
+        <button class="btn btn-sm btn-outline-secondary"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#activity-details-{{ activity.id }}"
+                aria-expanded="false"
+                aria-controls="activity-details-{{ activity.id }}">
+          <i class="bi bi-chevron-down me-1"></i> Detalles
+        </button>
+      </div>
+
+      {# ======= CONTENIDO COLAPSABLE ======= #}
+      <div class="collapse mt-3" id="activity-details-{{ activity.id }}">
+        <div class="card card-body border-0 p-0">
+          {% include "partials/tables/_materials_table.html" with activity=activity materials=materials only %}
+          {% include "partials/tables/_labours_table.html" with activity=activity labours=labours only %}
+          {% include "partials/tables/_tools_table.html" with activity=activity tools=tools only %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
