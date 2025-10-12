@@ -1,0 +1,98 @@
+<!-- Info del Proyecto -->
+<div class="card shadow-sm mb-5">
+  <div class="card-body">
+    <div class="row g-4 align-items-start">
+      
+      <!-- Columna principal -->
+      <div class="col-12 col-md-8">
+        <h4 class="mb-3">Información del proyecto</h4>
+
+        <!-- Solo nombre visible -->
+        <div class="mb-3">
+          <small class="text-muted d-block">Nombre del Proyecto</small>
+          <span class="fw-semibold fs-5">{{ project.nombre }}</span>
+        </div>
+
+        <!-- Botón para mostrar/ocultar -->
+        <button class="btn btn-outline-primary btn-sm mb-3" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#collapseProjectInfo" 
+                aria-expanded="false" 
+                aria-controls="collapseProjectInfo">
+          <i class="bi bi-chevron-down"></i> Ver más información
+        </button>
+
+        <!-- Contenido colapsable -->
+        <div class="collapse" id="collapseProjectInfo">
+          <div class="mt-3">
+            <div class="row row-cols-1 row-cols-md-2 gy-2">
+              <div>
+                <small class="text-muted d-block">Cliente</small>
+                <span class="fw-semibold">{{ project.cliente }}</span>
+              </div>
+              <div>
+                <small class="text-muted d-block">Técnico asignado</small>
+                <span class="fw-semibold">{{ project.tecnico.first_name }} {{ project.tecnico.last_name }}</span>
+              </div>
+              <div>
+                <small class="text-muted d-block">Usuario creador</small>
+                <span class="fw-semibold">{{ project.usuario.username }}</span>
+              </div>
+              <div>
+                <p class="mb-1"><strong>Estado:</strong>
+                  {% if project.estado == 'PL' %}
+                    <span class="badge rounded-pill bg-warning border">Planeación</span>
+                  {% elif project.estado == 'P' %}
+                    <span class="badge rounded-pill bg-success border">En Proceso</span>
+                  {% elif project.estado == 'C' %}
+                    <span class="badge rounded-pill bg-danger border">Completado</span>
+                  {% endif %}
+                </p>
+              </div>
+              <div>
+                <small class="text-muted d-block">Fecha de creación</small>
+                <span class="fw-semibold">{{ project.created_at|date:"Y-m-d H:i" }}</span>
+              </div>
+              <div>
+                <small class="text-muted d-block">Última actualización</small>
+                <span class="fw-semibold">{{ project.updated_at|date:"Y-m-d H:i" }}</span>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <small class="text-muted d-block mb-1">Descripción</small>
+            <p class="mb-0">{{ project.descripcion }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Imagen del proyecto -->
+      <div class="col-12 col-md-4">
+        <div class="ratio ratio-4x3 border rounded overflow-hidden bg-light">
+          {% if project.imagen %}
+            <img src="{{ project.imagen.url }}" alt="{{ project.nombre }}" class="w-100 h-100 object-fit-cover">
+          {% else %}
+            <img src="#" alt="Imagen del Proyecto" class="w-100 h-100 object-fit-cover">
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Script opcional para cambiar el texto del botón -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.querySelector('[data-bs-target="#collapseProjectInfo"]');
+    const collapse = document.getElementById("collapseProjectInfo");
+    collapse.addEventListener("shown.bs.collapse", () => {
+      btn.innerHTML = '<i class="bi bi-chevron-up"></i> Ocultar información';
+    });
+    collapse.addEventListener("hidden.bs.collapse", () => {
+      btn.innerHTML = '<i class="bi bi-chevron-down"></i> Ver más información';
+    });
+  });
+</script>

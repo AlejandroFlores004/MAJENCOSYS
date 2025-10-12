@@ -10,8 +10,10 @@ from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from project.models import Project
+from activity.models import Activity, Header
+from catalog.models import Material
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 
 
 # Create your views here.
@@ -91,8 +93,21 @@ def logoutUser(request):
 @login_required(login_url='log')
 def dashboardProject(request, pk):
     project = get_object_or_404(Project, pk=pk)
+    activities = (
+        Activity.objects
+        .filter(project=project)
+        .prefetch_related(
+            Prefetch(
+                'header_activity',  # si NO tienes related_name en Header.activity
+                queryset=Header.objects.only('id', 'name', 'content', 'activity_id').order_by('id')
+            )
+        )
+    )
+    countMaterial = Material.objects.filter(project=project).count()
     objects = {
-        "project": project
+        "project": project,
+        "activities": activities,
+        "quiantyMaterial":countMaterial
     }
     return render(request, 'dashboardProject.html', objects)
 

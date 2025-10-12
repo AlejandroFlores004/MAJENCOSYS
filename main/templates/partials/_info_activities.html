@@ -1,0 +1,86 @@
+<div class="card shadow-sm h-100" id="actividades">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Actividades</h4>
+      <div class="d-flex gap-2">
+        <a href="#" class="btn btn-sm btn-primary">
+          <i class="bi bi-plus-lg"></i> Nueva actividad
+        </a>
+        <a href="#" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-list-task"></i> Ver todas
+        </a>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      {% for ac in activities %}
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <!-- Nombre visible -->
+                <h5 class="mb-2">{{ ac.name }}</h5>
+
+                <!-- Botón toggle -->
+                <button class="btn btn-sm btn-outline-primary mb-2"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#activityDetail{{ ac.id }}"
+                        aria-expanded="false"
+                        aria-controls="activityDetail{{ ac.id }}">
+                  <i class="bi bi-chevron-down"></i> Ver detalles
+                </button>
+
+                <!-- Detalle colapsable con headers de ESTA actividad -->
+                <div class="collapse" id="activityDetail{{ ac.id }}">
+                  {% if ac.header_activity.all %}
+                    <ul class="list-group list-group-flush">
+                      {% for h in ac.header_activity.all %}
+                        <li class="list-group-item px-0">
+                          <span class="fw-bold text-dark">{{ h.name }}:</span>
+                          <span class="text-muted ms-1">{{ h.content }}</span>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <div class="text-muted small">Sin información adicional para esta actividad.</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <a href="#" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-eye"></i> Ver
+                </a>
+                <a href="#" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center text-muted py-4">
+        No hay actividades registradas para este proyecto.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(btn => {
+      const target = document.querySelector(btn.dataset.bsTarget);
+      if (!target) return;
+      target.addEventListener("shown.bs.collapse", () => {
+        btn.innerHTML = '<i class="bi bi-chevron-up"></i> Ocultar detalles';
+      });
+      target.addEventListener("hidden.bs.collapse", () => {
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i> Ver detalles';
+      });
+    });
+  });
+</script>

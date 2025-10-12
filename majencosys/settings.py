@@ -45,11 +45,8 @@ INSTALLED_APPS = [
     'project',
     'main',
     'user',
-    'activity_infraestructura',
-    'activity_alcantarillado',
-    'activity_obras_mitigacion',
-    'activity_cmrv',
-    'activity_catalogs'
+    'catalog',
+    'activity'
 ]
 
 MIDDLEWARE = [
