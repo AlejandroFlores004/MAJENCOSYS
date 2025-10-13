@@ -1,0 +1,224 @@
+<section class="container-fluid py-3" id="actividades">
+  <!-- Barra superior -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h4 class="mb-0">Actividades</h4>
+
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <form method="get" class="d-flex align-items-center gap-2">
+        <label class="text-muted small mb-0">Mostrar</label>
+        <select name="per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+          <option value="5"  {% if per_page_activities == 5  %}selected{% endif %}>5</option>
+          <option value="10" {% if per_page_activities == 10 %}selected{% endif %}>10</option>
+          <option value="20" {% if per_page_activities == 20 %}selected{% endif %}>20</option>
+        </select>
+        <span class="text-muted small">por página</span>
+      </form>
+
+      <a href="{% url "crearActivity" project.id %}" class="btn btn-sm btn-primary">
+        <i class="bi bi-plus-lg"></i> Nueva actividad
+      </a>
+      <a href="#" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-list-task"></i> Ver todas
+      </a>
+    </div>
+  </div>
+
+  <!-- Lista vertical de actividades -->
+  <div class="vstack gap-3">
+    {% for ac in activities_page %}
+      <div class="card h-100 border-0 shadow-sm w-100">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div class="flex-grow-1">
+              <h5 class="mb-2">{{ ac.name }}</h5>
+
+              <button class="btn btn-sm btn-outline-primary mb-2"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#activityDetail{{ ac.id }}"
+                      aria-expanded="false"
+                      aria-controls="activityDetail{{ ac.id }}">
+                <i class="bi bi-chevron-down"></i> Ver detalles
+              </button>
+
+              <!-- Detalles -->
+              <div class="collapse" id="activityDetail{{ ac.id }}">
+                <div class="row g-3">
+
+                  <!-- Encabezados -->
+                  <div class="col-12">
+                    <div class="card border-0 bg-light-subtle">
+                      <div class="card-body py-2">
+                        <h6 class="mb-2 d-flex align-items-center gap-2">
+                          <i class="bi bi-journal-text"></i> Encabezados
+                        </h6>
+
+                        {% with headers=ac.header_activity.all %}
+                          {% if headers %}
+                            <ul class="list-group list-group-flush">
+                              {% for h in headers %}
+                                <li class="list-group-item px-0 bg-transparent">
+                                  <span class="fw-bold text-dark">{{ h.name }}:</span>
+                                  <span class="text-muted ms-1">{{ h.content }}</span>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          {% else %}
+                            <div class="text-muted small">Sin información adicional para esta actividad.</div>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Materiales -->
+                  <div class="col-12 col-lg-6">
+                    <div class="card border-0">
+                      <div class="card-body py-2">
+                        <h6 class="mb-2 d-flex align-items-center gap-2">
+                          <i class="bi bi-box-seam"></i> Materiales
+                          <span class="badge bg-secondary" title="Memorias registradas">
+                            {{ ac.mm_rows }}
+                          </span>
+                        </h6>
+                        <p class="small text-muted mb-0">
+                          Total de unidades registradas:
+                          <span class="fw-semibold text-dark">{{ ac.mm_qty|floatformat:2 }}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Otros módulos (placeholders) -->
+                  <div class="col-12 col-lg-6">
+                    <div class="card border-0">
+                      <div class="card-body py-2">
+                        <h6 class="mb-2 d-flex align-items-center gap-2">
+                          <i class="bi bi-gear"></i> Equipos (pendiente)
+                        </h6>
+                        <p class="small text-muted mb-0">Módulo aún no disponible.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-lg-6">
+                    <div class="card border-0">
+                      <div class="card-body py-2">
+                        <h6 class="mb-2 d-flex align-items-center gap-2">
+                          <i class="bi bi-people"></i> Mano de obra (pendiente)
+                        </h6>
+                        <p class="small text-muted mb-0">Módulo aún no disponible.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-lg-6">
+                    <div class="card border-0">
+                      <div class="card-body py-2">
+                        <h6 class="mb-2 d-flex align-items-center gap-2">
+                          <i class="bi bi-calculator"></i> Costos indirectos (pendiente)
+                        </h6>
+                        <p class="small text-muted mb-0">Módulo aún no disponible.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="d-flex flex-column gap-2">
+              <a href="#" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-eye"></i> Ver
+              </a>
+              <a href="#" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-pencil"></i> Editar
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-auto"></div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center text-muted py-4 w-100">
+        No hay actividades registradas para este proyecto.
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pie con paginación -->
+  {% if activities_page %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 small text-muted">
+      <div>
+        Mostrando {{ activities_page.start_index }}–{{ activities_page.end_index }} de {{ paginator_activities.count }}
+      </div>
+
+      {% if is_paginated_activities %}
+      <nav aria-label="Paginación de actividades">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item {% if not activities_page.has_previous %}disabled{% endif %}">
+            {% if activities_page.has_previous %}
+              <a class="page-link" href="?page=1&per_page={{ per_page_activities }}">«</a>
+            {% else %}
+              <span class="page-link">«</span>
+            {% endif %}
+          </li>
+
+          <li class="page-item {% if not activities_page.has_previous %}disabled{% endif %}">
+            {% if activities_page.has_previous %}
+              <a class="page-link" href="?page={{ activities_page.previous_page_number }}&per_page={{ per_page_activities }}">‹</a>
+            {% else %}
+              <span class="page-link">‹</span>
+            {% endif %}
+          </li>
+
+          {% for num in activities_page.paginator.page_range %}
+            {% if num >= activities_page.number|add:'-2' and num <= activities_page.number|add:'2' %}
+              <li class="page-item {% if num == activities_page.number %}active{% endif %}">
+                {% if num == activities_page.number %}
+                  <span class="page-link">{{ num }}</span>
+                {% else %}
+                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page_activities }}">{{ num }}</a>
+                {% endif %}
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          <li class="page-item {% if not activities_page.has_next %}disabled{% endif %}">
+            {% if activities_page.has_next %}
+              <a class="page-link" href="?page={{ activities_page.next_page_number }}&per_page={{ per_page_activities }}">›</a>
+            {% else %}
+              <span class="page-link">›</span>
+            {% endif %}
+          </li>
+
+          <li class="page-item {% if not activities_page.has_next %}disabled{% endif %}">
+            {% if activities_page.has_next %}
+              <a class="page-link" href="?page={{ paginator_activities.num_pages }}&per_page={{ per_page_activities }}">»</a>
+            {% else %}
+              <span class="page-link">»</span>
+            {% endif %}
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(btn => {
+      const target = document.querySelector(btn.dataset.bsTarget);
+      if (!target) return;
+      target.addEventListener("shown.bs.collapse", () => {
+        btn.innerHTML = '<i class="bi bi-chevron-up"></i> Ocultar detalles';
+      });
+      target.addEventListener("hidden.bs.collapse", () => {
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i> Ver detalles';
+      });
+    });
+  });
+</script>

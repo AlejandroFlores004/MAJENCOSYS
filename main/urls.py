@@ -16,6 +16,8 @@ urlpatterns = [
     path('admon_project',include('project.urls'),name='project'),
     path('usuario_informacion', userInfo, name="infoUser"),
     path('dashboard/project/<int:pk>/', dashboardProject, name='dashboardProject'),
+    path('dashboard/project/<int:pk>/catalgos/',include('catalog.urls') , name='dashboardProject'),
+    path('dashboard/project/<int:pk>/actividades/',include('activity.urls'), name="dashboardProject"),
     
 
     # ---- Rutas para el cambio de contraseña ----

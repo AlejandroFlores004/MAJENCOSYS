@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import login,logout, authenticate
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required
@@ -93,24 +94,43 @@ def logoutUser(request):
 @login_required(login_url='log')
 def dashboardProject(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    activities = (
+
+    # parámetros GET
+    page = request.GET.get('page', 1)
+    per_page = int(request.GET.get('per_page', 5))  # ajusta default
+
+    # queryset con prefetch
+    qs = (
         Activity.objects
         .filter(project=project)
+        .order_by('-id')  # o 'name' / '-created_at' según prefieras
         .prefetch_related(
             Prefetch(
-                'header_activity',  # si NO tienes related_name en Header.activity
+                'header_activity',  # usa tu related_name real si es distinto
                 queryset=Header.objects.only('id', 'name', 'content', 'activity_id').order_by('id')
             )
         )
     )
-    countMaterial = Material.objects.filter(project=project).count()
-    objects = {
-        "project": project,
-        "activities": activities,
-        "quiantyMaterial":countMaterial
-    }
-    return render(request, 'dashboardProject.html', objects)
 
+    paginator = Paginator(qs, per_page)
+    try:
+        activities_page = paginator.page(page)
+    except PageNotAnInteger:
+        activities_page = paginator.page(1)
+    except EmptyPage:
+        activities_page = paginator.page(paginator.num_pages)
+
+    countMaterial = Material.objects.filter(project=project).count()
+
+    context = {
+        "project": project,
+        "activities_page": activities_page,
+        "paginator_activities": paginator,
+        "is_paginated_activities": paginator.num_pages > 1,
+        "per_page_activities": per_page,
+        "quiantyMaterial": countMaterial,
+    }
+    return render(request, 'dashboardProject.html', context)
 # ------ Herramientas de base de datos (Backup y Restore) ------
 def admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):

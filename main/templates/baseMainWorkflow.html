@@ -50,8 +50,8 @@
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">ACTVIDADES</a>
                                 <div class="dropdown-menu rounded-0 m-0">
-                                    <a href="#" class="dropdown-item d-flex align-items-center">ACTIVIDADES DETALLE</a>
-                                    <a href="#" class="dropdown-item d-flex align-items-center">CATALOGO DETALLE</a>
+                                    <a href="{% url "mainAcivity" project.id %}" class="dropdown-item d-flex align-items-center">ACTIVIDADES DETALLE</a>
+                                    <a href="{% url "mainCatalog" project.id %}" class="dropdown-item d-flex align-items-center">CATALOGO DETALLE</a>
                                 </div>
                             </div>
                         {% endif %}

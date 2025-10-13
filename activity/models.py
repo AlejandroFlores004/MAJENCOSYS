@@ -113,4 +113,4 @@ class MemoryMaterial(models.Model):
         ordering = ["material"]
 
     def __str__(self):
-        return self.name
+        return self.activity.name

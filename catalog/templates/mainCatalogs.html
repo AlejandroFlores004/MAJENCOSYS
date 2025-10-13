@@ -1,0 +1,37 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Catalogos{% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Catálogo de Materiales</h2>
+    <a href="{% url "crearMaterial" project.id %}" class="btn btn-primary btn-sm"> <i class="bi bi-plus-lg"></i> Agregar material</a>
+  </div>
+
+  {% include "partials/lists/listMaterials.html" %}
+
+  <hr class="my-5">
+
+  <!-- Mano de Obra (por ahora datos quemados) -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">Catálogo de Mano de Obra</h2>
+    <a href="#" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg"></i> Agregar mano de obra
+    </a>
+  </div>
+
+  {% include "partials/lists/listLabour.html" %}
+
+
+</div>
+{% if messages %}
+    <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+      {% for m in messages %}
+        <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+    </script>
+{% endif %}
+{% endblock content %}
