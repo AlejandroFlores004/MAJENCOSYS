@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from .models import Activity, Header, MemoryMaterial
+from catalog.models import Material
 from django.core.exceptions import ValidationError
 
 class ActivityForm(forms.ModelForm):
@@ -70,13 +71,30 @@ HeaderFormSet = inlineformset_factory(
 )
 
 class MemoryMaterialForm(forms.ModelForm):
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._project = project  # lo guardamos para validar en clean
+        if project is not None:
+            self.fields["material"].queryset = Material.objects.filter(project=project)
+
+    def clean(self):
+        cleaned = super().clean()
+        material = cleaned.get("material")
+        if material and self._project and material.project_id != self._project.id:
+            # Blindaje por si manipulan el POST
+            self.add_error("material", "El material no pertenece al proyecto seleccionado.")
+        return cleaned
+
     class Meta:
         model = MemoryMaterial
         fields = ("material", "quantity")
         widgets = {
             "material": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
-            "quantity": forms.NumberInput(attrs={"class": "form-control form-control-sm w-100","step":"0.01","min":"0.01"}),
+            "quantity": forms.NumberInput(attrs={
+                "class": "form-control form-control-sm w-100", "step": "0.01", "min": "0.01"
+            }),
         }
+
 
 MemoryMaterialFormSet = inlineformset_factory(
     Activity,

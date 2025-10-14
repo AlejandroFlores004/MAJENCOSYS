@@ -174,7 +174,11 @@ def formMemoryMaterials(request, pk, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
 
     if request.method == "POST":
-        formset = MemoryMaterialFormSet(request.POST, instance=activity)
+        formset = MemoryMaterialFormSet(
+            request.POST,
+            instance=activity,
+            form_kwargs={"project": project},   # << clave
+        )
         if formset.is_valid():
             formset.save()
             messages.success(request, "Materiales guardados correctamente.")
@@ -182,7 +186,10 @@ def formMemoryMaterials(request, pk, activity_id):
         else:
             messages.error(request, "Hay errores en el formulario. Revísalos más abajo.")
     else:
-        formset = MemoryMaterialFormSet(instance=activity)
+        formset = MemoryMaterialFormSet(
+            instance=activity,
+            form_kwargs={"project": project},   # << también en GET
+        )
 
     return render(request, "formMemoryMaterial.html", {
         "project": project,
