@@ -1,6 +1,7 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from .models import Activity, Header
+from django.core.exceptions import ValidationError
 
 class ActivityForm(forms.ModelForm):
     class Meta:
@@ -32,13 +33,38 @@ class HeaderForm(forms.ModelForm):
             ),
         }
 
+class BaseHeaderFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+
+        seen = {}  # key -> form que lo tuvo primero
+        for form in self.forms:
+            if not getattr(form, "cleaned_data", None):
+                continue
+            if form.cleaned_data.get("DELETE"):
+                continue
+
+            name = form.cleaned_data.get("name")
+            if not name:
+                continue
+
+            key = name.strip().lower()
+            if key in seen:
+                # Marca error solo en el campo del duplicado actual
+                form.add_error("name", "Ya existe otro encabezado con este nombre en esta actividad.")
+                # Si quieres, también puedes marcar el primero:
+                # seen[key].add_error("name", "Nombre duplicado con otra fila.")
+            else:
+                seen[key] = form
+
 HeaderFormSet = inlineformset_factory(
     parent_model=Activity,
     model=Header,
     form=HeaderForm,
-    extra=1,
+    formset=BaseHeaderFormSet,   # <-- usa el formset con clean()
+    extra=0,
     can_delete=True,
-    min_num=1,          # puedes poner 0 si quieres permitir crear sin encabezados
+    min_num=1,
     validate_min=False,
     fk_name="activity",
 )

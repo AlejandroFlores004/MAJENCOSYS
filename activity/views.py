@@ -11,6 +11,7 @@ from project.models import Project
 from .models import Activity
 from .forms import ActivityForm, HeaderFormSet
 from django.contrib import messages
+from django.db import transaction
 
 
 # Create your views here.
@@ -20,15 +21,21 @@ def mainActivy(request, pk):
 
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 5))
+    q = (request.GET.get('q') or '').strip()
+
+    base_qs = Activity.objects.filter(project=project)
+
+    # Filtro por nombre (case-insensitive)
+    if q:
+        base_qs = base_qs.filter(name__icontains=q)
 
     qs = (
-        Activity.objects
-        .filter(project=project)
+        base_qs
         .annotate(
             mm_rows=Count('memoryMaterial_activity', distinct=True),
             mm_qty=Coalesce(
                 Sum('memoryMaterial_activity__quantity'),
-                Value(0),  # <- valor por defecto
+                Value(0),
                 output_field=DecimalField(max_digits=12, decimal_places=2)
             ),
         )
@@ -42,12 +49,19 @@ def mainActivy(request, pk):
     )
 
     paginator = Paginator(qs, per_page)
-    try:
-        activities_page = paginator.page(page)
-    except PageNotAnInteger:
-        activities_page = paginator.page(1)
-    except EmptyPage:
-        activities_page = paginator.page(paginator.num_pages)
+
+    # Manejo de 0 resultados (evita errores de paginación)
+    if paginator.count == 0:
+        activities_page = None
+        is_paginated = False
+    else:
+        try:
+            activities_page = paginator.page(page)
+        except PageNotAnInteger:
+            activities_page = paginator.page(1)
+        except EmptyPage:
+            activities_page = paginator.page(paginator.num_pages)
+        is_paginated = paginator.num_pages > 1
 
     countMaterial = Material.objects.filter(project=project).count()
 
@@ -55,11 +69,11 @@ def mainActivy(request, pk):
         "project": project,
         "activities_page": activities_page,
         "paginator_activities": paginator,
-        "is_paginated_activities": paginator.num_pages > 1,
+        "is_paginated_activities": is_paginated,
         "per_page_activities": per_page,
         "quiantyMaterial": countMaterial,
+        "q": q,  # <- para persistir en el template
     }
-
     return render(request, 'mainActivities.html', context)
 
 @login_required(login_url='log')
@@ -89,5 +103,39 @@ def crearActivity(request, pk):
         "project": project,
         "form": form,
         "formset": formset,
+    }
+    return render(request, "formActivity.html", ctx)
+
+@login_required(login_url='log')
+def editarActivity(request, pk, activity_id):
+    """
+    Edita una Activity y sus Headers (inline formset) usando el MISMO template formActivity.html
+    """
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    if request.method == "POST":
+        form = ActivityForm(request.POST, instance=activity)
+        formset = HeaderFormSet(request.POST, instance=activity, prefix="headers")
+        if form.is_valid() and formset.is_valid():
+            try:
+                with transaction.atomic():
+                    form.save()
+                    formset.save()
+                messages.success(request, "Actividad actualizada correctamente.")
+                return redirect("mainAcivity", pk=project.pk)
+            except Exception as e:
+                # Blindaje extra por si se colara algún error de integridad
+                form.add_error(None, "No se pudo guardar la actividad. Verifica los datos.")
+    else:
+        form = ActivityForm(instance=activity)
+        formset = HeaderFormSet(instance=activity, prefix="headers")
+
+    ctx = {
+        "project": project,
+        "form": form,
+        "formset": formset,
+        "activity": activity,   # por si quieres mostrar info en el template
+        "is_edit": True,        # flag opcional para cambiar textos en la UI
     }
     return render(request, "formActivity.html", ctx)

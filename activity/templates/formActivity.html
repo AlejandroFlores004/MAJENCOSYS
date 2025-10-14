@@ -1,12 +1,12 @@
 {% extends "baseMainWorkflow.html" %}
 {% block title %}Crear Actividad{% endblock title %}
-
+{% load static %}
 {% block content %}
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="mb-0">Nueva actividad</h3>
+    <h3 class="mb-0">{% if is_edit %}Editar actividad{% else %}Nueva actividad{% endif %}</h3>
     <a href="{% url 'mainAcivity' project.pk %}" class="btn btn-outline-secondary btn-sm">
-      <i class="bi bi-arrow-left"></i> Volver al proyecto
+      <i class="bi bi-arrow-left"></i> Volver a las actividades
     </a>
   </div>
 
@@ -15,11 +15,20 @@
       <form method="post" novalidate>
         {% csrf_token %}
 
+        {# Errores generales del form principal #}
         {% if form.non_field_errors %}
-          <div class="alert alert-danger small">
+          <div class="alert alert-danger small mb-3">
             {{ form.non_field_errors }}
           </div>
         {% endif %}
+
+        {# Errores generales del formset (duplicados, etc.) #}
+        {% if formset.non_form_errors %}
+          <div class="alert alert-danger small mb-3">
+            {{ formset.non_form_errors }}
+          </div>
+        {% endif %}
+
         <div class="mb-4">
           <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
           {{ form.name }}
@@ -44,11 +53,17 @@
 
         {{ formset.management_form }}
 
-        {# CONTENEDOR HORIZONTAL DE CADA ENCABEZADO #}
         <div id="headers-forms" class="d-flex flex-column gap-2">
           {% for f in formset.forms %}
             <div class="header-form-item border rounded-3 p-2">
               {{ f.id }}
+
+              {% if f.non_field_errors %}
+                <div class="alert alert-danger small mb-2">
+                  {{ f.non_field_errors }}
+                </div>
+              {% endif %}
+
               <div class="row g-2 align-items-end">
                 <div class="col-12 col-md-3">
                   <label for="{{ f.name.id_for_label }}" class="form-label mb-1">Nombre</label>
@@ -59,6 +74,7 @@
                     </div>
                   {% endif %}
                 </div>
+
                 <div class="col-12 col-md-8">
                   <label for="{{ f.content.id_for_label }}" class="form-label mb-1">Contenido</label>
                   {{ f.content }}
@@ -68,6 +84,7 @@
                     </div>
                   {% endif %}
                 </div>
+
                 <div class="col-12 col-md-1 d-flex align-items-end justify-content-center">
                   {% if formset.can_delete %}
                     <div class="form-check">
@@ -85,7 +102,6 @@
           {% endfor %}
         </div>
 
-        {# TEMPLATE OCULTO PARA CLONAR FILAS HORIZONTALES #}
         <template id="empty-form-template">
           <div class="header-form-item border rounded-3 p-2">
             {{ formset.empty_form.id }}
@@ -115,81 +131,13 @@
 
         <div class="d-flex justify-content-end gap-2 mt-4">
           <a href="{% url 'mainAcivity' project.pk %}" class="btn btn-outline-secondary">Cancelar</a>
-          <button type="submit" class="btn btn-primary">Guardar actividad</button>
+          <button type="submit" class="btn btn-primary">
+            {% if is_edit %}Guardar cambios{% else %}Guardar actividad{% endif %}
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
-
-<script>
-  (function () {
-    const prefix = "{{ formset.prefix }}"; // "headers"
-    const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-    const maxFormsInput = document.getElementById(`id_${prefix}-MAX_NUM_FORMS`);
-    const container = document.getElementById("headers-forms");
-    const addBtn = document.getElementById("add-header");
-    const template = document.getElementById("empty-form-template").content;
-
-    function updateAttributes(node, index) {
-      const walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT, null);
-      do {
-        if (node.name && node.name.includes(`${prefix}-__prefix__-`)) {
-          node.name = node.name.replace(`${prefix}-__prefix__-`, `${prefix}-${index}-`);
-        }
-        if (node.id && node.id.includes(`id_${prefix}-__prefix__-`)) {
-          node.id = node.id.replace(`id_${prefix}-__prefix__-`, `id_${prefix}-${index}-`);
-        }
-        if (node.getAttribute && node.getAttribute("for")) {
-          const f = node.getAttribute("for");
-          if (f.includes(`id_${prefix}-__prefix__-`)) {
-            node.setAttribute("for", f.replace(`id_${prefix}-__prefix__-`, `id_${prefix}-${index}-`));
-          }
-        }
-      } while ((node = walker.nextNode()));
-    }
-
-    function addFormRow() {
-      const total = parseInt(totalFormsInput.value, 10);
-      const max = maxFormsInput.value ? parseInt(maxFormsInput.value, 10) : null;
-      if (max !== null && total >= max) return;
-
-      const clone = document.importNode(template, true);
-      updateAttributes(clone, total);
-      container.appendChild(clone);
-      totalFormsInput.value = total + 1;
-    }
-
-    addBtn.addEventListener("click", addFormRow);
-
-    // Borrado visual cuando can_delete=False
-    container.addEventListener("click", function (e) {
-      if (e.target.closest(".remove-row")) {
-        const item = e.target.closest(".header-form-item");
-        item.remove();
-        // Reindexa inputs y labels después de eliminar
-        const items = container.querySelectorAll(".header-form-item");
-        items.forEach((el, idx) => {
-          const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT, null);
-          let node = el;
-          do {
-            if (node.name && node.name.match(new RegExp(`${prefix}-\\d+-`))) {
-              node.name = node.name.replace(new RegExp(`${prefix}-(\\d+)-`,'g'), `${prefix}-${idx}-`);
-            }
-            if (node.id && node.id.match(new RegExp(`id_${prefix}-\\d+-`))) {
-              node.id = node.id.replace(new RegExp(`id_${prefix}-(\\d+)-`,'g'), `id_${prefix}-${idx}-`);
-            }
-            if (node.getAttribute && node.getAttribute("for")) {
-              const f = node.getAttribute("for");
-              if (f.match(new RegExp(`id_${prefix}-\\d+-`))) {
-                node.setAttribute("for", f.replace(new RegExp(`id_${prefix}-(\\d+)-`,'g'), `id_${prefix}-${idx}-`));
-              }
-            }
-          } while ((node = walker.nextNode()));
-        });
-        totalFormsInput.value = items.length;
-      }
-    });
-  })();
-</script>
+<script src="{% static 'js/scriptsActivity.js' %}"></script>
 {% endblock content %}

@@ -15,7 +15,7 @@
           type="text"
           name="q"
           class="form-control"
-          placeholder="Buscar por nombre, descripción o unidad…"
+          placeholder="Buscar"
           value="{{ q }}"
         >
         <select name="per_page" class="form-select" onchange="this.form.submit()">
@@ -30,7 +30,7 @@
           {# Mantén per_page cuando limpias #}
           <a class="btn btn-sm btn-outline-secondary"
              href="?per_page={{ per_page }}">
-            Limpiar
+            <i class="bi bi-x-circle"></i>Limpiar
           </a>
         {% endif %}
       </form>
@@ -62,11 +62,6 @@
                   <a href="{% url 'editarMaterial' project.id m.id %}" class="btn btn-outline-secondary">
                     <i class="bi bi-pencil"></i> Editar
                   </a>
-                  {% if not m.activity %}
-                    <a href="#" class="btn btn-outline-danger">
-                      <i class="bi bi-trash"></i> Eliminar
-                    </a>
-                  {% endif %}
                 </div>
               </td>
             </tr>
