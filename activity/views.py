@@ -1,10 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.models import Project
-from .models import Activity, Header, MemoryMaterial
+from .models import Activity, Header, MemoryMaterial, MemoryManoObra
 from django.db.models import Prefetch, Count, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
-from catalog.models import Material
+from catalog.models import Material, ManoObra
 from django.contrib.auth.decorators import login_required
 from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet
 from django.contrib import messages
@@ -44,6 +44,26 @@ def mainActivy(request, pk):
             )
         )
     )
+    
+    qmo = (
+        Activity.objects
+        .filter(project=project)
+        .annotate(
+            mmo_rows=Count('memoryManoObra_activity', distinct=True),
+            mmo_qty=Coalesce(
+                Sum('memoryManoObra_activity__quantity'),
+                Value(0),  # <- valor por defecto
+                output_field=DecimalField(max_digits=12, decimal_places=2)
+            ),
+        )
+        .order_by('-id')
+        .prefetch_related(
+            Prefetch(
+                'header_activity',
+                queryset=Header.objects.only('id', 'name', 'content', 'activity_id').order_by('id')
+            )
+        )
+    )
 
     paginator = Paginator(qs, per_page)
 
@@ -60,7 +80,27 @@ def mainActivy(request, pk):
             activities_page = paginator.page(paginator.num_pages)
         is_paginated = paginator.num_pages > 1
 
+
+    paginator = Paginator(qmo, per_page)
+    try:
+        activities_page = paginator.page(page)
+    except PageNotAnInteger:
+        activities_page = paginator.page(1)
+    except EmptyPage:
+        activities_page = paginator.page(paginator.num_pages)
+
+
+    paginator = Paginator(qmo, per_page)
+    try:
+        activities_page = paginator.page(page)
+    except PageNotAnInteger:
+        activities_page = paginator.page(1)
+    except EmptyPage:
+        activities_page = paginator.page(paginator.num_pages)
+
     countMaterial = Material.objects.filter(project=project).count()
+
+    countManoObra = ManoObra.objects.filter(project=project).count()
 
     context = {
         "project": project,
@@ -69,7 +109,7 @@ def mainActivy(request, pk):
         "is_paginated_activities": is_paginated,
         "per_page_activities": per_page,
         "quiantyMaterial": countMaterial,
-        "q": q,  # <- para persistir en el template
+        "quiantyManoObra": countManoObra,
     }
     return render(request, 'mainActivities.html', context)
 

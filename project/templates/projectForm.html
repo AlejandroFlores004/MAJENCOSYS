@@ -29,7 +29,7 @@
           <h6 class="text-primary text-uppercase font-weight-bold">Nuevo Proyecto</h6>
           <h1 class="mb-4">Información Obligatoria</h1>
         {% endif %} 
-        <div class="contact-form bg-secondary2" style="padding: 30px;">
+        <div class="card shadow-sm contact-form bg-secondary2" style="padding: 30px;">
           <div id="success"></div>
           <form method="post" enctype="multipart/form-data" id="projectForm" novalidate autocomplete="off">
             {% csrf_token %}
@@ -127,7 +127,13 @@
             {% endif %}
 
             <div class="d-flex justify-content-between">
-              <button class="btn btn-primary" type="submit">{% if p %}<i class="bi bi-pencil"></i> Guardar cambios{% else %}Guardar{% endif %}</button>
+              <button class="btn btn-primary" type="submit">
+                {% if p %}
+                  <i class="bi bi-pencil"></i> Guardar cambios
+                {% else %}
+                  Guardar
+                {% endif %}
+              </button>
               <a class="btn btn-outline-secondary" href="{% url 'projectMain' %}">Cancelar</a>
             </div>
           </form>

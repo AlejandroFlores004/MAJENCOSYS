@@ -1,5 +1,5 @@
 from django import forms
-from .models import Material
+from .models import Material,ManoObra,Herramienta,Equipo
 
 class MaterialForm(forms.ModelForm):
     class Meta:
@@ -55,4 +55,161 @@ class MaterialForm(forms.ModelForm):
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
             raise forms.ValidationError("Ya existe un material con ese nombre en este proyecto.")
+        return name
+
+class ManoObraForm(forms.ModelForm):
+    class Meta:
+        model = ManoObra
+        fields = ['name', 'description', 'jornada']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Maestro de obra',
+                'required': True
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Escriba una breve descripción de la mano de obra...'
+            }),
+            'jornada': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: $40.00',
+                'step': '0.01',
+                'min': '0.01',
+                'required': True
+            }),
+        }
+        labels = {
+            'name': 'Nombre de la mano de obra',
+            'description': 'Descripción',
+            'jornada': 'Costo de jornada (USD)',
+        }
+        help_texts = {
+            'name': 'Ingrese el nombre de la mano de obra a registrar',
+            'description': 'Pequeña descripción de la mano de obra como referencia',
+            'jornada': 'Valor monetario de la jornada',
+        }
+
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project = project  # <- lo inyectamos desde la vista
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if not name or not self.project:
+            return name
+        qs = ManoObra.objects.filter(project=self.project, name__iexact=name)
+        # si es edición, excluir el propio registro
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("Ya existe una mano de obra con ese nombre en este proyecto.")
+        return name
+
+class HerramientaForm(forms.ModelForm):
+    class Meta:
+        model = Herramienta
+        fields = ['name', 'tipo', 'costodia']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Compactador manual',
+                'required': True
+            }),
+            'tipo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Ligero',
+                'required': True
+            }),
+            'costodia': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: $15.00',
+                'step': '0.01',
+                'min': '0.01',
+                'required': True
+            }),
+        }
+        labels = {
+            'name': 'Nombre de la herramienta',
+            'tipo': 'Tipo de herramienta',
+            'costodia': 'Costo por dia de uso (USD)',
+        }
+        help_texts = {
+            'name': 'Ingrese el nombre de la herramienta a registrar',
+            'tipo': 'Tipo de la herramienta a registrar',
+            'costodia': 'Costo monetario de uso por dia',
+        }
+
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project = project  # <- lo inyectamos desde la vista
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if not name or not self.project:
+            return name
+        qs = Herramienta.objects.filter(project=self.project, name__iexact=name)
+        # si es edición, excluir el propio registro
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("Ya existe una herramienta con ese nombre en este proyecto.")
+        return name
+
+class EquipoForm(forms.ModelForm):
+    class Meta:
+        model = Equipo
+        fields = ['name', 'tipo', 'capacidad', 'costodia']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Camión volquete',
+                'required': True
+            }),
+            'tipo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Pesado',
+                'required': True
+            }),
+            'capacidad': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: 0.6 m³',
+                'required': True
+            }),
+            'costodia': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: $120.00',
+                'step': '0.01',
+                'min': '0.01',
+                'required': True
+            }),
+        }
+        labels = {
+            'name': 'Nombre del equipo',
+            'tipo': 'Tipo del equipo',
+            'capacidad': 'Capacidad del equipo',
+            'costodia': 'Costo por dia de uso (USD)',
+        }
+        help_texts = {
+            'name': 'Ingrese el nombre del equipo a registrar',
+            'tipo': 'Tipo del equipo a registrar',
+            'capacidad': 'Capacidad del equipo a registrar',
+            'costodia': 'Costo monetario de uso por dia',
+        }
+
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project = project  # <- lo inyectamos desde la vista
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if not name or not self.project:
+            return name
+        qs = Equipo.objects.filter(project=self.project, name__iexact=name)
+        # si es edición, excluir el propio registro
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("Ya existe una equipo con ese nombre en este proyecto.")
         return name
