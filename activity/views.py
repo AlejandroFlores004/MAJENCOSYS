@@ -6,10 +6,7 @@ from django.db.models import Prefetch, Count, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
 from catalog.models import Material
 from django.contrib.auth.decorators import login_required
-
-from project.models import Project
-from .models import Activity
-from .forms import ActivityForm, HeaderFormSet
+from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet
 from django.contrib import messages
 from django.db import transaction
 
@@ -139,3 +136,43 @@ def editarActivity(request, pk, activity_id):
         "is_edit": True,        # flag opcional para cambiar textos en la UI
     }
     return render(request, "formActivity.html", ctx)
+
+
+@login_required(login_url='log')
+def memoryManager(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id)
+    headers = Header.objects.filter(activity=activity)
+    materials = MemoryMaterial.objects.filter(activity=activity)
+
+    ctx = {
+        'project':project,
+        'activity':activity,
+        'headers': headers,
+        'materials': materials
+    }
+
+    return render(request, 'memoryManage.html', ctx)
+
+
+@login_required(login_url='log')
+def formMemoryMaterials(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    if request.method == "POST":
+        formset = MemoryMaterialFormSet(request.POST, instance=activity)
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "Materiales guardados correctamente.")
+            return redirect("memoryMananer", pk=project.pk, activity_id=activity.pk)
+        else:
+            messages.error(request, "Hay errores en el formulario. Revísalos más abajo.")
+    else:
+        formset = MemoryMaterialFormSet(instance=activity)
+
+    return render(request, "formMemoryMaterial.html", {
+        "project": project,
+        "activity": activity,
+        "formset": formset,
+    })

@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet
-from .models import Activity, Header
+from .models import Activity, Header, MemoryMaterial
 from django.core.exceptions import ValidationError
 
 class ActivityForm(forms.ModelForm):
@@ -67,4 +67,24 @@ HeaderFormSet = inlineformset_factory(
     min_num=1,
     validate_min=False,
     fk_name="activity",
+)
+
+class MemoryMaterialForm(forms.ModelForm):
+    class Meta:
+        model = MemoryMaterial
+        fields = ("material", "quantity")
+        widgets = {
+            "material": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "quantity": forms.NumberInput(attrs={"class": "form-control form-control-sm w-100","step":"0.01","min":"0.01"}),
+        }
+
+MemoryMaterialFormSet = inlineformset_factory(
+    Activity,
+    MemoryMaterial,
+    form=MemoryMaterialForm,
+    fields=("material", "quantity"),
+    extra=0,             # 1 fila en blanco por defecto
+    can_delete=True,     # permitir eliminar filas existentes
+    validate_min=False,
+    validate_max=False,
 )
