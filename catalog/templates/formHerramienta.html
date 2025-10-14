@@ -1,5 +1,5 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}Material{% endblock title %}
+{% block title %}Herramienta{% endblock title %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -7,13 +7,13 @@
     <div class="row">
       <div class="col-lg-12">
         {% if is_edit %}
-          <h6 class="text-primary text-uppercase font-weight-bold">Editar material</h6>
-          <h1 class="mb-2 text-uppercase">{{ material.name }}</h1>
+          <h6 class="text-primary text-uppercase font-weight-bold">Editar herramienta</h6>
+          <h1 class="mb-2 text-uppercase">{{ herramienta.name }}</h1>
           <div class="mb-3">
-            <p><strong>Proyecto: <i>{{ material.project }}</i></strong></p>
+            <p><strong>Proyecto: <i>{{ herramienta.project }}</i></strong></p>
           </div>
         {% else %}
-          <h6 class="text-primary text-uppercase font-weight-bold">Nuevo material</h6>
+          <h6 class="text-primary text-uppercase font-weight-bold">Nueva herramienta</h6>
           <h1 class="mb-4">Información Obligatoria</h1>
         {% endif %}
 
@@ -38,22 +38,15 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-                {{ form.description }}
-                {% for err in form.description.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+                <label class="form-label" for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                {{ form.tipo }}
+                {% for err in form.tipo.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
               </div>
 
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
-                  {{ form.price }}
-                  {% for err in form.price.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="{{ form.unit.id_for_label }}">{{ form.unit.label }}</label>
-                  {{ form.unit }}
-                  {% for err in form.unit.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
-                </div>
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.costodia.id_for_label }}">{{ form.costodia.label }}</label>
+                {{ form.costodia }}
+                {% for err in form.costodia.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
               </div>
 
               <div class="d-flex justify-content-between mt-4">

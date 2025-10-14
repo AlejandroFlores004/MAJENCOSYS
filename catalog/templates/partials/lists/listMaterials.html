@@ -1,38 +1,45 @@
-{# Espera en contexto: materials_page, paginator, is_paginated, per_page, q, project #}
+{# Espera en contexto: materials_page, paginatorm, is_paginatedm, per_page, q_m, project #}
 <div class="card shadow-sm">
   <div class="card-body">
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-3 gap-2">
       <div class="d-flex align-items-center gap-2">
-        <h5 class="mb-0">Materiales</h5>
-        <span class="badge bg-primary">{{ paginator.count }}</span>
-        {% if q %}
-          <span class="badge bg-secondary">Filtro: “{{ q }}”</span>
+        <h2 class="mb-0">Materiales</h5>
+        <span class="badge bg-primary">{{ paginatorm.count }}</span>
+        {% if q_m %}
+          <span class="badge bg-secondary3">Filtro: “{{ q_m }}”</span>
         {% endif %}
       </div>
 
-      <form class="d-flex gap-2" method="get">
-        <input
-          type="text"
-          name="q"
-          class="form-control"
-          placeholder="Buscar por nombre, descripción o unidad…"
-          value="{{ q }}"
-        >
-        <select name="per_page" class="form-select" onchange="this.form.submit()">
-          <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
-          <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
-          <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
-        </select>
-        <button class="btn btn-primary" type="submit">
-          <i class="bi bi-search"></i> Buscar
-        </button>
-        {% if q %}
-          {# Mantén per_page cuando limpias #}
-          <a class="btn btn-sm btn-outline-secondary"
-             href="?per_page={{ per_page }}">
-            Limpiar
+      <form class="row g-2 align-items-center" method="get">
+        <div class="col-12 col-md">
+          <input type="text" name="q_m" class="form-control "
+            placeholder="Buscar"
+            value="{{ q_m }}"  title="Nombre, Descripción o Unidad"
+          >
+        </div>
+        <div class="col-6 col-md-3">
+          <select name="per_page" class="form-select" onchange="this.form.submit()">
+            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+            <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+          </select>
+        </div>
+        <div class="col-auto btn-group">
+          <button class="btn btn-primary" type="submit" title="Filtrar">
+            <i class="fa fa-filter"></i>
+          </button>
+          {% if q_m %}
+            {# Mantén per_page cuando limpias #}
+            <a  href="?per_page={{ per_page }}" class="btn btn-outline-secondary" title="Limpiar">
+              <i class="fa fa-trash-alt"></i>
+            </a>
+          {% endif %}
+        </div>
+        <div class="col-auto btn-group">
+          <a href="{% url 'crearMaterial' project.id %}" class="btn btn-primary">
+            <i class="bi bi-clipboard2-plus"></i> Crear
           </a>
-        {% endif %}
+        </div>
       </form>
     </div>
 
@@ -51,22 +58,17 @@
           <tbody>
             {% for m in materials_page %}
             <tr>
-              <td class="fw-semibold">{{ m.name }}</td>
+              <td class="fw-semibold text-muted">{{ m.name }}</td>
               <td class="fw-semibold">{{ m.unit.abbreviation }}</td>
               <td>
                 {% if m.price is not None %}$ {{ m.price }}{% else %}—{% endif %}
               </td>
               <td class="text-muted">{{ m.description|default:"—" }}</td>
               <td class="text-end">
-                <div class="btn-group btn-group-sm" role="group">
-                  <a href="{% url 'editarMaterial' project.id m.id %}" class="btn btn-outline-secondary">
+                <div class="btn-group btn-group-md" role="group">
+                  <a href="{% url 'editarMaterial' project.id m.id %}" class="btn btn-3" title="Editar">
                     <i class="bi bi-pencil"></i> Editar
                   </a>
-                  {% if not m.activity %}
-                    <a href="#" class="btn btn-outline-danger">
-                      <i class="bi bi-trash"></i> Eliminar
-                    </a>
-                  {% endif %}
                 </div>
               </td>
             </tr>
@@ -77,32 +79,32 @@
 
       <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
         <div>
-          Mostrando {{ materials_page.start_index }}–{{ materials_page.end_index }} de {{ paginator.count }}
+          Mostrando {{ materials_page.start_index }}–{{ materials_page.end_index }} de {{ paginatorm.count }}
         </div>
 
-        {% if is_paginated %}
+        {% if is_paginatedm %}
         <nav aria-label="Page navigation">
           <ul class="pagination pagination-sm mb-0">
             <li class="page-item {% if not materials_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page=1&per_page={{ per_page }}{% if q %}&q={{ q|urlencode }}{% endif %}">«</a>
+              <a class="page-link" href="?page=1&per_page={{ per_page }}{% if q_m %}&q_m={{ q_m|urlencode }}{% endif %}">«</a>
             </li>
             <li class="page-item {% if not materials_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ materials_page.previous_page_number }}&per_page={{ per_page }}{% if q %}&q={{ q|urlencode }}{% endif %}">‹</a>
+              <a class="page-link" href="?page={{ materials_page.previous_page_number }}&per_page={{ per_page }}{% if q_m %}&q_m={{ q_m|urlencode }}{% endif %}">‹</a>
             </li>
 
-            {% for num in materials_page.paginator.page_range %}
+            {% for num in materials_page.paginatorm.page_range %}
               {% if num >= materials_page.number|add:'-2' and num <= materials_page.number|add:'2' %}
                 <li class="page-item {% if num == materials_page.number %}active{% endif %}">
-                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ num }}</a>
+                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}{% if q_m %}&q_m={{ q_m|urlencode }}{% endif %}">{{ num }}</a>
                 </li>
               {% endif %}
             {% endfor %}
 
             <li class="page-item {% if not materials_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ materials_page.next_page_number }}&per_page={{ per_page }}{% if q %}&q={{ q|urlencode }}{% endif %}">›</a>
+              <a class="page-link" href="?page={{ materials_page.next_page_number }}&per_page={{ per_page }}{% if q_m %}&q_m={{ q_m|urlencode }}{% endif %}">›</a>
             </li>
             <li class="page-item {% if not materials_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ paginator.num_pages }}&per_page={{ per_page }}{% if q %}&q={{ q|urlencode }}{% endif %}">»</a>
+              <a class="page-link" href="?page={{ paginatorm.num_pages }}&per_page={{ per_page }}{% if q_m %}&q_m={{ q_m|urlencode }}{% endif %}">»</a>
             </li>
           </ul>
         </nav>
@@ -112,12 +114,15 @@
       <div class="text-center text-muted py-5">
         <i class="bi bi-search" style="font-size:2rem;"></i>
         <p class="mb-1 mt-2">
-          {% if q %}No se encontraron materiales para “{{ q }}”.{% else %}Aún no has agregado materiales.{% endif %}
+          {% if q_m %}No se encontraron materiales para “{{ q_m }}”.{% else %}Aún no has agregado materiales.{% endif %}
         </p>
-        {% if q %}
-          <a class="btn btn-sm btn-outline-secondary" href="?per_page={{ per_page }}">Limpiar búsqueda</a>
-        {% else %}
-          <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Agregar material</a>
+        {% if q_m %}
+          <a href="{% url 'crearMaterial' project.id %}" class="btn btn-primary">
+            <i class="bi bi-clipboard2-plus"></i> Crear
+          </a>
+          <a class="btn btn-secondary" href="?per_page={{ per_page }}">
+            <i class="fa fa-trash-alt"></i> Limpiar
+          </a>
         {% endif %}
       </div>
     {% endif %}

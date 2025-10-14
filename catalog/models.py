@@ -30,7 +30,6 @@ class Unit(models.Model):
     def __str__(self):  
         return f"{self.name} ({self.abbreviation})"
     
-
 class Material(models.Model):
     name = models.CharField(
         max_length=100, 
@@ -91,3 +90,166 @@ class Material(models.Model):
 
     def __str__(self):
         return self.name
+    
+class ManoObra(models.Model):
+    name = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el nombre de la mano de obra",
+        verbose_name="Nombre_mo",
+        validators=[MinLengthValidator(3)]
+    )
+    description = models.TextField(
+        max_length=200,
+        null=True,
+        blank=True,
+        unique=False,
+        help_text="Ingrese una pequeña descripción de la mano de obra",
+        verbose_name="Descripción_mo",
+        validators=[MinLengthValidator(3)]
+    )
+    jornada = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        null=False,
+        blank= False,
+        verbose_name="Jornada",
+        help_text="Ingrese el valor monetario de la jornada",
+    )
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="manoobra_project_catalog",
+        verbose_name="Proyecto_mo",
+        help_text="Proyecto al que pertenece el material",
+    )
+
+    class Meta:
+        verbose_name = "Mano de Obra"
+        verbose_name_plural = "Manos de Obra"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                name="manoobra_name_jorn_project",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+    
+class Herramienta(models.Model):
+    name = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el nombre de la herramienta",
+        verbose_name="Nombre_hrr",
+        validators=[MinLengthValidator(3)]
+    )
+    tipo = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese el tipo de la herramienta",
+        verbose_name="Tipo_hrr",
+        validators=[MinLengthValidator(3)]
+    )
+    costodia = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        null=False,
+        blank= False,
+        verbose_name="CostoDia_hrr",
+        help_text="Ingrese el costo por dia",
+    )
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="herramienta_project_catalog",
+        verbose_name="Proyecto_hrr",
+        help_text="Proyecto al que pertenece la herramienta",
+    )
+
+    class Meta:
+        verbose_name = "Herramienta"
+        verbose_name_plural = "Herramientas"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                name="herramienta_project",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+     
+class Equipo(models.Model):
+    name = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el nombre del equipo",
+        verbose_name="Nombre_eqp",
+        validators=[MinLengthValidator(3)]
+    )
+    tipo = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese el tipo del equipo",
+        verbose_name="Tipo_eqp",
+        validators=[MinLengthValidator(3)]
+    )
+    capacidad = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese la capacidad del equipo",
+        verbose_name="Capac_eqp",
+        validators=[MinLengthValidator(3)]
+    )
+    costodia = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        null=False,
+        blank= False,
+        verbose_name="CostoDia_eqp",
+        help_text="Ingrese el costo por dia",
+    )
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="equipo_project_catalog",
+        verbose_name="Proyecto_eqp",
+        help_text="Proyecto al que pertenece el equipo",
+    )
+
+    class Meta:
+        verbose_name = "Equipo"
+        verbose_name_plural = "Equipos"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                name="equipo_project",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+    

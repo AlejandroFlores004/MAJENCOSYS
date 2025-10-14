@@ -2,26 +2,35 @@
 {% block title %}Catalogos{% endblock title %}
 
 {% block content %}
-<div class="container py-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="mb-0">Catálogo de Materiales</h2>
-    <a href="{% url "crearMaterial" project.id %}" class="btn btn-primary btn-sm"> <i class="bi bi-plus-lg"></i> Agregar material</a>
+<!-- Header -->
+<div class="jumbotron2 jumbotron-fluid mb-5">
+  <div class="container text-center py-6">
+    <h1 class="text-white display-3">CATALOGOS</h1>
+    <div class="d-inline-flex align-items-center text-white">
+      <p class="m-0 text-white">Materiales</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Herramientas</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Equipo</p>
+      <i class="fa fa-circle px-3"></i>
+      <p class="m-0 text-white">Riesgos</p>
+    </div>
   </div>
+</div>
 
+<div class="container py-4">
+
+  <!-- Materiales -->
   {% include "partials/lists/listMaterials.html" %}
-
   <hr class="my-5">
 
-  <!-- Mano de Obra (por ahora datos quemados) -->
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="mb-0">Catálogo de Mano de Obra</h2>
-    <a href="#" class="btn btn-primary btn-sm">
-      <i class="bi bi-plus-lg"></i> Agregar mano de obra
-    </a>
-  </div>
-
+  <!-- Mano de Obra -->
   {% include "partials/lists/listLabour.html" %}
+  <hr class="my-5">
 
+  <!-- Mano de Obra -->
+  {% include "partials/lists/listHerramienta.html" %}
+  <hr class="my-5">
 
 </div>
 {% if messages %}
