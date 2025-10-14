@@ -22,37 +22,29 @@ def mainActivy(request, pk):
 
     base_qs = Activity.objects.filter(project=project)
 
-    # Filtro por nombre (case-insensitive)
     if q:
         base_qs = base_qs.filter(name__icontains=q)
 
     qs = (
         base_qs
         .annotate(
+            # Materiales
             mm_rows=Count('memoryMaterial_activity', distinct=True),
             mm_qty=Coalesce(
                 Sum('memoryMaterial_activity__quantity'),
                 Value(0),
                 output_field=DecimalField(max_digits=12, decimal_places=2)
             ),
-        )
-        .order_by('-id')
-        .prefetch_related(
-            Prefetch(
-                'header_activity',
-                queryset=Header.objects.only('id', 'name', 'content', 'activity_id').order_by('id')
-            )
-        )
-    )
-    
-    qmo = (
-        Activity.objects
-        .filter(project=project)
-        .annotate(
-            mmo_rows=Count('memoryManoObra_activity', distinct=True),
-            mmo_qty=Coalesce(
-                Sum('memoryManoObra_activity__quantity'),
-                Value(0),  # <- valor por defecto
+            # Mano de obra (usar related_name y campos correctos)
+            mmo_rows=Count('MemoryManoObra_activity', distinct=True),
+            mmo_prestaciones=Coalesce(
+                Sum('MemoryManoObra_activity__prestaciones'),
+                Value(0),
+                output_field=DecimalField(max_digits=12, decimal_places=2)
+            ),
+            mmo_rendimiento=Coalesce(
+                Sum('MemoryManoObra_activity__rendimiento'),
+                Value(0),
                 output_field=DecimalField(max_digits=12, decimal_places=2)
             ),
         )
@@ -67,7 +59,6 @@ def mainActivy(request, pk):
 
     paginator = Paginator(qs, per_page)
 
-    # Manejo de 0 resultados (evita errores de paginación)
     if paginator.count == 0:
         activities_page = None
         is_paginated = False
@@ -80,26 +71,7 @@ def mainActivy(request, pk):
             activities_page = paginator.page(paginator.num_pages)
         is_paginated = paginator.num_pages > 1
 
-
-    paginator = Paginator(qmo, per_page)
-    try:
-        activities_page = paginator.page(page)
-    except PageNotAnInteger:
-        activities_page = paginator.page(1)
-    except EmptyPage:
-        activities_page = paginator.page(paginator.num_pages)
-
-
-    paginator = Paginator(qmo, per_page)
-    try:
-        activities_page = paginator.page(page)
-    except PageNotAnInteger:
-        activities_page = paginator.page(1)
-    except EmptyPage:
-        activities_page = paginator.page(paginator.num_pages)
-
     countMaterial = Material.objects.filter(project=project).count()
-
     countManoObra = ManoObra.objects.filter(project=project).count()
 
     context = {
@@ -110,6 +82,7 @@ def mainActivy(request, pk):
         "per_page_activities": per_page,
         "quiantyMaterial": countMaterial,
         "quiantyManoObra": countManoObra,
+        "q": q,  # por si lo usas en el buscador
     }
     return render(request, 'mainActivities.html', context)
 
