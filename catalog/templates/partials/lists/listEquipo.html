@@ -1,0 +1,130 @@
+{# Espera en contexto: equipo_page, paginatoreqp, is_paginatedeqp, per_page, q_eqp, project #}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="mb-0">Equipos</h5>
+        <span class="badge bg-primary">{{ paginatoreqp.count }}</span>
+        {% if q_eqp %}
+          <span class="badge bg-secondary3">Filtro: “{{ q_eqp }}”</span>
+        {% endif %}
+      </div>
+      
+      <form class="row g-2 align-items-center" method="get">
+        <div class="col-12 col-md">
+          <input type="text" name="q_eqp" class="form-control"
+            placeholder="Buscar"
+            value="{{ q_eqp }}" title="Nombre o Tipo"
+          >
+        </div>
+        <div class="col-6 col-md-3">
+          <select name="per_page" class="form-select" onchange="this.form.submit()">
+            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+            <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+          </select>
+        </div>
+        <div class="col-auto btn-group">
+          <button class="btn btn-primary" type="submit" title="Filtrar">
+            <i class="fa fa-filter"></i>
+          </button>
+          {% if q_eqp %}
+            {# Mantén per_page cuando limpias #}
+            <a href="?per_page={{ per_page }}" class="btn btn-outline-secondary" title="Limpiar">
+              <i class="fa fa-trash-alt"></i>
+            </a>
+          {% endif %}
+        </div>
+        <div class="col-auto btn-group">
+          <a href="{% url 'crearEquipo' project.id %}" class="btn btn-primary">
+            <i class="bi bi-clipboard2-plus"></i> Crear
+          </a>
+        </div>
+      </form>
+    </div>
+
+    {% if equipo_page %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Descripción</th>
+              <th>Tipo</th>
+              <th>Capacidad</th>
+              <th style="width: 160px;">Costo/Dia</th>
+              <th class="text-end" style="width: 180px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for eqp in equipo_page %}
+            <tr>
+              <td class="fw-semibold text-muted">{{ eqp.name }}</td>
+              <td class="text-muted">{{ eqp.tipo|default:"—" }}</td>
+              <td class="fw-semibold">{{ eqp.capacidad }}</td>
+              <td>
+                {% if eqp.costodia is not None %}$ {{ eqp.costodia }}{% else %}—{% endif %}
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-md" role="group">
+                  <a href="{% url 'editarEquipo' project.id eqp.id %}" class="btn btn-3" title="Editar">
+                    <i class="bi bi-pencil"></i> Editar
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+        <div>
+          Mostrando {{ equipo_page.start_index }}–{{ equipo_page.end_index }} de {{ paginatoreqp.count }}
+        </div>
+
+        {% if is_paginatedeqp %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item {% if not equipo_page.has_previous %}disabled{% endif %}">
+              <a class="page-link" href="?page=1&per_page={{ per_page }}{% if q_eqp %}&q_eqp={{ q_eqp|urlencode }}{% endif %}">«</a>
+            </li>
+            <li class="page-item {% if not equipo_page.has_previous %}disabled{% endif %}">
+              <a class="page-link" href="?page={{ equipo_page.previous_page_number }}&per_page={{ per_page }}{% if q_eqp %}&q_eqp={{ q_eqp|urlencode }}{% endif %}">‹</a>
+            </li>
+
+            {% for num in equipo_page.paginatoreqp.page_range %}
+              {% if num >= equipo_page.number|add:'-2' and num <= equipo_page.number|add:'2' %}
+                <li class="page-item {% if num == equipo_page.number %}active{% endif %}">
+                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}{% if q_eqp %}&q_eqp={{ q_eqp|urlencode }}{% endif %}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if not equipo_page.has_next %}disabled{% endif %}">
+              <a class="page-link" href="?page={{ equipo_page.next_page_number }}&per_page={{ per_page }}{% if q_eqp %}&q_eqp={{ q_eqp|urlencode }}{% endif %}">›</a>
+            </li>
+            <li class="page-item {% if not equipo_page.has_next %}disabled{% endif %}">
+              <a class="page-link" href="?page={{ paginatoreqp.num_pages }}&per_page={{ per_page }}{% if q_eqp %}&q_eqp={{ q_eqp|urlencode }}{% endif %}">»</a>
+            </li>
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-search" style="font-size:2rem;"></i>
+        <p class="mb-1 mt-2">
+          {% if q_eqp %}No se encontraron equipos para “{{ q_eqp }}”.{% else %}Aún no has agregado equipos.{% endif %}
+        </p>
+        {% if q_eqp %}
+          <a href="{% url 'crearEquipo' project.id %}" class="btn btn-primary">
+            <i class="bi bi-clipboard2-plus"></i> Crear
+          </a>
+          <a class="btn btn-secondary" href="?per_page={{ per_page }}">
+            <i class="fa fa-trash-alt"></i> Limpiar
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>

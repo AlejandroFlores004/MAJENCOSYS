@@ -1,5 +1,5 @@
 from django import forms
-from .models import Material,ManoObra,Herramienta,Equipo
+from .models import Material,ManoObra,Herramienta,Equipo,Riesgo
 
 class MaterialForm(forms.ModelForm):
     class Meta:
@@ -211,5 +211,61 @@ class EquipoForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
-            raise forms.ValidationError("Ya existe una equipo con ese nombre en este proyecto.")
+            raise forms.ValidationError("Ya existe un equipo con ese nombre en este proyecto.")
+        return name
+
+class RiesgoForm(forms.ModelForm):
+    class Meta:
+        model = Riesgo
+        fields = ['name', 'peligros', 'tipo', 'nivel']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Manipulacion de herramientas',
+                'required': True
+            }),
+            'peligros': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Ejemplo: Golpes, torceduras, fracturas y cortes',
+                'required': True
+            }),
+            'tipo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Fisico',
+                'required': True
+            }),
+            'nivel': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Medio',
+                'required': True
+            }),
+        }
+        labels = {
+            'name': 'Nombre del riesgo',
+            'peligros': 'Peligros potenciales',
+            'tipo': 'Tipo de riesgo',
+            'nivel': 'Nivel de riesgo',
+        }
+        help_texts = {
+            'name': 'Ingrese el nombre del riesgo a registrar',
+            'peligros': 'Peligros portenciales en riesgo',
+            'tipo': 'Tipo de riesgo a registrar',
+            'nivel': 'Nivel de riesgo a registrar',
+        }
+
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project = project  # <- lo inyectamos desde la vista
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if not name or not self.project:
+            return name
+        qs = Riesgo.objects.filter(project=self.project, name__iexact=name)
+        # si es edición, excluir el propio registro
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("Ya existe un riesgo con ese nombre en este proyecto.")
         return name

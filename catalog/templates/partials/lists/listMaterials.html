@@ -59,7 +59,7 @@
             {% for m in materials_page %}
             <tr>
               <td class="fw-semibold text-muted">{{ m.name }}</td>
-              <td class="fw-semibold">{{ m.unit.abbreviation }}</td>
+              <td class="fw-semibold text-muted">{{ m.unit.abbreviation }}</td>
               <td>
                 {% if m.price is not None %}$ {{ m.price }}{% else %}—{% endif %}
               </td>

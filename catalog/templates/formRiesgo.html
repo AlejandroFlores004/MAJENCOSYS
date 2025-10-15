@@ -1,0 +1,81 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Riesgo{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        {% if is_edit %}
+          <h6 class="text-primary text-uppercase font-weight-bold">Editar riesgo</h6>
+          <h1 class="mb-2 text-uppercase">{{ riesgo.name }}</h1>
+          <div class="mb-3">
+            <p><strong>Proyecto: <i>{{ riesgo.project }}</i></strong></p>
+          </div>
+        {% else %}
+          <h6 class="text-primary text-uppercase font-weight-bold">Nueva riesgo</h6>
+          <h1 class="mb-4">Información Obligatoria</h1>
+        {% endif %}
+
+        {% if messages %}
+          <div class="mb-3">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} mb-2" role="alert">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="card shadow-sm contact-form bg-secondary2" style="padding: 30px;">
+          <div id="success"></div>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {{ form.non_field_errors }}
+              
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                {{ form.name }}
+                {% for err in form.name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.peligros.id_for_label }}">{{ form.peligros.label }}</label>
+                {{ form.peligros }}
+                {% for err in form.peligros.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                <select class="form-select" id="tipo" name="tipo">
+                  <option value="Rsg1" {% if form.tipo.value == "Rsg1" %}selected{% endif %}>Tipo R1</option>
+                  <option value="Rsg2" {% if form.tipo.value == "Rsg2"  %}selected{% endif %}>Tipo R2</option>
+                  <option value="Rsg3" {% if form.tipo.value == "Rsg3"  %}selected{% endif %}>Tipo R3</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.nivel.id_for_label }}">{{ form.nivel.label }}</label>
+                <select class="form-select" id="nivel" name="nivel">
+                  <option value="Bajo" {% if form.nivel.value == "Bajo" %}selected{% endif %}>Bajo</option>
+                  <option value="Medio" {% if form.nivel.value == "Medio"  %}selected{% endif %}>Medio</option>
+                  <option value="Alto" {% if form.nivel.value == "Alto"  %}selected{% endif %}>Alto</option>
+                </select>
+              </div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-primary">
+                  {% if is_edit %}
+                    <i class="bi bi-pencil"></i> Guardar cambios
+                  {% else %}
+                    Guardar
+                  {% endif %}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
