@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MainCatalog, CreateMaterial, EditMaterial, CreateManoObra, EditManoObra, CreateHerramienta, EditHerramienta, CreateEquipo, EditEquipo, CreateRiesgo, EditRiesgo
+from .views import MainCatalog, CreateMaterial, EditMaterial, CreateManoObra, EditManoObra, CreateHerramienta, EditHerramienta, CreateEquipo, EditEquipo, CreateRiesgo, EditRiesgo, CreateCalidad, EditCalidad, CreateAmbiental, EditAmbiental
 
 urlpatterns = [
     path('',MainCatalog,name='mainCatalog'),
@@ -13,4 +13,8 @@ urlpatterns = [
     path('editar/equipo/<int:equipo_id>/', EditEquipo, name='editarEquipo'),
     path('crear/riesgo/',CreateRiesgo, name='crearRiesgo'),
     path('editar/riesgo/<int:riesgo_id>/', EditRiesgo, name='editarRiesgo'),
+    path('crear/calidad/',CreateCalidad, name='crearCalidad'),
+    path('editar/calidad/<int:calidad_id>/', EditCalidad, name='editarCalidad'),
+    path('crear/ambiental/',CreateAmbiental, name='crearAmbiental'),
+    path('editar/ambiental/<int:ambiental_id>/', EditAmbiental, name='editarAmbiental'),
 ]

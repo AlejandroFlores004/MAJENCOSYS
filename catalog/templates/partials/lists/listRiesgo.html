@@ -14,7 +14,7 @@
         <div class="col-12 col-md">
           <input type="text" name="q_rsg" class="form-control"
             placeholder="Buscar"
-            value="{{ q_rsg }}" title="Nombre o Tipo"
+            value="{{ q_rsg }}" title="Nombre Tipo o Nivel"
           >
         </div>
         <div class="col-6 col-md-3">
@@ -30,7 +30,7 @@
           </button>
           {% if q_rsg %}
             {# Mantén per_page cuando limpias #}
-            <a href="?per_page={{ per_page }}" class="btn btn-outline-secondary" title="Limpiar">
+            <a href="?per_page={{ per_page }}#4" class="btn btn-outline-secondary" title="Limpiar">
               <i class="fa fa-trash-alt"></i>
             </a>
           {% endif %}
@@ -117,7 +117,7 @@
         <a href="{% url 'crearRiesgo' project.id %}" class="btn btn-primary">
           <i class="bi bi-clipboard2-plus"></i> Crear
         </a>
-        <a class="btn btn-secondary" href="?per_page={{ per_page }}">
+        <a class="btn btn-secondary" href="?per_page={{ per_page }}#4">
           <i class="fa fa-trash-alt"></i> Limpiar
         </a>
       </div>

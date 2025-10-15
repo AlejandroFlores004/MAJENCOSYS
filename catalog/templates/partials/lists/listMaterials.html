@@ -30,7 +30,7 @@
           </button>
           {% if q_m %}
             {# Mantén per_page cuando limpias #}
-            <a  href="?per_page={{ per_page }}" class="btn btn-outline-secondary" title="Limpiar">
+            <a  href="?per_page={{ per_page }}#0" class="btn btn-outline-secondary" title="Limpiar">
               <i class="fa fa-trash-alt"></i>
             </a>
           {% endif %}
@@ -116,14 +116,12 @@
         <p class="mb-1 mt-2">
           {% if q_m %}No se encontraron materiales para “{{ q_m }}”.{% else %}Aún no has agregado materiales.{% endif %}
         </p>
-        {% if q_m %}
-          <a href="{% url 'crearMaterial' project.id %}" class="btn btn-primary">
-            <i class="bi bi-clipboard2-plus"></i> Crear
-          </a>
-          <a class="btn btn-secondary" href="?per_page={{ per_page }}">
-            <i class="fa fa-trash-alt"></i> Limpiar
-          </a>
-        {% endif %}
+        <a href="{% url 'crearMaterial' project.id %}" class="btn btn-primary">
+          <i class="bi bi-clipboard2-plus"></i> Crear
+        </a>
+        <a class="btn btn-secondary" href="?per_page={{ per_page }}#0">
+          <i class="fa fa-trash-alt"></i> Limpiar
+        </a>
       </div>
     {% endif %}
   </div>

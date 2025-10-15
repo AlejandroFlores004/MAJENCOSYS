@@ -312,3 +312,139 @@ class Riesgo(models.Model):
     def __str__(self):
         return self.name
     
+class Calidad(models.Model):
+    name = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el nombre del control de calidad",
+        verbose_name="Nombre_cld",
+        validators=[MinLengthValidator(3)]
+    )
+    description = models.TextField(
+        max_length=200,
+        null=True,
+        blank=True,
+        unique=False,
+        help_text="Ingrese una pequeña descripción del control de calidad",
+        verbose_name="Descripción_cld",
+        validators=[MinLengthValidator(3)]
+    )
+    precio = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        null=False,
+        blank= False,
+        verbose_name="Precio_cld",
+        help_text="Ingrese el valor monetario del control de calidad",
+    )
+    norma = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese la norma del control de calidad",
+        verbose_name="Norma_cld",
+        validators=[MinLengthValidator(3)]
+    )
+    tipo = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el tipo del control de calidad",
+        verbose_name="Tipo_cld",
+        validators=[MinLengthValidator(3)]
+    )
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="calidad_project_catalog",
+        verbose_name="Proyecto_cld",
+        help_text="Proyecto al que pertenece el control de calidad",
+    )
+
+    class Meta:
+        verbose_name = "Calidad"
+        verbose_name_plural = "Calidades"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                name="calidad_project",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+    
+class Ambiental(models.Model):
+    name = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el nombre del control ambiental a registrar",
+        verbose_name="Nombre_mbt",
+        validators=[MinLengthValidator(3)]
+    )
+    description = models.TextField(
+        max_length=200,
+        null=True,
+        blank=True,
+        unique=False,
+        help_text="Ingrese una pequeña descripción del control ambiental",
+        verbose_name="Descripción_mbt",
+        validators=[MinLengthValidator(3)]
+    )
+    epoca = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese la epoca del año",
+        verbose_name="Epoca_mbt",
+        validators=[MinLengthValidator(3)]
+    )
+    especie = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese la especide de las plantas",
+        verbose_name="Especie_mbt",
+        validators=[MinLengthValidator(3)]
+    )
+    insumos = models.TextField(
+        max_length=200,
+        null=True,
+        blank=True,
+        unique=False,
+        help_text="Ingrese una pequeña descripción de los insumos",
+        verbose_name="Insumos_mbt",
+        validators=[MinLengthValidator(3)]
+    )
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="ambiental_project_catalog",
+        verbose_name="Proyecto_mbt",
+        help_text="Proyecto al que pertenece el control ambiental",
+    )
+
+    class Meta:
+        verbose_name = "Ambiental"
+        verbose_name_plural = "Ambientals"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                name="ambiental_project",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+    

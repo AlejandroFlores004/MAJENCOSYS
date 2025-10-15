@@ -30,7 +30,7 @@
           </button>
           {% if q_hrr %}
             {# Mantén per_page cuando limpias #}
-            <a href="?per_page={{ per_page }}" class="btn btn-outline-secondary" title="Limpiar">
+            <a href="?per_page={{ per_page }}#2" class="btn btn-outline-secondary" title="Limpiar">
               <i class="fa fa-trash-alt"></i>
             </a>
           {% endif %}
@@ -114,14 +114,12 @@
         <p class="mb-1 mt-2">
           {% if q_hrr %}No se encontraron herramientas para “{{ q_hrr }}”.{% else %}Aún no has agregado herramientas.{% endif %}
         </p>
-        {% if q_hrr %}
-          <a href="{% url 'crearHerramienta' project.id %}" class="btn btn-primary">
-            <i class="bi bi-clipboard2-plus"></i> Crear
-          </a>
-          <a class="btn btn-secondary" href="?per_page={{ per_page }}">
-            <i class="fa fa-trash-alt"></i> Limpiar
-          </a>
-        {% endif %}
+        <a href="{% url 'crearHerramienta' project.id %}" class="btn btn-primary">
+          <i class="bi bi-clipboard2-plus"></i> Crear
+        </a>
+        <a class="btn btn-secondary" href="?per_page={{ per_page }}#2">
+          <i class="fa fa-trash-alt"></i> Limpiar
+        </a>
       </div>
     {% endif %}
   </div>
