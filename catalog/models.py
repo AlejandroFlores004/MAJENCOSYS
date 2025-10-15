@@ -253,3 +253,62 @@ class Equipo(models.Model):
     def __str__(self):
         return self.name
     
+class Riesgo(models.Model):
+    name = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el nombre del riesgo a registrar",
+        verbose_name="Nombre_rsg",
+        validators=[MinLengthValidator(3)]
+    )
+    peligros = models.TextField(
+        max_length=200,
+        null=True,
+        blank=True,
+        unique=False,
+        help_text="Ingrese una pequeña descripción de lo peligros del riesgo",
+        verbose_name="Peligros_rsg",
+        validators=[MinLengthValidator(3)]
+    )
+    tipo = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese el tipo de riesgo",
+        verbose_name="Tipo_rsg",
+        validators=[MinLengthValidator(3)]
+    )
+    nivel = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese el nivel de riesgo",
+        verbose_name="Nivel_rsg",
+        validators=[MinLengthValidator(3)]
+    )
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="riesgo_project_catalog",
+        verbose_name="Proyecto",
+        help_text="Proyecto al que pertenece el riesgo",
+    )
+
+    class Meta:
+        verbose_name = "Riesgo"
+        verbose_name_plural = "Riesgos"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                name="riesgo_project",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+    

@@ -4,8 +4,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from project.models import Project
-from catalog.models import Material, ManoObra, Herramienta, Equipo
-from .forms import MaterialForm, ManoObraForm, HerramientaForm, EquipoForm
+from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo
+from .forms import MaterialForm, ManoObraForm, HerramientaForm, EquipoForm, RiesgoForm
 # Create your views here.
 
 @login_required(login_url='log')
@@ -15,6 +15,8 @@ def MainCatalog(request, pk):
     q_m = (request.GET.get('q_m') or '').strip()
     q_mo = (request.GET.get('q_mo') or '').strip()
     q_hrr = (request.GET.get('q_hrr') or '').strip()
+    q_eqp = (request.GET.get('q_eqp') or '').strip()
+    q_rsg = (request.GET.get('q_rsg') or '').strip()
 
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
@@ -88,21 +90,75 @@ def MainCatalog(request, pk):
     except EmptyPage:
         herramienta_page = paginatorhrr.page(paginatorhrr.num_pages)
 
+    # Para Equipo --------------------------------------------------
+
+    qeqp = (Equipo.objects
+          .filter(project=project)
+          .order_by('name'))
+    
+    if q_eqp:
+        # Búsqueda por tokens: cada palabra debe aparecer en algún campo
+        for token in q_eqp.split():
+            qeqp = qeqp.filter(
+                Q(name__icontains=token) |
+                Q(tipo__icontains=token)
+            )
+
+    paginatoreqp = Paginator(qeqp, per_page)
+    try:
+        equipo_page = paginatoreqp.page(page)
+    except PageNotAnInteger:
+        equipo_page = paginatoreqp.page(1)
+    except EmptyPage:
+        equipo_page = paginatoreqp.page(paginatoreqp.num_pages)
+
+    # Para Riesgo --------------------------------------------------
+
+    qrsg = (Riesgo.objects
+          .filter(project=project)
+          .order_by('name'))
+    
+    if q_rsg:
+        # Búsqueda por tokens: cada palabra debe aparecer en algún campo
+        for token in q_rsg.split():
+            qrsg = qrsg.filter(
+                Q(name__icontains=token) |
+                Q(peligros__icontains=token) |
+                Q(tipo__icontains=token) |
+                Q(nivel__icontains=token)
+            )
+
+    paginatorrsg = Paginator(qrsg, per_page)
+    try:
+        riesgo_page = paginatorrsg.page(page)
+    except PageNotAnInteger:
+        riesgo_page = paginatorrsg.page(1)
+    except EmptyPage:
+        riesgo_page = paginatorrsg.page(paginatorrsg.num_pages)
+
     context = {
         "project": project,
         "materials_page": materials_page,
         "manoobra_page": manoobra_page,
         "herramienta_page": herramienta_page,
+        "equipo_page": equipo_page,
+        "riesgo_page": riesgo_page,
         "paginatorm": paginatorm,
         "paginatormo": paginatormo,
         "paginatorhrr": paginatorhrr,
+        "paginatoreqp": paginatoreqp,
+        "paginatorrsg": paginatorrsg,
         "is_paginatedm": paginatorm.num_pages > 1,
         "is_paginatedmo": paginatormo.num_pages > 1,
         "is_paginatedhrr": paginatorhrr.num_pages > 1,
+        "is_paginatedeqp": paginatoreqp.num_pages > 1,
+        "is_paginatedrsg": paginatorrsg.num_pages > 1,
         "per_page": per_page,
         "q_m": q_m,
         "q_mo": q_mo,
         "q_hrr": q_hrr,
+        "q_eqp": q_eqp,
+        "q_rsg": q_rsg,
     }
     return render(request, 'mainCatalogs.html', context)
 
@@ -249,3 +305,99 @@ def EditHerramienta(request, pk, herramienta_id):
         'is_edit': True,  # bandera para distinguir creación/edición
     }
     return render(request, 'formHerramienta.html', context)
+
+@login_required(login_url='log')
+def CreateEquipo(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == "POST":
+        form = EquipoForm(request.POST, project=project)
+        if form.is_valid():
+            Equipo = form.save(commit=False)
+            Equipo.project = project  # asegura la relación
+            Equipo.save()
+            messages.success(request, "Equipo creado correctamente.")
+            # Cambia 'project_detail' por la vista a la que quieras regresar:
+            return redirect('mainCatalog', pk=project.pk)
+        else:
+            messages.error(request, "Revisa los campos del formulario.")
+    else:
+        form = EquipoForm(project=project)
+
+    context = {
+        "project": project,
+        "form": form,
+    }
+    return render(request, 'formEquipo.html', context)
+
+@login_required(login_url='log')
+def EditEquipo(request, pk, equipo_id):
+    project = get_object_or_404(Project, pk=pk)
+    equipo = get_object_or_404(Equipo, pk=equipo_id, project=project)
+
+    if request.method == 'POST':
+        form = EquipoForm(request.POST, instance=equipo, project=project)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Equipo actualizado correctamente.")
+            return redirect('mainCatalog', pk=project.pk)  # ajusta la URL destino
+        else:
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = EquipoForm(instance=equipo, project=project)
+
+    context = {
+        'project': project,
+        'form': form,
+        'equipo': equipo,
+        'is_edit': True,  # bandera para distinguir creación/edición
+    }
+    return render(request, 'formEquipo.html', context)
+
+@login_required(login_url='log')
+def CreateRiesgo(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == "POST":
+        form = RiesgoForm(request.POST, project=project)
+        if form.is_valid():
+            Riesgo = form.save(commit=False)
+            Riesgo.project = project  # asegura la relación
+            Riesgo.save()
+            messages.success(request, "Riesgo creado correctamente.")
+            # Cambia 'project_detail' por la vista a la que quieras regresar:
+            return redirect('mainCatalog', pk=project.pk)
+        else:
+            messages.error(request, "Revisa los campos del formulario.")
+    else:
+        form = RiesgoForm(project=project)
+
+    context = {
+        "project": project,
+        "form": form,
+    }
+    return render(request, 'formRiesgo.html', context)
+
+@login_required(login_url='log')
+def EditRiesgo(request, pk, riesgo_id):
+    project = get_object_or_404(Project, pk=pk)
+    riesgo = get_object_or_404(Riesgo, pk=riesgo_id, project=project)
+
+    if request.method == 'POST':
+        form = RiesgoForm(request.POST, instance=riesgo, project=project)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Riesgo actualizado correctamente.")
+            return redirect('mainCatalog', pk=project.pk)  # ajusta la URL destino
+        else:
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = RiesgoForm(instance=riesgo, project=project)
+
+    context = {
+        'project': project,
+        'form': form,
+        'riesgo': riesgo,
+        'is_edit': True,  # bandera para distinguir creación/edición
+    }
+    return render(request, 'formRiesgo.html', context)
