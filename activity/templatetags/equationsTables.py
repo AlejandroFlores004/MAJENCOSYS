@@ -11,6 +11,13 @@ def multiplica(value, arg):
         return float(value) * float(arg)
     except (TypeError, ValueError):
         return ''
+    
+@register.filter 
+def dividir(value, arg):
+    try:
+        return float(value) / float(arg)
+    except (TypeError, ValueError):
+        return ''
 
 @register.filter(name='totalMateriales')
 def totalMateriales(materials):
@@ -23,3 +30,22 @@ def totalMateriales(materials):
         return total
     except Exception:
         return Decimal('0')
+    
+@register.filter 
+def jornalTotal(value, arg):
+    try:
+        return float(value) / (1-float(arg))
+    except (TypeError, ValueError):
+        return ''
+    
+@register.filter(name='totalManoObra')
+def totalManoObra(manoObra):
+    try:
+        total = Decimal('0')
+        for m in manoObra:
+            jornadaTotal = m.manoobra.jornada / (1 - m.prestaciones)
+            total += jornadaTotal / m.rendimiento
+        return total
+    except Exception:
+        return Decimal('0')
+    

@@ -37,7 +37,7 @@
         <div class="col-12 col-lg-8">
           <h5 class="mb-1">{{ activity.name }}</h5>
           <div class="text-muted small">
-            Proyecto: <span class="fw-semibold">{{ project.name }}</span> ·
+            Proyecto: <span class="fw-semibold">{{ project.nombre }}</span> ·
             Creada: {{ activity.created_at|date:"d/m/Y H:i" }}
           </div>
         </div>
@@ -66,6 +66,11 @@
             {% include "partials/tables/_material_memory.html" %}
         {% endif %}
     </div>
+    <div class="d-flex flex-column gap-3">
+        {% if materials %}
+            {% include "partials/tables/_labour_memory.html" %}
+        {% endif %}
+    </div>
 </div>
 
 <!-- Script: manejar acciones -->
@@ -83,7 +88,7 @@
         destino = "{% url "memoryMateriales" project.id activity.id %}";
         break;
       case "mano_obra":
-        destino = "#";
+        destino = "{% url "memoryLabour" project.id activity.id %}";
         break;
       case "herramientas":
         destino = "#";
@@ -99,4 +104,16 @@
     window.location.href = destino;
   }
 </script>
+
+
+{% if messages %}
+<div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+    {% for m in messages %}
+    <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
+    {% endfor %}
+</div>
+<script>
+    setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+</script>
+{% endif %}
 {% endblock content %}

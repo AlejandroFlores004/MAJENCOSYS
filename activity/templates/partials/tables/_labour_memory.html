@@ -1,0 +1,60 @@
+{% load equationsTables %}
+{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
+{# {% load humanize %} #}
+
+<!-- Materiales -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="mb-0">Mano de obra</h5>
+      <span class="badge bg-primary">{{ labour|length }}</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>Jornal</th>
+            <th class="text-end">Prestaciones</th>
+            <th class="text-end">Jornal Total</th>
+            <th class="text-end">Rendimiento</th>
+            <th class="text-end">Subtotal ($)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for l in labour %}
+            <tr>
+              <td>{{ l.manoobra.name }}</td>
+              <td>{{ l.manoobra.jornada }}</td>
+              <td class="text-end">
+                %{{ l.prestaciones|multiplica:100 }}
+              </td>
+              <td class="text-end">{{ l.manoobra.jornada|jornalTotal:l.prestaciones|floatformat:2 }}</td>
+              <td class="text-end">
+                {{ l.rendimiento }}
+              </td>
+              <td class="text-end">
+                {{ l.manoobra.jornada|jornalTotal:l.prestaciones|dividir:l.rendimiento|floatformat:2 }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted">Sin materiales</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+        <tfoot class="table-light">
+          <tr>
+            <th colspan="5" class="text-end">Total</th>
+            <th class="text-end">
+              ${{ labour|totalManoObra|floatformat:2 }}
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
