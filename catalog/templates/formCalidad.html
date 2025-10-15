@@ -1,0 +1,81 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Control de Calidad{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        {% if is_edit %}
+          <h6 class="text-primary text-uppercase font-weight-bold">Editar control de calidad</h6>
+          <h1 class="mb-2 text-uppercase">{{ calidad.name }}</h1>
+          <div class="mb-3">
+            <p><strong>Proyecto: <i>{{ calidad.project }}</i></strong></p>
+          </div>
+        {% else %}
+          <h6 class="text-primary text-uppercase font-weight-bold">Nueva control de calidad</h6>
+          <h1 class="mb-4">Información Obligatoria</h1>
+        {% endif %}
+
+        {% if messages %}
+          <div class="mb-3">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} mb-2" role="alert">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="card shadow-sm contact-form bg-secondary2" style="padding: 30px;">
+          <div id="success"></div>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {{ form.non_field_errors }}
+              
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                {{ form.name }}
+                {% for err in form.name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% for err in form.description.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.precio.id_for_label }}">{{ form.precio.label }}</label>
+                {{ form.precio }}
+                {% for err in form.precio.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.norma.id_for_label }}">{{ form.norma.label }}</label>
+                {{ form.norma }}
+                {% for err in form.norma.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                {{ form.tipo }}
+                {% for err in form.tipo.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+              </div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-primary">
+                  {% if is_edit %}
+                    <i class="bi bi-pencil"></i> Guardar cambios
+                  {% else %}
+                    Guardar
+                  {% endif %}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

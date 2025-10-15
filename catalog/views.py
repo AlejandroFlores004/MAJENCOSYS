@@ -4,8 +4,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from project.models import Project
-from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo
-from .forms import MaterialForm, ManoObraForm, HerramientaForm, EquipoForm, RiesgoForm
+from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental
+from .forms import MaterialForm, ManoObraForm, HerramientaForm, EquipoForm, RiesgoForm, CalidadForm, AmbientalForm
 # Create your views here.
 
 @login_required(login_url='log')
@@ -17,6 +17,8 @@ def MainCatalog(request, pk):
     q_hrr = (request.GET.get('q_hrr') or '').strip()
     q_eqp = (request.GET.get('q_eqp') or '').strip()
     q_rsg = (request.GET.get('q_rsg') or '').strip()
+    q_cld = (request.GET.get('q_cld') or '').strip()
+    q_mbt = (request.GET.get('q_mbt') or '').strip()
 
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
@@ -134,7 +136,55 @@ def MainCatalog(request, pk):
     except PageNotAnInteger:
         riesgo_page = paginatorrsg.page(1)
     except EmptyPage:
-        riesgo_page = paginatorrsg.page(paginatorrsg.num_pages)
+        materials_page = paginatorm.page(paginatorm.num_pages)
+
+    # Para Control de calidad --------------------------------------------------
+
+    qcld = (Calidad.objects
+          .filter(project=project)
+          .order_by('name'))
+    
+    if q_cld:
+        # Búsqueda por tokens: cada palabra debe aparecer en algún campo
+        for token in q_cld.split():
+            qcld = qcld.filter(
+                Q(name__icontains=token) |
+                Q(description__icontains=token) |
+                Q(norma__icontains=token) |
+                Q(tipo__icontains=token)
+            )
+
+    paginatorcld = Paginator(qcld, per_page)
+    try:
+        calidad_page = paginatorcld.page(page)
+    except PageNotAnInteger:
+        calidad_page = paginatorcld.page(1)
+    except EmptyPage:
+        calidad_page = paginatorcld.page(paginatorcld.num_pages)
+
+    # Para Control ambiental --------------------------------------------------
+
+    qmbt = (Ambiental.objects
+          .filter(project=project)
+          .order_by('name'))
+    
+    if q_mbt:
+        # Búsqueda por tokens: cada palabra debe aparecer en algún campo
+        for token in q_mbt.split():
+            qmbt = qmbt.filter(
+                Q(name__icontains=token) |
+                Q(description__icontains=token) |
+                Q(epoca__icontains=token) |
+                Q(especie__icontains=token)
+            )
+
+    paginatormbt = Paginator(qmbt, per_page)
+    try:
+        ambiental_page = paginatormbt.page(page)
+    except PageNotAnInteger:
+        ambiental_page = paginatormbt.page(1)
+    except EmptyPage:
+        ambiental_page = paginatormbt.page(paginatormbt.num_pages)
 
     context = {
         "project": project,
@@ -143,22 +193,30 @@ def MainCatalog(request, pk):
         "herramienta_page": herramienta_page,
         "equipo_page": equipo_page,
         "riesgo_page": riesgo_page,
+        "calidad_page": calidad_page,
+        "ambiental_page": ambiental_page,
         "paginatorm": paginatorm,
         "paginatormo": paginatormo,
         "paginatorhrr": paginatorhrr,
         "paginatoreqp": paginatoreqp,
         "paginatorrsg": paginatorrsg,
+        "paginatorcld": paginatorcld,
+        "paginatormbt": paginatormbt,
         "is_paginatedm": paginatorm.num_pages > 1,
         "is_paginatedmo": paginatormo.num_pages > 1,
         "is_paginatedhrr": paginatorhrr.num_pages > 1,
         "is_paginatedeqp": paginatoreqp.num_pages > 1,
         "is_paginatedrsg": paginatorrsg.num_pages > 1,
+        "is_paginatedcld": paginatorcld.num_pages > 1,
+        "is_paginatedmbt": paginatormbt.num_pages > 1,
         "per_page": per_page,
         "q_m": q_m,
         "q_mo": q_mo,
         "q_hrr": q_hrr,
         "q_eqp": q_eqp,
         "q_rsg": q_rsg,
+        "q_cld": q_cld,
+        "q_mbt": q_mbt,
     }
     return render(request, 'mainCatalogs.html', context)
 
@@ -401,3 +459,99 @@ def EditRiesgo(request, pk, riesgo_id):
         'is_edit': True,  # bandera para distinguir creación/edición
     }
     return render(request, 'formRiesgo.html', context)
+
+@login_required(login_url='log')
+def CreateCalidad(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == "POST":
+        form = CalidadForm(request.POST, project=project)
+        if form.is_valid():
+            Calidad = form.save(commit=False)
+            Calidad.project = project  # asegura la relación
+            Calidad.save()
+            messages.success(request, "Control de calidad creado correctamente.")
+            # Cambia 'project_detail' por la vista a la que quieras regresar:
+            return redirect('mainCatalog', pk=project.pk)
+        else:
+            messages.error(request, "Revisa los campos del formulario.")
+    else:
+        form = CalidadForm(project=project)
+
+    context = {
+        "project": project,
+        "form": form,
+    }
+    return render(request, 'formCalidad.html', context)
+
+@login_required(login_url='log')
+def EditCalidad(request, pk, calidad_id):
+    project = get_object_or_404(Project, pk=pk)
+    calidad = get_object_or_404(Calidad, pk=calidad_id, project=project)
+
+    if request.method == 'POST':
+        form = CalidadForm(request.POST, instance=calidad, project=project)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Control de calidad actualizado correctamente.")
+            return redirect('mainCatalog', pk=project.pk)  # ajusta la URL destino
+        else:
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = CalidadForm(instance=calidad, project=project)
+
+    context = {
+        'project': project,
+        'form': form,
+        'calidad': calidad,
+        'is_edit': True,  # bandera para distinguir creación/edición
+    }
+    return render(request, 'formCalidad.html', context)
+
+@login_required(login_url='log')
+def CreateAmbiental(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == "POST":
+        form = AmbientalForm(request.POST, project=project)
+        if form.is_valid():
+            Ambiental = form.save(commit=False)
+            Ambiental.project = project  # asegura la relación
+            Ambiental.save()
+            messages.success(request, "Control ambiental creado correctamente.")
+            # Cambia 'project_detail' por la vista a la que quieras regresar:
+            return redirect('mainCatalog', pk=project.pk)
+        else:
+            messages.error(request, "Revisa los campos del formulario.")
+    else:
+        form = AmbientalForm(project=project)
+
+    context = {
+        "project": project,
+        "form": form,
+    }
+    return render(request, 'formAmbiental.html', context)
+
+@login_required(login_url='log')
+def EditAmbiental(request, pk, ambiental_id):
+    project = get_object_or_404(Project, pk=pk)
+    ambiental = get_object_or_404(Ambiental, pk=ambiental_id, project=project)
+
+    if request.method == 'POST':
+        form = AmbientalForm(request.POST, instance=ambiental, project=project)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Ambiental actualizado correctamente.")
+            return redirect('mainCatalog', pk=project.pk)  # ajusta la URL destino
+        else:
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = AmbientalForm(instance=ambiental, project=project)
+
+    context = {
+        'project': project,
+        'form': form,
+        'ambiental': ambiental,
+        'is_edit': True,  # bandera para distinguir creación/edición
+    }
+    return render(request, 'formAmbiental.html', context)

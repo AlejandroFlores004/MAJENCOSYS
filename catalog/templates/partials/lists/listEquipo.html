@@ -30,7 +30,7 @@
           </button>
           {% if q_eqp %}
             {# Mantén per_page cuando limpias #}
-            <a href="?per_page={{ per_page }}" class="btn btn-outline-secondary" title="Limpiar">
+            <a href="?per_page={{ per_page }}#3" class="btn btn-outline-secondary" title="Limpiar">
               <i class="fa fa-trash-alt"></i>
             </a>
           {% endif %}
@@ -116,14 +116,12 @@
         <p class="mb-1 mt-2">
           {% if q_eqp %}No se encontraron equipos para “{{ q_eqp }}”.{% else %}Aún no has agregado equipos.{% endif %}
         </p>
-        {% if q_eqp %}
-          <a href="{% url 'crearEquipo' project.id %}" class="btn btn-primary">
-            <i class="bi bi-clipboard2-plus"></i> Crear
-          </a>
-          <a class="btn btn-secondary" href="?per_page={{ per_page }}">
-            <i class="fa fa-trash-alt"></i> Limpiar
-          </a>
-        {% endif %}
+        <a href="{% url 'crearEquipo' project.id %}" class="btn btn-primary">
+          <i class="bi bi-clipboard2-plus"></i> Crear
+        </a>
+        <a class="btn btn-secondary" href="?per_page={{ per_page }}#3">
+          <i class="fa fa-trash-alt"></i> Limpiar
+        </a>
       </div>
     {% endif %}
   </div>
