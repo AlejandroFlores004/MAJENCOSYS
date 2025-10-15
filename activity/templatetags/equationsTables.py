@@ -49,3 +49,53 @@ def totalManoObra(manoObra):
     except Exception:
         return Decimal('0')
     
+
+@register.filter(name='totalHerramienta')
+def totalHerramienta(herramienta):
+    try:
+        total = Decimal('0')
+        for h in herramienta:
+            total += h.herramienta.costodia * h.rendimiento
+        return total
+    except Exception:
+        return Decimal('0')
+    
+@register.filter(name='totalEquipo')
+def totalEquipo(equipo):
+    try:
+        total = Decimal('0')
+        for e in equipo:
+            total += e.equipo.costodia * e.rendimiento
+        return total
+    except Exception:
+        return Decimal('0')
+    
+@register.filter(name='totalRiesgo')
+def totalRiesgo(riesgo):
+    try:
+        total = Decimal('0')
+        for r in riesgo:
+            total += r.costo
+        return total
+    except Exception:
+        return Decimal('0')
+    
+@register.filter(name='totalCalidad')
+def totalCalidad(calidad):
+    try:
+        total = Decimal('0')
+        for c in calidad:
+            total += c.cantidad * c.calidad.precio
+        return total
+    except Exception:
+        return Decimal('0')
+    
+@register.filter(name='totalAmbiental')
+def totalAmbiental(ambiental):
+    try:
+        total = Decimal('0')
+        for a in ambiental:
+            total += a.valor
+        return total
+    except Exception:
+        return Decimal('0')

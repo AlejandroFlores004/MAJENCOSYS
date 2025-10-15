@@ -74,6 +74,31 @@
             {% include "partials/tables/_labour_memory.html" %}
         {% endif %}
     </div>
+    <div class="d-flex flex-column gap-3">
+        {% if herramientas %}
+            {% include "partials/tables/_herramientas_memory.html" %}
+        {% endif %}
+    </div>
+    <div class="d-flex flex-column gap-3">
+        {% if equipo %}
+            {% include "partials/tables/_equipo_memory.html" %}
+        {% endif %}
+    </div>
+    <div class="d-flex flex-column gap-3">
+        {% if equipo %}
+            {% include "partials/tables/_riesgos_memory.html" %}
+        {% endif %}
+    </div>
+    <div class="d-flex flex-column gap-3">
+        {% if calidad %}
+            {% include "partials/tables/_calidad_memory.html" %}
+        {% endif %}
+    </div>
+    <div class="d-flex flex-column gap-3">
+        {% if ambiental %}
+            {% include "partials/tables/_ambiental_memory.html" %}
+        {% endif %}
+    </div>
 </div>
 
 <!-- Script: manejar acciones -->

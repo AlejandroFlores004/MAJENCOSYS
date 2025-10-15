@@ -1,0 +1,56 @@
+{% load equationsTables %}
+{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
+{# {% load humanize %} #}
+
+<!-- Materiales -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="mb-0">Herramientas</h5>
+      <span class="badge bg-primary">{{ herramientas|length }}</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th class="text-end">Rendimiento</th>
+            <th class="text-end">Costo día</th>
+            <th class="text-end">Subtotal ($)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for h in herramientas %}
+            <tr>
+              <td>{{ h.herramienta.name }}</td>
+              <td>{{ h.herramienta.tipo }}</td>
+              <td class="text-end">
+                {{ h.rendimiento }}
+              </td>
+              <td class="text-end">{{ h.herramienta.costodia }}</td>
+              <td class="text-end">
+                {{ h.herramienta.costodia|multiplica:h.rendimiento|floatformat:2 }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">Sin materiales</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+        <tfoot class="table-light">
+          <tr>
+            <th colspan="4" class="text-end">Total</th>
+            <th class="text-end">
+              $ {{ herramientas|totalHerramienta|floatformat:2 }}
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>

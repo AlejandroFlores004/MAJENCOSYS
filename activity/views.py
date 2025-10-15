@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.models import Project
-from .models import Activity, Header, MemoryMaterial, MemoryManoObra
+from .models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental
 from django.db.models import Prefetch, Count, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
 from catalog.models import Material, ManoObra
@@ -157,13 +157,23 @@ def memoryManager(request, pk, activity_id):
     headers = Header.objects.filter(activity=activity)
     materials = MemoryMaterial.objects.filter(activity=activity)
     labour = MemoryManoObra.objects.filter(activity=activity)
+    herramientas = MemoryHerramienta.objects.filter(activity=activity)
+    equipo = MemoryEquipo.objects.filter(activity=activity)
+    riesgos = MemoryRiesgos.objects.filter(activity=activity)
+    calidad = MemoryCalidad.objects.filter(activity=activity)
+    ambienta = MemoryAmbiental.objects.filter(activity=activity)
 
     ctx = {
         'project':project,
         'activity':activity,
         'headers': headers,
         'materials': materials,
-        'labour':labour
+        'labour':labour,
+        'herramientas': herramientas,
+        'equipo':equipo,
+        'riesgos':riesgos,
+        'calidad':calidad,
+        'ambiental':ambienta
     }
 
     return render(request, 'memoryManage.html', ctx)
