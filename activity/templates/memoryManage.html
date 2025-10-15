@@ -67,7 +67,7 @@
         {% endif %}
     </div>
     <div class="d-flex flex-column gap-3">
-        {% if materials %}
+        {% if labour %}
             {% include "partials/tables/_labour_memory.html" %}
         {% endif %}
     </div>
@@ -88,7 +88,7 @@
         destino = "{% url "memoryMateriales" project.id activity.id %}";
         break;
       case "mano_obra":
-        destino = "{% url "memoryLabour" project.id activity.id %}";
+        destino = "#";
         break;
       case "herramientas":
         destino = "#";
