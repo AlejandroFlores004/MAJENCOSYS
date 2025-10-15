@@ -1,5 +1,5 @@
 from django import forms
-from .models import Material,ManoObra,Herramienta,Equipo,Riesgo,Calidad,Ambiental
+from .models import Material,ManoObra,Herramienta,Equipo,Riesgo,Calidad,Ambiental,Hidrologica
 
 class MaterialForm(forms.ModelForm):
     class Meta:
@@ -394,4 +394,66 @@ class AmbientalForm(forms.ModelForm):
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
             raise forms.ValidationError("Ya existe un control ambiental con ese nombre en este proyecto.")
+        return name
+
+class HidrologicaForm(forms.ModelForm):
+    class Meta:
+        model = Hidrologica
+        fields = ['name', 'description', 'ubicacion', 'parametro', 'unidad']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Prueba hidrologica',
+                'required': True
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Escriba una breve descripción de la prueba hidrologica'
+            }),
+            'ubicacion': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Quebrada, poso, Etc.',
+                'required': True
+            }),
+            'parametro': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Ejemplo: Parametros de la prueba'
+            }),
+            'unidad': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Jornada, visita, campaña, Etc.',
+                'required': True
+            }),
+        }
+        labels = {
+            'name': 'Nombre de la prueba hidrologica',
+            'description': 'Descripción de la prueba hidrologica',
+            'ubicacion': 'Tipo de ubicacion de la prueba',
+            'parametro': 'Parametros necesarios',
+            'unidad': 'Unidad de la prueba',
+        }
+        help_texts = {
+            'name': 'Ingrese el nombre de la prueba hidrologica a registrar',
+            'description': 'Descripción de la prueba hidrologica a registrar',
+            'ubicacion': 'Tipo de ubicacion de la prueba hidrologica a registrar',
+            'parametro': 'Parametros necesarios a registrar',
+            'unidad': 'Unidad de medicion a registrar',
+        }
+
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project = project  # <- lo inyectamos desde la vista
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if not name or not self.project:
+            return name
+        qs = Riesgo.objects.filter(project=self.project, name__iexact=name)
+        # si es edición, excluir el propio registro
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("Ya existe una prueba hidrologica con ese nombre en este proyecto.")
         return name
