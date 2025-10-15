@@ -21,7 +21,7 @@
           <option value="materiales">Materiales</option>
           <option value="mano_obra">Mano de obra</option>
           <option value="herramientas">Herramientas</option>
-          <option value="maquinaria">Maquinaria</option>
+          <option value="equipo">Equipo</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary">
@@ -88,13 +88,13 @@
         destino = "{% url "memoryMateriales" project.id activity.id %}";
         break;
       case "mano_obra":
-        destino = "#";
+        destino = "{% url "memoryManoObra" project.id activity.id %}";
         break;
       case "herramientas":
-        destino = "#";
+        destino = "{% url "memoryHerramienta" project.id activity.id %}";
         break;
-      case "maquinaria":
-        destino = "#";
+      case "equipo":
+        destino = "{% url "memoryEquipo" project.id activity.id %}";
         break;
       default:
         destino = "#";

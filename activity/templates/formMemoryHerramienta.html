@@ -1,11 +1,11 @@
 {% extends "baseMainWorkflow.html" %}
-{% block title %}Mano de obra{% endblock title %}
+{% block title %}Herramientas{% endblock title %}
 
 {% block content %}
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h3 class="mb-0">Mano de obra de la actividad</h3>
+      <h3 class="mb-0">Herramientas de la actividad</h3>
       <div class="text-muted small">
         Proyecto: <strong>{{ project.name }}</strong> · Actividad: <strong>{{ activity.name }}</strong>
       </div>
@@ -26,10 +26,11 @@
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <form method="post" novalidate id="form-memory-manoobra">
+      <form method="post" novalidate id="form-memory-herramientas">
         {% csrf_token %}
         {{ formset.management_form }}
 
+        {# Errores generales del formset #}
         {% if formset.management_form.errors %}
           <div class="alert alert-danger mb-3">
             <strong>Errores de gestión de formulario:</strong>
@@ -64,7 +65,7 @@
                       {% for field_name, errs in form.errors.items %}
                         {% for e in errs %}
                           <li>
-                            {% if field_name == 'manoobra' %}Mano de obra{% elif field_name == 'prestaciones' %}Prestaciones{% elif field_name == 'rendimiento' %}Rendimiento{% else %}{{ field_name|capfirst }}{% endif %}: {{ e }}
+                            {% if field_name == 'herramienta' %}Herramienta{% elif field_name == 'rendimiento' %}Rendimiento{% else %}{{ field_name|capfirst }}{% endif %}: {{ e }}
                           </li>
                         {% endfor %}
                       {% endfor %}
@@ -81,8 +82,7 @@
           <table class="table table-sm table-striped table-hover align-middle mb-0 fixed-columns-table">
             <thead class="table-light">
               <tr>
-                <th>Mano de obra</th>
-                <th class="text-center">Prestaciones (%)</th>
+                <th>Herramienta</th>
                 <th class="text-center">Rendimiento</th>
                 <th class="text-center">Eliminar</th>
               </tr>
@@ -93,10 +93,10 @@
                 <tr>
                   <td>
                     {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-                    {{ form.manoobra }}
-                    {% if form.manoobra.errors %}
+                    {{ form.herramienta }}
+                    {% if form.herramienta.errors %}
                       <div class="invalid-feedback d-block small mt-1">
-                        {% for e in form.manoobra.errors %}• {{ e }}<br>{% endfor %}
+                        {% for e in form.herramienta.errors %}• {{ e }}<br>{% endfor %}
                       </div>
                     {% endif %}
                     {% if form.non_field_errors %}
@@ -108,20 +108,7 @@
 
                   <td class="text-center">
                     <div class="d-flex justify-content-center">
-                      <div class="w-100" style="max-width: 160px;">
-                        {{ form.prestaciones }}
-                      </div>
-                    </div>
-                    {% if form.prestaciones.errors %}
-                      <div class="invalid-feedback d-block small mt-1">
-                        {% for e in form.prestaciones.errors %}• {{ e }}<br>{% endfor %}
-                      </div>
-                    {% endif %}
-                  </td>
-
-                  <td class="text-center">
-                    <div class="d-flex justify-content-center">
-                      <div class="w-100" style="max-width: 160px;">
+                      <div class="w-100" style="max-width: 200px;">
                         {{ form.rendimiento }}
                       </div>
                     </div>
@@ -154,7 +141,7 @@
 
         <div class="d-flex justify-content-between align-items-center mt-3">
           <button type="button" class="btn btn-outline-primary btn-sm" id="add-row">
-            <i class="bi bi-plus-lg"></i> Agregar mano de obra
+            <i class="bi bi-plus-lg"></i> Agregar herramienta
           </button>
 
           <div class="d-flex gap-2">
@@ -166,17 +153,10 @@
         {# ---- plantilla para nuevas filas ---- #}
         <template id="empty-form-template">
           <tr>
-            <td>__HIDDENS____EMPTY_MANOOBRA__</td>
+            <td>__HIDDENS____EMPTY_HERRAMIENTA__</td>
             <td class="text-center">
               <div class="d-flex justify-content-center">
-                <div class="w-100" style="max-width: 160px;">
-                  __EMPTY_PRESTACIONES__
-                </div>
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="d-flex justify-content-center">
-                <div class="w-100" style="max-width: 160px;">
+                <div class="w-100" style="max-width: 200px;">
                   __EMPTY_RENDIMIENTO__
                 </div>
               </div>
@@ -191,8 +171,7 @@
 
         <div id="empty-form-fields" class="d-none">
           {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
-          {{ formset.empty_form.manoobra }}
-          {{ formset.empty_form.prestaciones }}
+          {{ formset.empty_form.herramienta }}
           {{ formset.empty_form.rendimiento }}
         </div>
       </form>
@@ -216,9 +195,7 @@
   .fixed-columns-table td:nth-child(2),
   .fixed-columns-table th:nth-child(2),
   .fixed-columns-table td:nth-child(3),
-  .fixed-columns-table th:nth-child(3),
-  .fixed-columns-table td:nth-child(4),
-  .fixed-columns-table th:nth-child(4) { text-align: center; }
+  .fixed-columns-table th:nth-child(3) { text-align: center; }
 
   @media (max-width: 768px) {
     .fixed-columns-table td, .fixed-columns-table th { padding: .5rem .5rem; }
@@ -233,24 +210,21 @@
   const emptyFields = document.getElementById('empty-form-fields');
   const rowTemplate = document.getElementById('empty-form-template').innerHTML;
 
-  const hiddensHTML   = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
+  const hiddensHTML  = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
     .map(el => el.outerHTML).join('');
-  const manoobraHTML  = emptyFields.querySelector('[name$="-manoobra"]').outerHTML;
-  const prestacionesHTML = emptyFields.querySelector('[name$="-prestaciones"]').outerHTML;
-  const rendimientoHTML  = emptyFields.querySelector('[name$="-rendimiento"]').outerHTML;
+  const herramientaHTML = emptyFields.querySelector('[name$="-herramienta"]').outerHTML;
+  const rendimientoHTML = emptyFields.querySelector('[name$="-rendimiento"]').outerHTML;
 
   function addRow() {
     const i = parseInt(totalForms.value, 10);
 
-    const hiddens      = hiddensHTML.replace(/__prefix__/g, i);
-    const manoobra     = manoobraHTML.replace(/__prefix__/g, i);
-    const prestaciones = prestacionesHTML.replace(/__prefix__/g, i);
-    const rendimiento  = rendimientoHTML.replace(/__prefix__/g, i);
+    const hiddens = hiddensHTML.replace(/__prefix__/g, i);
+    const herramienta = herramientaHTML.replace(/__prefix__/g, i);
+    const rendimiento = rendimientoHTML.replace(/__prefix__/g, i);
 
     const html = rowTemplate
       .replace('__HIDDENS__', hiddens)
-      .replace('__EMPTY_MANOOBRA__', manoobra)
-      .replace('__EMPTY_PRESTACIONES__', prestaciones)
+      .replace('__EMPTY_HERRAMIENTA__', herramienta)
       .replace('__EMPTY_RENDIMIENTO__', rendimiento);
 
     tbody.insertAdjacentHTML('beforeend', html);
@@ -260,7 +234,6 @@
   function removeRow(btn) {
     const tr = btn.closest('tr');
     if (tr) tr.remove();
-    // TOTAL_FORMS no se decrementa (válido para formsets inline)
   }
 
   if (addBtn) addBtn.addEventListener('click', addRow);
