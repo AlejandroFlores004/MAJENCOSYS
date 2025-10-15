@@ -1,7 +1,8 @@
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet
-from .models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo
-from catalog.models import Material, ManoObra, Herramienta, Equipo
+from .models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental
+from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental
+from project.models import Project
 from django.core.exceptions import ValidationError
 
 class ActivityForm(forms.ModelForm):
@@ -229,6 +230,178 @@ MemoryEquipoFormSet = inlineformset_factory(
     fields=("equipo", "rendimiento"),
     extra=0,           # sin filas vacías por defecto
     can_delete=True,   # permite eliminar registros existentes
+    validate_min=False,
+    validate_max=False,
+)
+
+class MemoryRiesgosForm(forms.ModelForm):
+    def __init__(self, *args, project=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._project = project  # lo usamos para filtrar y validar
+        # Filtra riesgos por proyecto si aplica
+        if project is not None and hasattr(Riesgo, "project_id"):
+            self.fields["riesgo"].queryset = Riesgo.objects.filter(project=project)
+
+        # Opcional: placeholders
+        self.fields["medida"].widget.attrs.update({"placeholder": "Ej. Señalización, EPP, barreras..."})
+        self.fields["descripcion_medida"].widget.attrs.update({"placeholder": "Descripción breve de la medida"})
+        self.fields["costo"].widget.attrs.update({"placeholder": "0.00"})
+
+    def clean(self):
+        cleaned = super().clean()
+        riesgo = cleaned.get("riesgo")
+
+        # Blindaje por manipulación del POST: riesgo debe pertenecer al proyecto
+        if riesgo and self._project and hasattr(riesgo, "project_id"):
+            if riesgo.project_id != self._project.id:
+                self.add_error("riesgo", "El riesgo no pertenece al proyecto seleccionado.")
+
+        return cleaned
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        # Asegurar que el registro quede amarrado al proyecto actual
+        if self._project:
+            obj.project = self._project
+        if commit:
+            obj.save()
+        return obj
+
+    class Meta:
+        model = MemoryRiesgos
+        # activity y project no se editan aquí (activity lo pone el inline, project lo fijamos en save)
+        fields = ("riesgo", "medida", "descripcion_medida", "costo")
+        widgets = {
+            "riesgo": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "medida": forms.TextInput(attrs={"class": "form-control form-control-sm w-100"}),
+            "descripcion_medida": forms.Textarea(attrs={
+                "class": "form-control form-control-sm w-100",
+                "rows": 2,
+            }),
+            "costo": forms.NumberInput(attrs={
+                "class": "form-control form-control-sm w-100",
+                "step": "0.01",
+                "min": "0.00",
+            }),
+        }
+
+MemoryRiesgosFormSet = inlineformset_factory(
+    parent_model=Activity,
+    model=MemoryRiesgos,
+    form=MemoryRiesgosForm,
+    fields=("riesgo", "medida", "descripcion_medida", "costo"),
+    extra=0,          # sin filas en blanco por defecto (ajusta si quieres)
+    can_delete=True,  # permitir eliminar filas
+    validate_min=False,
+    validate_max=False,
+)
+
+class MemoryCalidadForm(forms.ModelForm):
+    def __init__(self, *args, project: Project = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._project = project  # guardamos el proyecto actual
+        if project is not None and hasattr(Calidad, "project_id"):
+            # Filtrar los controles de calidad que pertenecen al proyecto
+            self.fields["calidad"].queryset = Calidad.objects.filter(project=project)
+
+        # Agregar placeholders y clases visuales coherentes
+        self.fields["responsable"].widget.attrs.update({"placeholder": "Nombre del responsable"})
+        self.fields["cantidad"].widget.attrs.update({"placeholder": "1"})
+
+    def clean(self):
+        cleaned = super().clean()
+        calidad = cleaned.get("calidad")
+
+        # Validar que el control de calidad pertenezca al proyecto correcto
+        if calidad and self._project and hasattr(calidad, "project_id"):
+            if calidad.project_id != self._project.id:
+                self.add_error("calidad", "El control de calidad no pertenece al proyecto seleccionado.")
+        return cleaned
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if self._project:
+            obj.project = self._project  # Asignar proyecto antes de guardar
+        if commit:
+            obj.save()
+        return obj
+
+    class Meta:
+        model = MemoryCalidad
+        fields = ("calidad", "cantidad", "responsable")
+        widgets = {
+            "calidad": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "cantidad": forms.NumberInput(attrs={
+                "class": "form-control form-control-sm w-100",
+                "min": "1",
+                "step": "1",
+            }),
+            "responsable": forms.TextInput(attrs={
+                "class": "form-control form-control-sm w-100",
+            }),
+        }
+
+MemoryCalidadFormSet = inlineformset_factory(
+    parent_model=Activity,
+    model=MemoryCalidad,
+    form=MemoryCalidadForm,
+    fields=("calidad", "cantidad", "responsable"),
+    extra=0,           # sin filas en blanco por defecto
+    can_delete=True,   # permitir eliminar registros
+    validate_min=False,
+    validate_max=False,
+)
+
+
+class MemoryAmbientalForm(forms.ModelForm):
+    def __init__(self, *args, project: Project = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._project = project
+        if project is not None and hasattr(Ambiental, "project_id"):
+            # Limita los controles ambientales al proyecto actual (si Ambiental tiene project)
+            self.fields["ambiental"].queryset = Ambiental.objects.filter(project=project)
+
+        # UX: placeholders
+        self.fields["valor"].widget.attrs.update({"placeholder": "0.00"})
+
+    def clean(self):
+        cleaned = super().clean()
+        ambiental = cleaned.get("ambiental")
+
+        # Blindaje: el control ambiental debe pertenecer al proyecto
+        if ambiental and self._project and hasattr(ambiental, "project_id"):
+            if ambiental.project_id != self._project.id:
+                self.add_error("ambiental", "El control ambiental no pertenece al proyecto seleccionado.")
+        return cleaned
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if self._project:
+            obj.project = self._project  # asegurar vínculo al proyecto actual
+        if commit:
+            obj.save()
+        return obj
+
+    class Meta:
+        model = MemoryAmbiental
+        fields = ("ambiental", "valor")
+        widgets = {
+            "ambiental": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "valor": forms.NumberInput(attrs={
+                "class": "form-control form-control-sm w-100",
+                "step": "0.01",
+                "min": "0.01",
+            }),
+        }
+
+
+MemoryAmbientalFormSet = inlineformset_factory(
+    parent_model=Activity,
+    model=MemoryAmbiental,
+    form=MemoryAmbientalForm,
+    fields=("ambiental", "valor"),
+    extra=0,          # sin filas en blanco por defecto
+    can_delete=True,  # permitir eliminar registros
     validate_min=False,
     validate_max=False,
 )

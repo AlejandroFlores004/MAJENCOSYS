@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator
 from project.models import Project
-from catalog.models import Material, ManoObra, Herramienta, Equipo
+from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental
 from decimal import Decimal
 # Create your models here.
 class Activity(models.Model):
@@ -235,3 +235,179 @@ class MemoryEquipo(models.Model):
 
     def __str__(self):
         return self.activity.name
+
+class MemoryRiesgos(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryRiesgos_project",
+        verbose_name="Proyecto",
+        help_text="Proyecto al que pertenece el riesgo registrado"
+    )
+
+    activity = models.ForeignKey(
+        Activity,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryRiesgos_activity",
+        verbose_name="Actividad",
+        help_text="Actividad donde se evalúa el riesgo"
+    )
+
+    riesgo = models.ForeignKey(
+        Riesgo,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        related_name="memoryRiesgos_riesgo",
+        verbose_name="Riesgo",
+        help_text="Seleccione el riesgo correspondiente"
+    )
+
+    medida = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False,
+        help_text="Ingrese la medida preventiva o correctiva aplicada",
+        verbose_name="Medida_rsg",
+        validators=[MinLengthValidator(3)]
+    )
+
+    descripcion_medida = models.TextField(
+        max_length=300,
+        null=True,
+        blank=True,
+        help_text="Describa brevemente la medida aplicada",
+        verbose_name="Descripción_medida_rsg",
+        validators=[MinLengthValidator(3)]
+    )
+
+    costo = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))],
+        null=False,
+        blank=False,
+        default=0,
+        verbose_name="Costo_rsg",
+        help_text="Costo asociado a la medida de control o mitigación"
+    )
+
+    class Meta:
+        verbose_name = "Memoria de riesgo"
+        verbose_name_plural = "Memoria de riesgos"
+        ordering = ["riesgo"]
+
+    def __str__(self):
+        return f"{self.activity.name} - {self.riesgo.name if self.riesgo else 'Sin riesgo definido'}"
+    
+
+class MemoryCalidad(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryCalidad_project",
+        verbose_name="Proyecto",
+        help_text="Proyecto al que pertenece el control de calidad registrado"
+    )
+
+    activity = models.ForeignKey(
+        Activity,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryCalidad_activity",
+        verbose_name="Actividad",
+        help_text="Actividad donde se aplica el control de calidad"
+    )
+
+    calidad = models.ForeignKey(
+        Calidad,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        related_name="memoryCalidad_calidad",
+        verbose_name="Control de calidad",
+        help_text="Seleccione el control de calidad correspondiente"
+    )
+
+    cantidad = models.PositiveIntegerField(
+        null=False,
+        blank=False,
+        default=1,
+        verbose_name="Cantidad_cld",
+        help_text="Ingrese la cantidad de controles de calidad aplicados",
+        validators=[MinValueValidator(1)]
+    )
+
+    responsable = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False,
+        verbose_name="Responsable_cld",
+        help_text="Ingrese el nombre del responsable del control de calidad",
+        validators=[MinLengthValidator(3)]
+    )
+
+    class Meta:
+        verbose_name = "Memoria de control de calidad"
+        verbose_name_plural = "Memoria de controles de calidad"
+        ordering = ["calidad"]
+
+    def __str__(self):
+        return f"{self.activity.name} - {self.calidad.name if self.calidad else 'Sin control de calidad definido'}"
+    
+class MemoryAmbiental(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryAmbiental_project",
+        verbose_name="Proyecto",
+        help_text="Proyecto al que pertenece el control ambiental registrado"
+    )
+
+    activity = models.ForeignKey(
+        Activity,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryAmbiental_activity",
+        verbose_name="Actividad",
+        help_text="Actividad donde se aplica el control ambiental"
+    )
+
+    ambiental = models.ForeignKey(
+        Ambiental,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        related_name="memoryAmbiental_ambiental",
+        verbose_name="Control ambiental",
+        help_text="Seleccione el control ambiental correspondiente"
+    )
+
+    valor = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        null=False,
+        blank=False,
+        default=0.00,
+        verbose_name="Valor_mbt",
+        help_text="Ingrese el valor asociado al control ambiental aplicado"
+    )
+
+    class Meta:
+        verbose_name = "Memoria ambiental"
+        verbose_name_plural = "Memorias ambientales"
+        ordering = ["ambiental"]
+
+    def __str__(self):
+        return f"{self.activity.name} - {self.ambiental.name if self.ambiental else 'Sin control ambiental definido'}"

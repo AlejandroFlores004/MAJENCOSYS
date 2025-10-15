@@ -6,7 +6,7 @@ from django.db.models import Prefetch, Count, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
 from catalog.models import Material, ManoObra
 from django.contrib.auth.decorators import login_required
-from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet, MemoryManoObraFormSet, MemoryHerramientaFormSet, MemoryEquipoFormSet
+from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet, MemoryManoObraFormSet, MemoryHerramientaFormSet, MemoryEquipoFormSet, MemoryRiesgosFormSet, MemoryCalidadFormSet, MemoryAmbientalFormSet
 from django.contrib import messages
 from django.db import transaction
 
@@ -279,6 +279,93 @@ def formMemoryEquipo(request, pk, activity_id):
         )
 
     return render(request, "formMemoryEquipo.html", {
+        "project": project,
+        "activity": activity,
+        "formset": formset,
+    })
+
+@login_required(login_url='log')
+def formMemoryRiesgos(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    if request.method == "POST":
+        formset = MemoryRiesgosFormSet(
+            request.POST,
+            instance=activity,
+            form_kwargs={"project": project},  # filtra riesgos por proyecto y fija project en save()
+        )
+        if formset.is_valid():
+            formset.save()  # cada form asigna project en su save()
+            messages.success(request, "Riesgos guardados correctamente.")
+            return redirect("memoryMananer", pk=project.pk, activity_id=activity.pk)
+        else:
+            messages.error(request, "Hay errores en el formulario. Revísalos más abajo.")
+    else:
+        formset = MemoryRiesgosFormSet(
+            instance=activity,
+            form_kwargs={"project": project},  # también en GET
+        )
+
+    return render(request, "formMemoryRiesgos.html", {
+        "project": project,
+        "activity": activity,
+        "formset": formset,
+    })
+
+@login_required(login_url='log')
+def formMemoryCalidad(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    if request.method == "POST":
+        formset = MemoryCalidadFormSet(
+            request.POST,
+            instance=activity,
+            form_kwargs={"project": project},  # filtra 'calidad' por proyecto y fija project en save()
+        )
+        if formset.is_valid():
+            formset.save()  # cada form asigna project en su save()
+            messages.success(request, "Controles de calidad guardados correctamente.")
+            return redirect("memoryMananer", pk=project.pk, activity_id=activity.pk)
+        else:
+            messages.error(request, "Hay errores en el formulario. Revísalos más abajo.")
+    else:
+        formset = MemoryCalidadFormSet(
+            instance=activity,
+            form_kwargs={"project": project},  # también en GET
+        )
+
+    return render(request, "formMemoryCalidad.html", {
+        "project": project,
+        "activity": activity,
+        "formset": formset,
+    })
+
+@login_required(login_url='log')
+def formMemoryAmbiental(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    if request.method == "POST":
+        formset = MemoryAmbientalFormSet(
+            request.POST,
+            instance=activity,
+            form_kwargs={"project": project},  # filtra 'ambiental' por proyecto y fija project en save()
+        )
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "Controles ambientales guardados correctamente.")
+            return redirect("memoryMananer", pk=project.pk, activity_id=activity.pk)
+        else:
+            messages.error(request, "Hay errores en el formulario. Revísalos más abajo.")
+    else:
+        formset = MemoryAmbientalFormSet(
+            instance=activity,
+            form_kwargs={"project": project},  # también en GET
+        )
+
+    return render(request, "formMemoryAmbiental.html", {
         "project": project,
         "activity": activity,
         "formset": formset,

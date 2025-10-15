@@ -1,0 +1,276 @@
+{% extends "baseMainWorkflow.html" %}
+{% block title %}Riesgos{% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="mb-0">Riesgos de la actividad</h3>
+      <div class="text-muted small">
+        Proyecto: <strong>{{ project.name }}</strong> · Actividad: <strong>{{ activity.name }}</strong>
+      </div>
+    </div>
+    <a href="{% url 'memoryMananer' project.pk activity.pk %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i> Volver
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" novalidate id="form-memory-riesgos">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        {# Errores de gestión / generales #}
+        {% if formset.management_form.errors %}
+          <div class="alert alert-danger mb-3">
+            <strong>Errores de gestión de formulario:</strong>
+            <ul class="mb-0">
+              {% for field, errs in formset.management_form.errors.items %}
+                {% for e in errs %}<li>{{ field }}: {{ e }}</li>{% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if formset.non_form_errors %}
+          <div class="alert alert-danger mb-3">
+            <strong>Errores generales:</strong>
+            <ul class="mb-0">
+              {% for err in formset.non_form_errors %}
+                <li>{{ err }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if formset.errors %}
+          <div class="alert alert-danger mb-3">
+            <strong>Revisa los siguientes campos:</strong>
+            <ul class="mb-0">
+              {% for form in formset.forms %}
+                {% if form.errors or form.non_field_errors %}
+                  <li>
+                    <strong>Fila {{ forloop.counter }}:</strong>
+                    <ul class="mb-0">
+                      {% for field_name, errs in form.errors.items %}
+                        {% for e in errs %}
+                          <li>
+                            {% if field_name == 'riesgo' %}Riesgo
+                            {% elif field_name == 'medida' %}Medida
+                            {% elif field_name == 'descripcion_medida' %}Descripción
+                            {% elif field_name == 'costo' %}Costo
+                            {% else %}{{ field_name|capfirst }}{% endif %}: {{ e }}
+                          </li>
+                        {% endfor %}
+                      {% endfor %}
+                      {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+                    </ul>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped table-hover align-middle mb-0 fixed-columns-table">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 20%">Riesgo</th>
+                <th style="width: 20%">Medida</th>
+                <th style="width: 35%">Descripción de la medida</th>
+                <th class="text-center" style="width: 15%">Costo ($)</th>
+                <th class="text-center" style="width: 10%">Eliminar</th>
+              </tr>
+            </thead>
+
+            <tbody id="tabla-formset">
+              {% for form in formset.forms %}
+                <tr>
+                  <td>
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    {{ form.riesgo }}
+                    {% if form.riesgo.errors %}
+                      <div class="invalid-feedback d-block small mt-1">
+                        {% for e in form.riesgo.errors %}• {{ e }}<br>{% endfor %}
+                      </div>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {{ form.medida }}
+                    {% if form.medida.errors %}
+                      <div class="invalid-feedback d-block small mt-1">
+                        {% for e in form.medida.errors %}• {{ e }}<br>{% endfor %}
+                      </div>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {{ form.descripcion_medida }}
+                    {% if form.descripcion_medida.errors %}
+                      <div class="invalid-feedback d-block small mt-1">
+                        {% for e in form.descripcion_medida.errors %}• {{ e }}<br>{% endfor %}
+                      </div>
+                    {% endif %}
+                  </td>
+
+                  <td class="text-center">
+                    <div class="d-flex justify-content-center">
+                      <div class="w-100" style="max-width: 160px;">
+                        {{ form.costo }}
+                      </div>
+                    </div>
+                    {% if form.costo.errors %}
+                      <div class="invalid-feedback d-block small mt-1">
+                        {% for e in form.costo.errors %}• {{ e }}<br>{% endfor %}
+                      </div>
+                    {% endif %}
+                  </td>
+
+                  <td class="text-center">
+                    {% if form.instance.pk %}
+                      <div class="form-check d-inline-flex align-items-center justify-content-center m-0">
+                        {{ form.DELETE }}
+                        <label class="form-check-label small ms-2 mb-0 text-nowrap d-none d-md-inline">
+                          Marcar para eliminar
+                        </label>
+                      </div>
+                    {% else %}
+                      <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">
+                        <i class="bi bi-x"></i> Quitar
+                      </button>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <button type="button" class="btn btn-outline-primary btn-sm" id="add-row">
+            <i class="bi bi-plus-lg"></i> Agregar riesgo
+          </button>
+
+          <div class="d-flex gap-2">
+            <a href="{% url 'memoryMananer' project.pk activity.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar cambios</button>
+          </div>
+        </div>
+
+        {# ---- plantilla para nuevas filas ---- #}
+        <template id="empty-form-template">
+          <tr>
+            <td>__HIDDENS____EMPTY_RIESGO__</td>
+            <td>__EMPTY_MEDIDA__</td>
+            <td>__EMPTY_DESCRIPCION__</td>
+            <td class="text-center">
+              <div class="d-flex justify-content-center">
+                <div class="w-100" style="max-width: 160px;">
+                  __EMPTY_COSTO__
+                </div>
+              </div>
+            </td>
+            <td class="text-center">
+              <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">
+                <i class="bi bi-x"></i> Quitar
+              </button>
+            </td>
+          </tr>
+        </template>
+
+        <div id="empty-form-fields" class="d-none">
+          {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+          {{ formset.empty_form.riesgo }}
+          {{ formset.empty_form.medida }}
+          {{ formset.empty_form.descripcion_medida }}
+          {{ formset.empty_form.costo }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fixed-columns-table { table-layout: fixed; width: 100%; }
+  .fixed-columns-table td, .fixed-columns-table th { vertical-align: middle; }
+
+  #tabla-formset select,
+  #tabla-formset input[type="text"],
+  #tabla-formset input[type="number"],
+  #tabla-formset textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #tabla-formset .form-check-label { white-space: nowrap; }
+
+  .fixed-columns-table th:nth-child(4),
+  .fixed-columns-table td:nth-child(4),
+  .fixed-columns-table th:nth-child(5),
+  .fixed-columns-table td:nth-child(5) { text-align: center; }
+
+  @media (max-width: 768px) {
+    .fixed-columns-table td, .fixed-columns-table th { padding: .5rem .5rem; }
+  }
+</style>
+
+<script>
+(function() {
+  const tbody = document.getElementById('tabla-formset');
+  const addBtn = document.getElementById('add-row');
+  const totalForms = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
+  const emptyFields = document.getElementById('empty-form-fields');
+  const rowTemplate = document.getElementById('empty-form-template').innerHTML;
+
+  const hiddensHTML  = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
+    .map(el => el.outerHTML).join('');
+  const riesgoHTML   = emptyFields.querySelector('[name$="-riesgo"]').outerHTML;
+  const medidaHTML   = emptyFields.querySelector('[name$="-medida"]').outerHTML;
+  const descHTML     = emptyFields.querySelector('[name$="-descripcion_medida"]').outerHTML;
+  const costoHTML    = emptyFields.querySelector('[name$="-costo"]').outerHTML;
+
+  function addRow() {
+    const i = parseInt(totalForms.value, 10);
+
+    const hiddens = hiddensHTML.replace(/__prefix__/g, i);
+    const riesgo  = riesgoHTML.replace(/__prefix__/g, i);
+    const medida  = medidaHTML.replace(/__prefix__/g, i);
+    const desc    = descHTML.replace(/__prefix__/g, i);
+    const costo   = costoHTML.replace(/__prefix__/g, i);
+
+    const html = rowTemplate
+      .replace('__HIDDENS__', hiddens)
+      .replace('__EMPTY_RIESGO__', riesgo)
+      .replace('__EMPTY_MEDIDA__', medida)
+      .replace('__EMPTY_DESCRIPCION__', desc)
+      .replace('__EMPTY_COSTO__', costo);
+
+    tbody.insertAdjacentHTML('beforeend', html);
+    totalForms.value = i + 1;
+  }
+
+  function removeRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr) tr.remove();
+  }
+
+  if (addBtn) addBtn.addEventListener('click', addRow);
+  tbody.addEventListener('click', function(e) {
+    const b = e.target.closest('.btn-remove-row');
+    if (b) removeRow(b);
+  });
+})();
+</script>
+{% endblock content %}
