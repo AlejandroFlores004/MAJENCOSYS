@@ -4,8 +4,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from project.models import Project
-from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental
-from .forms import MaterialForm, ManoObraForm, HerramientaForm, EquipoForm, RiesgoForm, CalidadForm, AmbientalForm
+from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
+from .forms import MaterialForm, ManoObraForm, HerramientaForm, EquipoForm, RiesgoForm, CalidadForm, AmbientalForm, HidrologicaForm
 # Create your views here.
 
 @login_required(login_url='log')
@@ -19,6 +19,7 @@ def MainCatalog(request, pk):
     q_rsg = (request.GET.get('q_rsg') or '').strip()
     q_cld = (request.GET.get('q_cld') or '').strip()
     q_mbt = (request.GET.get('q_mbt') or '').strip()
+    q_hdg = (request.GET.get('q_hdg') or '').strip()
 
     page = request.GET.get('page', 1)
     per_page = int(request.GET.get('per_page', 10))
@@ -186,6 +187,30 @@ def MainCatalog(request, pk):
     except EmptyPage:
         ambiental_page = paginatormbt.page(paginatormbt.num_pages)
 
+    # Para Prueba hidrologica --------------------------------------------------
+
+    qhdg = (Hidrologica.objects
+          .filter(project=project)
+          .order_by('name'))
+    
+    if q_hdg:
+        # Búsqueda por tokens: cada palabra debe aparecer en algún campo
+        for token in q_hdg.split():
+            qhdg = qhdg.filter(
+                Q(name__icontains=token) |
+                Q(description__icontains=token) |
+                Q(ubicacion__icontains=token) |
+                Q(unidad__icontains=token)
+            )
+
+    paginatorhdg = Paginator(qhdg, per_page)
+    try:
+        hidrologica_page = paginatorhdg.page(page)
+    except PageNotAnInteger:
+        hidrologica_page = paginatorhdg.page(1)
+    except EmptyPage:
+        hidrologica_page = paginatorhdg.page(paginatorhdg.num_pages)
+
     context = {
         "project": project,
         "materials_page": materials_page,
@@ -195,6 +220,7 @@ def MainCatalog(request, pk):
         "riesgo_page": riesgo_page,
         "calidad_page": calidad_page,
         "ambiental_page": ambiental_page,
+        "hidrologica_page": hidrologica_page,
         "paginatorm": paginatorm,
         "paginatormo": paginatormo,
         "paginatorhrr": paginatorhrr,
@@ -202,6 +228,7 @@ def MainCatalog(request, pk):
         "paginatorrsg": paginatorrsg,
         "paginatorcld": paginatorcld,
         "paginatormbt": paginatormbt,
+        "paginatorhdg": paginatorhdg,
         "is_paginatedm": paginatorm.num_pages > 1,
         "is_paginatedmo": paginatormo.num_pages > 1,
         "is_paginatedhrr": paginatorhrr.num_pages > 1,
@@ -209,6 +236,7 @@ def MainCatalog(request, pk):
         "is_paginatedrsg": paginatorrsg.num_pages > 1,
         "is_paginatedcld": paginatorcld.num_pages > 1,
         "is_paginatedmbt": paginatormbt.num_pages > 1,
+        "is_paginatedhdg": paginatorhdg.num_pages > 1,
         "per_page": per_page,
         "q_m": q_m,
         "q_mo": q_mo,
@@ -217,6 +245,7 @@ def MainCatalog(request, pk):
         "q_rsg": q_rsg,
         "q_cld": q_cld,
         "q_mbt": q_mbt,
+        "q_hdg": q_hdg,
     }
     return render(request, 'mainCatalogs.html', context)
 
@@ -541,7 +570,7 @@ def EditAmbiental(request, pk, ambiental_id):
         form = AmbientalForm(request.POST, instance=ambiental, project=project)
         if form.is_valid():
             form.save()
-            messages.success(request, "Ambiental actualizado correctamente.")
+            messages.success(request, "Control ambiental actualizado correctamente.")
             return redirect('mainCatalog', pk=project.pk)  # ajusta la URL destino
         else:
             messages.error(request, "Corrige los errores del formulario.")
@@ -555,3 +584,51 @@ def EditAmbiental(request, pk, ambiental_id):
         'is_edit': True,  # bandera para distinguir creación/edición
     }
     return render(request, 'formAmbiental.html', context)
+
+@login_required(login_url='log')
+def CreateHidrologica(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method == "POST":
+        form = HidrologicaForm(request.POST, project=project)
+        if form.is_valid():
+            Hidrologica = form.save(commit=False)
+            Hidrologica.project = project  # asegura la relación
+            Hidrologica.save()
+            messages.success(request, "Prueba hidrologica creado correctamente.")
+            # Cambia 'project_detail' por la vista a la que quieras regresar:
+            return redirect('mainCatalog', pk=project.pk)
+        else:
+            messages.error(request, "Revisa los campos del formulario.")
+    else:
+        form = HidrologicaForm(project=project)
+
+    context = {
+        "project": project,
+        "form": form,
+    }
+    return render(request, 'formHidrologica.html', context)
+
+@login_required(login_url='log')
+def EditHidrologica(request, pk, hidrologica_id):
+    project = get_object_or_404(Project, pk=pk)
+    hidrologica = get_object_or_404(Hidrologica, pk=hidrologica_id, project=project)
+
+    if request.method == 'POST':
+        form = HidrologicaForm(request.POST, instance=hidrologica, project=project)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Prueba hidrologica actualizado correctamente.")
+            return redirect('mainCatalog', pk=project.pk)  # ajusta la URL destino
+        else:
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = HidrologicaForm(instance=hidrologica, project=project)
+
+    context = {
+        'project': project,
+        'form': form,
+        'hidrologica': hidrologica,
+        'is_edit': True,  # bandera para distinguir creación/edición
+    }
+    return render(request, 'formHidrologica.html', context)

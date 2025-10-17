@@ -448,3 +448,71 @@ class Ambiental(models.Model):
     def __str__(self):
         return self.name
     
+class Hidrologica(models.Model):
+    name = models.CharField(
+        max_length=100, 
+        null=False, 
+        blank=False,
+        help_text="Ingrese el nombre de la prueba hidrologica a registrar",
+        verbose_name="Nombre_hdg",
+        validators=[MinLengthValidator(3)]
+    )
+    description = models.TextField(
+        max_length=200,
+        null=True,
+        blank=True,
+        unique=False,
+        help_text="Ingrese una pequeña descripción de la prueba hidrologica",
+        verbose_name="Descripción_hdg",
+        validators=[MinLengthValidator(3)]
+    )
+    ubicacion = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese el tipo de ubicacion de la prueba hidrologica",
+        verbose_name="Ubicacion_hdg",
+        validators=[MinLengthValidator(3)]
+    )
+    parametro = models.TextField(
+        max_length=200,
+        null=True,
+        blank=True,
+        unique=False,
+        help_text="Ingrese los parametros de la prueba hidrologica",
+        verbose_name="Parametro_hdg",
+        validators=[MinLengthValidator(3)]
+    )
+    unidad = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Ingrese la unidad de la prueba hidrologica",
+        verbose_name="Unidad_hdg",
+        validators=[MinLengthValidator(3)]
+    )
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="hidrologica_project_catalog",
+        verbose_name="Proyecto_hdg",
+        help_text="Proyecto al que pertenece la prueba hidrologica",
+    )
+
+    class Meta:
+        verbose_name = "Hidrologica"
+        verbose_name_plural = "Hidrologicas"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                name="hidrologica_project",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+    
