@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet
-from .models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental
-from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental
+from .models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental, MemoryHidrologica
+from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
 from project.models import Project
 from django.core.exceptions import ValidationError
 
@@ -406,3 +406,62 @@ MemoryAmbientalFormSet = inlineformset_factory(
     validate_max=False,
 )
 
+class MemoryHidrologicaForm(forms.ModelForm):
+    def __init__(self, *args, project: Project = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._project = project
+
+        # Si el modelo Hidrologica tiene campo project, filtramos
+        if project is not None and hasattr(Hidrologica, "project_id"):
+            self.fields["hidrologica"].queryset = Hidrologica.objects.filter(project=project)
+
+        # Mejora UX
+        self.fields["costo"].widget.attrs.update({
+            "placeholder": "0.00",
+            "min": "0.01",
+            "step": "0.01",
+        })
+
+    def clean(self):
+        cleaned = super().clean()
+        hidrologica = cleaned.get("hidrologica")
+
+        # Validación de pertenencia al proyecto
+        if hidrologica and self._project and hasattr(hidrologica, "project_id"):
+            if hidrologica.project_id != self._project.id:
+                self.add_error("hidrologica", "La prueba hidrológica no pertenece al proyecto seleccionado.")
+        return cleaned
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if self._project:
+            obj.project = self._project  # aseguramos vínculo con el proyecto actual
+        if commit:
+            obj.save()
+        return obj
+
+    class Meta:
+        model = MemoryHidrologica
+        fields = ("hidrologica", "costo")
+        widgets = {
+            "hidrologica": forms.Select(attrs={
+                "class": "form-select form-select-sm w-100",
+            }),
+            "costo": forms.NumberInput(attrs={
+                "class": "form-control form-control-sm w-100",
+                "step": "0.01",
+                "min": "0.01",
+            }),
+        }
+
+
+MemoryHidrologicaFormSet = inlineformset_factory(
+    parent_model=Activity,
+    model=MemoryHidrologica,
+    form=MemoryHidrologicaForm,
+    fields=("hidrologica", "costo"),
+    extra=0,          # sin filas extra
+    can_delete=True,  # permitir eliminar
+    validate_min=False,
+    validate_max=False,
+)

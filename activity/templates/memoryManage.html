@@ -25,6 +25,7 @@
           <option value="riesgo">Riesgos</option>
           <option value="calidad">Control de calidad</option>
           <option value="ambiental">Control Ambiental</option>
+          <option value="hidrologica">Pruebas Hidrologicas</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary">
@@ -85,7 +86,7 @@
         {% endif %}
     </div>
     <div class="d-flex flex-column gap-3">
-        {% if equipo %}
+        {% if riesgos %}
             {% include "partials/tables/_riesgos_memory.html" %}
         {% endif %}
     </div>
@@ -97,6 +98,11 @@
     <div class="d-flex flex-column gap-3">
         {% if ambiental %}
             {% include "partials/tables/_ambiental_memory.html" %}
+        {% endif %}
+    </div>
+    <div class="d-flex flex-column gap-3">
+        {% if hidrologica %}
+            {% include "partials/tables/_hidrologica_memory.html" %}
         {% endif %}
     </div>
 </div>
@@ -132,6 +138,9 @@
         break;
       case "ambiental":
         destino = "{% url "memoryAmbiental" project.id activity.id %}";
+        break;
+      case "hidrologica":
+        destino = "{% url "memoryHidrologica" project.id activity.id %}";
         break;
       default:
         destino = "#";

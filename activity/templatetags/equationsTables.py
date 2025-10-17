@@ -99,3 +99,14 @@ def totalAmbiental(ambiental):
         return total
     except Exception:
         return Decimal('0')
+    
+
+@register.filter(name='totalHidrologica')
+def totalHidrologica(hidrologica):
+    try:
+        total = Decimal('0')
+        for h in hidrologica:
+            total += h.costo
+        return total
+    except Exception:
+        return Decimal('0')

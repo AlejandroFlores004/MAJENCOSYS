@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator
 from project.models import Project
-from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental
+from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
 from decimal import Decimal
 # Create your models here.
 class Activity(models.Model):
@@ -411,3 +411,53 @@ class MemoryAmbiental(models.Model):
 
     def __str__(self):
         return f"{self.activity.name} - {self.ambiental.name if self.ambiental else 'Sin control ambiental definido'}"
+
+class MemoryHidrologica(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryHidrologica_project",
+        verbose_name="Proyecto",
+        help_text="Proyecto al que pertenece la prueba hidrológica registrada"
+    )
+
+    activity = models.ForeignKey(
+        Activity,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="memoryHidrologica_activity",
+        verbose_name="Actividad",
+        help_text="Actividad donde se realiza la prueba hidrológica"
+    )
+
+    hidrologica = models.ForeignKey(
+        Hidrologica,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        related_name="memoryHidrologica_hidrologica",
+        verbose_name="Prueba hidrológica",
+        help_text="Seleccione la prueba hidrológica correspondiente"
+    )
+
+    costo = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        null=False,
+        blank=False,
+        default=0.00,
+        verbose_name="Costo_hdg",
+        help_text="Ingrese el costo asociado a la prueba hidrológica"
+    )
+
+    class Meta:
+        verbose_name = "Memoria hidrológica"
+        verbose_name_plural = "Memorias hidrológicas"
+        ordering = ["hidrologica"]
+
+    def __str__(self):
+        return f"{self.activity.name} - {self.hidrologica.name if self.hidrologica else 'Sin prueba definida'}"

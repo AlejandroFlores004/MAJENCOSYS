@@ -6,7 +6,7 @@ from django.db.models import Prefetch, Count, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
 from catalog.models import Material, ManoObra
 from django.contrib.auth.decorators import login_required
-from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet, MemoryManoObraFormSet, MemoryHerramientaFormSet, MemoryEquipoFormSet, MemoryRiesgosFormSet, MemoryCalidadFormSet, MemoryAmbientalFormSet
+from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet, MemoryManoObraFormSet, MemoryHerramientaFormSet, MemoryEquipoFormSet, MemoryRiesgosFormSet, MemoryCalidadFormSet, MemoryAmbientalFormSet,MemoryHidrologicaFormSet, MemoryHidrologica
 from django.contrib import messages
 from django.db import transaction
 
@@ -162,6 +162,7 @@ def memoryManager(request, pk, activity_id):
     riesgos = MemoryRiesgos.objects.filter(activity=activity)
     calidad = MemoryCalidad.objects.filter(activity=activity)
     ambienta = MemoryAmbiental.objects.filter(activity=activity)
+    hidrologica = MemoryHidrologica.objects.filter(activity=activity)
 
     ctx = {
         'project':project,
@@ -173,7 +174,8 @@ def memoryManager(request, pk, activity_id):
         'equipo':equipo,
         'riesgos':riesgos,
         'calidad':calidad,
-        'ambiental':ambienta
+        'ambiental':ambienta,
+        'hidrologica':hidrologica,
     }
 
     return render(request, 'memoryManage.html', ctx)
@@ -376,6 +378,36 @@ def formMemoryAmbiental(request, pk, activity_id):
         )
 
     return render(request, "formMemoryAmbiental.html", {
+        "project": project,
+        "activity": activity,
+        "formset": formset,
+    })
+
+
+@login_required(login_url='log')
+def formMemoryHidrologica(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    if request.method == "POST":
+        formset = MemoryHidrologicaFormSet(
+            request.POST,
+            instance=activity,
+            form_kwargs={"project": project},  # filtra 'hidrologica' por proyecto y fija project en save()
+        )
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "Pruebas hidrológicas guardadas correctamente.")
+            return redirect("memoryMananer", pk=project.pk, activity_id=activity.pk)
+        else:
+            messages.error(request, "Hay errores en el formulario. Revísalos más abajo.")
+    else:
+        formset = MemoryHidrologicaFormSet(
+            instance=activity,
+            form_kwargs={"project": project},  # también en GET
+        )
+
+    return render(request, "formMemoryHidrologica.html", {
         "project": project,
         "activity": activity,
         "formset": formset,

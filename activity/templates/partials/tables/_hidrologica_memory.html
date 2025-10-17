@@ -1,0 +1,63 @@
+{% load equationsTables %}
+{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
+{# {% load humanize %} #}
+
+<!-- Materiales -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="mb-0">Hidrologica</h5>
+      <span class="badge bg-primary">{{ hidrologica|length }}</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th class="text-end">Tipo de ublicación</th>
+            <th class="text-end">Párametro</th>
+            <th class="text-end">Unidad</th>
+            <th class="text-end">Subtotal ($)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for h in hidrologica %}
+            <tr>
+              <td>{{ h.hidrologica.name }}</td>
+              <td>{{ h.hidrologica.description }}</td>
+              <td class="text-end">
+                {{ h.hidrologica.ubicacion }}
+              </td>
+
+              <td class="text-end">
+                {{ h.hidrologica.parametro }}
+              </td>
+              <td class="text-end">
+                {{ h.hidrologica.unidad }}
+              </td>
+              <td class="text-end">
+                {{ h.costo }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted">Sin materiales</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+        <tfoot class="table-light">
+          <tr>
+            <th colspan="5" class="text-end">Total</th>
+            <th class="text-end">
+                ${{ hidrologica|totalHidrologica|floatformat:2 }}
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
