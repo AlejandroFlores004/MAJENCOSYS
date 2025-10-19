@@ -71,8 +71,6 @@ def mainActivy(request, pk):
             activities_page = paginator.page(paginator.num_pages)
         is_paginated = paginator.num_pages > 1
 
-    countMaterial = Material.objects.filter(project=project).count()
-    countManoObra = ManoObra.objects.filter(project=project).count()
 
     context = {
         "project": project,
@@ -80,8 +78,7 @@ def mainActivy(request, pk):
         "paginator_activities": paginator,
         "is_paginated_activities": is_paginated,
         "per_page_activities": per_page,
-        "quiantyMaterial": countMaterial,
-        "quiantyManoObra": countManoObra,
+
         "q": q,  # por si lo usas en el buscador
     }
     return render(request, 'mainActivities.html', context)

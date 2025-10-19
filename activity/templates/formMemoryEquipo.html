@@ -178,29 +178,6 @@
     </div>
   </div>
 </div>
-
-<style>
-  .fixed-columns-table { table-layout: fixed; width: 100%; }
-  .fixed-columns-table td, .fixed-columns-table th { vertical-align: middle; }
-
-  #tabla-formset select,
-  #tabla-formset input[type="text"],
-  #tabla-formset input[type="number"] {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  #tabla-formset .form-check-label { white-space: nowrap; }
-
-  .fixed-columns-table td:nth-child(2),
-  .fixed-columns-table th:nth-child(2),
-  .fixed-columns-table td:nth-child(3),
-  .fixed-columns-table th:nth-child(3) { text-align: center; }
-
-  @media (max-width: 768px) {
-    .fixed-columns-table td, .fixed-columns-table th { padding: .5rem .5rem; }
-  }
-</style>
 {% endblock content %}
 
 {% block page_scripts %}

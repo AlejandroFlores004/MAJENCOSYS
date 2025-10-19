@@ -237,16 +237,6 @@ class MemoryEquipo(models.Model):
         return self.activity.name
 
 class MemoryRiesgos(models.Model):
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False,
-        related_name="memoryRiesgos_project",
-        verbose_name="Proyecto",
-        help_text="Proyecto al que pertenece el riesgo registrado"
-    )
-
     activity = models.ForeignKey(
         Activity,
         on_delete=models.CASCADE,
@@ -256,7 +246,6 @@ class MemoryRiesgos(models.Model):
         verbose_name="Actividad",
         help_text="Actividad donde se evalúa el riesgo"
     )
-
     riesgo = models.ForeignKey(
         Riesgo,
         on_delete=models.SET_NULL,
@@ -266,7 +255,6 @@ class MemoryRiesgos(models.Model):
         verbose_name="Riesgo",
         help_text="Seleccione el riesgo correspondiente"
     )
-
     medida = models.CharField(
         max_length=150,
         null=False,
@@ -275,7 +263,6 @@ class MemoryRiesgos(models.Model):
         verbose_name="Medida_rsg",
         validators=[MinLengthValidator(3)]
     )
-
     descripcion_medida = models.TextField(
         max_length=300,
         null=True,
@@ -284,7 +271,6 @@ class MemoryRiesgos(models.Model):
         verbose_name="Descripción_medida_rsg",
         validators=[MinLengthValidator(3)]
     )
-
     costo = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -303,19 +289,14 @@ class MemoryRiesgos(models.Model):
 
     def __str__(self):
         return f"{self.activity.name} - {self.riesgo.name if self.riesgo else 'Sin riesgo definido'}"
+
+    @property
+    def project(self):
+        return self.activity.project
+
     
 
 class MemoryCalidad(models.Model):
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False,
-        related_name="memoryCalidad_project",
-        verbose_name="Proyecto",
-        help_text="Proyecto al que pertenece el control de calidad registrado"
-    )
-
     activity = models.ForeignKey(
         Activity,
         on_delete=models.CASCADE,
@@ -325,7 +306,6 @@ class MemoryCalidad(models.Model):
         verbose_name="Actividad",
         help_text="Actividad donde se aplica el control de calidad"
     )
-
     calidad = models.ForeignKey(
         Calidad,
         on_delete=models.SET_NULL,
@@ -335,7 +315,6 @@ class MemoryCalidad(models.Model):
         verbose_name="Control de calidad",
         help_text="Seleccione el control de calidad correspondiente"
     )
-
     cantidad = models.PositiveIntegerField(
         null=False,
         blank=False,
@@ -344,7 +323,6 @@ class MemoryCalidad(models.Model):
         help_text="Ingrese la cantidad de controles de calidad aplicados",
         validators=[MinValueValidator(1)]
     )
-
     responsable = models.CharField(
         max_length=150,
         null=False,
@@ -361,18 +339,12 @@ class MemoryCalidad(models.Model):
 
     def __str__(self):
         return f"{self.activity.name} - {self.calidad.name if self.calidad else 'Sin control de calidad definido'}"
-    
-class MemoryAmbiental(models.Model):
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False,
-        related_name="memoryAmbiental_project",
-        verbose_name="Proyecto",
-        help_text="Proyecto al que pertenece el control ambiental registrado"
-    )
 
+    @property
+    def project(self):
+        return self.activity.project
+
+class MemoryAmbiental(models.Model):
     activity = models.ForeignKey(
         Activity,
         on_delete=models.CASCADE,
@@ -382,7 +354,6 @@ class MemoryAmbiental(models.Model):
         verbose_name="Actividad",
         help_text="Actividad donde se aplica el control ambiental"
     )
-
     ambiental = models.ForeignKey(
         Ambiental,
         on_delete=models.SET_NULL,
@@ -392,7 +363,6 @@ class MemoryAmbiental(models.Model):
         verbose_name="Control ambiental",
         help_text="Seleccione el control ambiental correspondiente"
     )
-
     valor = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -412,17 +382,12 @@ class MemoryAmbiental(models.Model):
     def __str__(self):
         return f"{self.activity.name} - {self.ambiental.name if self.ambiental else 'Sin control ambiental definido'}"
 
-class MemoryHidrologica(models.Model):
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False,
-        related_name="memoryHidrologica_project",
-        verbose_name="Proyecto",
-        help_text="Proyecto al que pertenece la prueba hidrológica registrada"
-    )
+    @property
+    def project(self):
+        return self.activity.project
 
+
+class MemoryHidrologica(models.Model):
     activity = models.ForeignKey(
         Activity,
         on_delete=models.CASCADE,
@@ -432,7 +397,6 @@ class MemoryHidrologica(models.Model):
         verbose_name="Actividad",
         help_text="Actividad donde se realiza la prueba hidrológica"
     )
-
     hidrologica = models.ForeignKey(
         Hidrologica,
         on_delete=models.SET_NULL,
@@ -442,7 +406,6 @@ class MemoryHidrologica(models.Model):
         verbose_name="Prueba hidrológica",
         help_text="Seleccione la prueba hidrológica correspondiente"
     )
-
     costo = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -461,3 +424,7 @@ class MemoryHidrologica(models.Model):
 
     def __str__(self):
         return f"{self.activity.name} - {self.hidrologica.name if self.hidrologica else 'Sin prueba definida'}"
+
+    @property
+    def project(self):
+        return self.activity.project

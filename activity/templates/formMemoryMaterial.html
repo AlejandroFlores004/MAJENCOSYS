@@ -178,39 +178,6 @@
     </div>
   </div>
 </div>
-
-<style>
-  /* mismo layout para thead/tbody */
-  .fixed-columns-table {
-    table-layout: fixed;
-    width: 100%;
-  }
-
-  /* alinear verticalmente */
-  .fixed-columns-table td, .fixed-columns-table th { vertical-align: middle; }
-
-  /* que los widgets ocupen el 100% de su celda */
-  #tabla-formset select,
-  #tabla-formset input[type="text"],
-  #tabla-formset input[type="number"] {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* evitar que el label de eliminar rompa la columna */
-  #tabla-formset .form-check-label { white-space: nowrap; }
-
-  /* centrar el contenido de cantidad y eliminar */
-  .fixed-columns-table td:nth-child(2),
-  .fixed-columns-table th:nth-child(2),
-  .fixed-columns-table td:nth-child(3),
-  .fixed-columns-table th:nth-child(3) { text-align: center; }
-
-  @media (max-width: 768px) {
-    .fixed-columns-table td, .fixed-columns-table th { padding: .5rem .5rem; }
-  }
-</style>
-
 {% endblock content %}
 
 {% block page_scripts %}
