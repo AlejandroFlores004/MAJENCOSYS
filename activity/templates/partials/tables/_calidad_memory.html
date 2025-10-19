@@ -1,26 +1,46 @@
 {% load equationsTables %}
-{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
-{# {% load humanize %} #}
+{# {% load humanize %}  Para miles: ${{ num|floatformat:2|intcomma }} #}
 
-<!-- Materiales -->
 <div class="card shadow-sm">
   <div class="card-body">
+
+    <!-- Encabezado -->
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h5 class="mb-0">Control de calidad</h5>
-      <span class="badge bg-primary">{{ riesgos|length }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="mb-0">Control de calidad</h5>
+        <span class="badge bg-primary">{{ calidad|length }}</span>
+      </div>
+      <a
+        href="{% url 'memoryCalidad' project.id activity.id %}"
+        class="btn btn-outline-primary btn-sm"
+      >
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
     </div>
 
     <div class="table-responsive">
       <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <!-- Anchos sugeridos para estabilidad -->
+        <colgroup>
+          <col style="width: 18%;">  {# Nombre #}
+          <col style="width: 28%;">  {# Descripción #}
+          <col style="width: 10%;">  {# Precio #}
+          <col style="width: 10%;">  {# Cantidad #}
+          <col style="width: 12%;">  {# Responsable #}
+          <col style="width: 10%;">  {# Norma #}
+          <col style="width: 8%;">   {# Tipo #}
+          <col style="width: 12%;">  {# Subtotal #}
+        </colgroup>
+
         <thead class="table-light">
           <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
+            <th class="text-start">Nombre</th>
+            <th class="text-start">Descripción</th>
             <th class="text-end">Precio</th>
             <th class="text-end">Cantidad</th>
-            <th class="text-end">Responsable</th>
-            <th class="text-end">Norma</th>
-            <th class="text-end">Tipo</th>
+            <th class="text-start">Responsable</th>
+            <th class="text-start">Norma</th>
+            <th class="text-start">Tipo</th>
             <th class="text-end">Subtotal ($)</th>
           </tr>
         </thead>
@@ -28,28 +48,57 @@
         <tbody>
           {% for c in calidad %}
             <tr>
-              <td>{{ c.calidad.name }}</td>
-              <td>{{ c.calidad.description }}</td>
-              <td class="text-end">
-                {{ c.calidad.precio }}
+              <!-- Nombre -->
+              <td class="text-start">
+                <span class="d-inline-block text-truncate" style="max-width: 220px;"
+                      title="{{ c.calidad.name }}">{{ c.calidad.name }}</span>
               </td>
-              <td class="text-end">{{ c.cantidad }}</td>
-              <td class="text-end">
-                {{ c.responsable }}
+
+              <!-- Descripción -->
+              <td class="text-start">
+                {% if c.calidad.description %}
+                  <span class="d-inline-block text-truncate text-muted" style="max-width: 420px;"
+                        title="{{ c.calidad.description }}">{{ c.calidad.description }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
               </td>
-              <td class="text-end">
-                {{ c.calidad.norma }}
+
+              <!-- Precio -->
+              <td class="text-end text-nowrap">
+                ${{ c.calidad.precio|floatformat:2 }}
+                {# Con humanize:  ${{ c.calidad.precio|floatformat:2|intcomma }} #}
               </td>
-              <td class="text-end">
-                {{ c.calidad.tipo }}
+
+              <!-- Cantidad -->
+              <td class="text-end text-nowrap">
+                {{ c.cantidad|floatformat:2 }}
               </td>
-              <td class="text-end">
+
+              <!-- Responsable -->
+              <td class="text-start text-nowrap">
+                {% if c.responsable %}{{ c.responsable }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Norma -->
+              <td class="text-start text-nowrap">
+                {% if c.calidad.norma %}{{ c.calidad.norma }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Tipo -->
+              <td class="text-start text-nowrap">
+                {% if c.calidad.tipo %}{{ c.calidad.tipo }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Subtotal -->
+              <td class="text-end text-nowrap">
                 ${{ c.cantidad|multiplica:c.calidad.precio|floatformat:2 }}
+                {# Con humanize:  ${{ c.cantidad|multiplica:c.calidad.precio|floatformat:2|intcomma }} #}
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="8" class="text-center text-muted">Sin materiales</td>
+              <td colspan="8" class="text-center text-muted">Sin registros de calidad</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -57,8 +106,9 @@
         <tfoot class="table-light">
           <tr>
             <th colspan="7" class="text-end">Total</th>
-            <th class="text-end">
+            <th class="text-end text-nowrap">
               ${{ calidad|totalCalidad|floatformat:2 }}
+              {# Con humanize:  ${{ calidad|totalCalidad|floatformat:2|intcomma }} #}
             </th>
           </tr>
         </tfoot>

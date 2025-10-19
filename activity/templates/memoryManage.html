@@ -25,7 +25,7 @@
           <option value="riesgo">Riesgos</option>
           <option value="calidad">Control de calidad</option>
           <option value="ambiental">Control Ambiental</option>
-          <option value="hidrologica">Pruebas Hidrologicas</option>
+          <option value="hidrologica">Pruebas Hidrológicas</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary">
@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <!-- Mostrar encabezados (valores reales) -->
+      <!-- Mostrar encabezados -->
       {% if headers %}
       <hr>
       <div class="row g-3">
@@ -64,102 +64,216 @@
     </div>
   </div>
 
-  <!-- TABLAS (todas visibles) -->
-    <div class="d-flex flex-column gap-3">
+  <!-- Selector de tabla (pestañas) -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <div>
+          <h6 class="mb-0">Ver tablas de memorias</h6>
+          <div class="text-muted small">Selecciona qué tabla deseas visualizar</div>
+        </div>
+      </div>
+
+      <!-- Nav Pills -->
+      <ul id="memTabs" class="nav nav-pills flex-wrap gap-2 mb-3">
+        <li class="nav-item">
+          <button class="nav-link" data-target="#pane-todos" type="button">
+            <i class="bi bi-grid-3x3-gap"></i> Todos
+          </button>
+        </li>
         {% if materials %}
-            {% include "partials/tables/_material_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-materiales" type="button">
+              <i class="bi bi-box-seam"></i> Materiales
+            </button>
+          </li>
         {% endif %}
-    </div>
-    <div class="d-flex flex-column gap-3">
         {% if labour %}
-            {% include "partials/tables/_labour_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-mano" type="button">
+              <i class="bi bi-people"></i> Mano de obra
+            </button>
+          </li>
         {% endif %}
-    </div>
-    <div class="d-flex flex-column gap-3">
         {% if herramientas %}
-            {% include "partials/tables/_herramientas_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-herramientas" type="button">
+              <i class="bi bi-tools"></i> Herramientas
+            </button>
+          </li>
         {% endif %}
-    </div>
-    <div class="d-flex flex-column gap-3">
         {% if equipo %}
-            {% include "partials/tables/_equipo_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-equipo" type="button">
+              <i class="bi bi-truck"></i> Equipos
+            </button>
+          </li>
         {% endif %}
-    </div>
-    <div class="d-flex flex-column gap-3">
         {% if riesgos %}
-            {% include "partials/tables/_riesgos_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-riesgos" type="button">
+              <i class="bi bi-exclamation-triangle"></i> Riesgos
+            </button>
+          </li>
         {% endif %}
-    </div>
-    <div class="d-flex flex-column gap-3">
         {% if calidad %}
-            {% include "partials/tables/_calidad_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-calidad" type="button">
+              <i class="bi bi-clipboard-check"></i> Calidad
+            </button>
+          </li>
         {% endif %}
-    </div>
-    <div class="d-flex flex-column gap-3">
         {% if ambiental %}
-            {% include "partials/tables/_ambiental_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-ambiental" type="button">
+              <i class="bi bi-apple"></i> Ambiental
+            </button>
+          </li>
         {% endif %}
-    </div>
-    <div class="d-flex flex-column gap-3">
         {% if hidrologica %}
-            {% include "partials/tables/_hidrologica_memory.html" %}
+          <li class="nav-item">
+            <button class="nav-link" data-target="#pane-hidrologica" type="button">
+              <i class="bi bi-droplet"></i> Hidrológica
+            </button>
+          </li>
         {% endif %}
+      </ul>
+
+      <!-- Contenido de pestañas -->
+      <div id="memTabContent" class="tab-content">
+        <!-- TODOS -->
+        <div id="pane-todos" class="tab-pane fade">
+          <div class="d-flex flex-column gap-3">
+            {% if materials %}
+              {% include "partials/tables/_material_memory.html" %}
+            {% endif %}
+            {% if labour %}
+              {% include "partials/tables/_labour_memory.html" %}
+            {% endif %}
+            {% if herramientas %}
+              {% include "partials/tables/_herramientas_memory.html" %}
+            {% endif %}
+            {% if equipo %}
+              {% include "partials/tables/_equipo_memory.html" %}
+            {% endif %}
+            {% if riesgos %}
+              {% include "partials/tables/_riesgos_memory.html" %}
+            {% endif %}
+            {% if calidad %}
+              {% include "partials/tables/_calidad_memory.html" %}
+            {% endif %}
+            {% if ambiental %}
+              {% include "partials/tables/_ambiental_memory.html" %}
+            {% endif %}
+            {% if hidrologica %}
+              {% include "partials/tables/_hidrologica_memory.html" %}
+            {% endif %}
+          </div>
+        </div>
+
+        {% if materials %}
+          <div id="pane-materiales" class="tab-pane fade">
+            {% include "partials/tables/_material_memory.html" %}
+          </div>
+        {% endif %}
+        {% if labour %}
+          <div id="pane-mano" class="tab-pane fade">
+            {% include "partials/tables/_labour_memory.html" %}
+          </div>
+        {% endif %}
+        {% if herramientas %}
+          <div id="pane-herramientas" class="tab-pane fade">
+            {% include "partials/tables/_herramientas_memory.html" %}
+          </div>
+        {% endif %}
+        {% if equipo %}
+          <div id="pane-equipo" class="tab-pane fade">
+            {% include "partials/tables/_equipo_memory.html" %}
+          </div>
+        {% endif %}
+        {% if riesgos %}
+          <div id="pane-riesgos" class="tab-pane fade">
+            {% include "partials/tables/_riesgos_memory.html" %}
+          </div>
+        {% endif %}
+        {% if calidad %}
+          <div id="pane-calidad" class="tab-pane fade">
+            {% include "partials/tables/_calidad_memory.html" %}
+          </div>
+        {% endif %}
+        {% if ambiental %}
+          <div id="pane-ambiental" class="tab-pane fade">
+            {% include "partials/tables/_ambiental_memory.html" %}
+          </div>
+        {% endif %}
+        {% if hidrologica %}
+          <div id="pane-hidrologica" class="tab-pane fade">
+            {% include "partials/tables/_hidrologica_memory.html" %}
+          </div>
+        {% endif %}
+
+        {% if not materials and not labour and not herramientas and not equipo and not riesgos and not calidad and not ambiental and not hidrologica %}
+          <div class="text-center text-muted py-4">
+            <i class="bi bi-inboxes fs-3 d-block mb-2"></i>
+            No hay tablas disponibles para esta actividad.
+          </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </div>
 
-<!-- Script: manejar acciones -->
+<!-- Script -->
 <script>
   function handleAccion(event) {
-    event.preventDefault(); // evita el envío tradicional
-
+    event.preventDefault();
     const accion = document.getElementById('accionMemoria').value;
-
-    // Aquí defines a qué URL va cada opción
     let destino = "#";
-
     switch (accion) {
-      case "materiales":
-        destino = "{% url "memoryMateriales" project.id activity.id %}";
-        break;
-      case "mano_obra":
-        destino = "{% url "memoryManoObra" project.id activity.id %}";
-        break;
-      case "herramientas":
-        destino = "{% url "memoryHerramienta" project.id activity.id %}";
-        break;
-      case "equipo":
-        destino = "{% url "memoryEquipo" project.id activity.id %}";
-        break;
-      case "riesgo":
-        destino = "{% url "memoryRiesgos" project.id activity.id %}";
-        break;
-      case "calidad":
-        destino = "{% url "memoryCalidad" project.id activity.id %}";
-        break;
-      case "ambiental":
-        destino = "{% url "memoryAmbiental" project.id activity.id %}";
-        break;
-      case "hidrologica":
-        destino = "{% url "memoryHidrologica" project.id activity.id %}";
-        break;
-      default:
-        destino = "#";
+      case "materiales": destino = "{% url "memoryMateriales" project.id activity.id %}"; break;
+      case "mano_obra": destino = "{% url "memoryManoObra" project.id activity.id %}"; break;
+      case "herramientas": destino = "{% url "memoryHerramienta" project.id activity.id %}"; break;
+      case "equipo": destino = "{% url "memoryEquipo" project.id activity.id %}"; break;
+      case "riesgo": destino = "{% url "memoryRiesgos" project.id activity.id %}"; break;
+      case "calidad": destino = "{% url "memoryCalidad" project.id activity.id %}"; break;
+      case "ambiental": destino = "{% url "memoryAmbiental" project.id activity.id %}"; break;
+      case "hidrologica": destino = "{% url "memoryHidrologica" project.id activity.id %}"; break;
     }
-
-    // Redirige
     window.location.href = destino;
   }
-</script>
 
+  // Tabs
+  (function () {
+    const tabs = document.querySelectorAll('#memTabs .nav-link');
+    const panes = document.querySelectorAll('#memTabContent .tab-pane');
+
+    function activate(targetSelector) {
+      tabs.forEach(t => t.classList.remove('active'));
+      panes.forEach(p => p.classList.remove('show', 'active'));
+
+      const btn = [...tabs].find(t => t.getAttribute('data-target') === targetSelector);
+      const pane = document.querySelector(targetSelector);
+      if (btn && pane) {
+        btn.classList.add('active');
+        pane.classList.add('active');
+        setTimeout(() => pane.classList.add('show'), 10);
+      }
+    }
+
+    tabs.forEach(btn => btn.addEventListener('click', () => activate(btn.getAttribute('data-target'))));
+    // Pestaña "Todos" activa por defecto
+    activate("#pane-todos");
+  })();
+</script>
 
 {% if messages %}
 <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
-    {% for m in messages %}
-    <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
-    {% endfor %}
+  {% for m in messages %}
+  <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
+  {% endfor %}
 </div>
 <script>
-    setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+  setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
 </script>
 {% endif %}
 {% endblock content %}

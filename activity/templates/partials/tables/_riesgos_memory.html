@@ -1,25 +1,44 @@
 {% load equationsTables %}
-{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
-{# {% load humanize %} #}
+{# {% load humanize %}  Para miles: ${{ n|floatformat:2|intcomma }} #}
 
-<!-- Materiales -->
 <div class="card shadow-sm">
   <div class="card-body">
+
+    <!-- Encabezado -->
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h5 class="mb-0">Potenciales Riesgos</h5>
-      <span class="badge bg-primary">{{ riesgos|length }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="mb-0">Potenciales Riesgos</h5>
+        <span class="badge bg-primary">{{ riesgos|length }}</span>
+      </div>
+      <a
+        href="{% url 'memoryRiesgos' project.id activity.id %}"
+        class="btn btn-outline-primary btn-sm"
+      >
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
     </div>
 
     <div class="table-responsive">
       <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <!-- Anchos sugeridos -->
+        <colgroup>
+          <col style="width: 18%;">  {# Nombre #}
+          <col style="width: 18%;">  {# Peligro #}
+          <col style="width: 10%;">  {# Tipo #}
+          <col style="width: 8%;">   {# Nivel #}
+          <col style="width: 15%;">  {# Medida #}
+          <col style="width: 21%;">  {# Descripción #}
+          <col style="width: 10%;">  {# Subtotal #}
+        </colgroup>
+
         <thead class="table-light">
           <tr>
-            <th>Nombre</th>
-            <th>Peligro</th>
-            <th class="text-end">Tipo</th>
+            <th class="text-start">Nombre</th>
+            <th class="text-start">Peligro</th>
+            <th class="text-start">Tipo</th>
             <th class="text-end">Nivel</th>
-            <th class="text-end">Medida</th>
-            <th class="text-end">Descripción</th>
+            <th class="text-start">Medida</th>
+            <th class="text-start">Descripción</th>
             <th class="text-end">Subtotal ($)</th>
           </tr>
         </thead>
@@ -27,25 +46,61 @@
         <tbody>
           {% for r in riesgos %}
             <tr>
-              <td>{{ r.riesgo.name }}</td>
-              <td>{{ r.riesgo.peligros }}</td>
-              <td class="text-end">
-                {{ r.riesgo.tipo }}
+              <!-- Nombre -->
+              <td class="text-start">
+                <span class="d-inline-block text-truncate" style="max-width: 200px;"
+                      title="{{ r.riesgo.name }}">{{ r.riesgo.name }}</span>
               </td>
-              <td class="text-end">{{ r.riesgo.nivel }}</td>
-              <td class="text-end">
-                {{ r.medida }}
+
+              <!-- Peligro -->
+              <td class="text-start">
+                {% if r.riesgo.peligros %}
+                  <span class="d-inline-block text-truncate" style="max-width: 220px;"
+                        title="{{ r.riesgo.peligros }}">{{ r.riesgo.peligros }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
               </td>
-              <td class="text-end">
-                {{ r.descripcion_medida }}
+
+              <!-- Tipo -->
+              <td class="text-start text-nowrap">
+                {% if r.riesgo.tipo %}{{ r.riesgo.tipo }}{% else %}<span class="text-muted">—</span>{% endif %}
               </td>
-              <td class="text-end">
-                {{ r.costo }}
+
+              <!-- Nivel -->
+              <td class="text-end text-nowrap">
+                {% if r.riesgo.nivel %}{{ r.riesgo.nivel }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Medida -->
+              <td class="text-start">
+                {% if r.medida %}
+                  <span class="d-inline-block text-truncate" style="max-width: 180px;"
+                        title="{{ r.medida }}">{{ r.medida }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+
+              <!-- Descripción de la medida -->
+              <td class="text-start">
+                {% if r.descripcion_medida %}
+                  <span class="d-inline-block text-truncate text-muted" style="max-width: 260px;"
+                        title="{{ r.descripcion_medida }}">{{ r.descripcion_medida }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+
+              <!-- Subtotal -->
+              <td class="text-end text-nowrap">
+                ${{ r.costo|floatformat:2 }}
+                {# Con humanize:  ${{ r.costo|floatformat:2|intcomma }} #}
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="7" class="text-center text-muted">Sin materiales</td>
+              <td colspan="7" class="text-center text-muted">Sin riesgos registrados</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -53,8 +108,9 @@
         <tfoot class="table-light">
           <tr>
             <th colspan="6" class="text-end">Total</th>
-            <th class="text-end">
-              $ {{ riesgos|totalRiesgo|floatformat:2 }}
+            <th class="text-end text-nowrap">
+              ${{ riesgos|totalRiesgo|floatformat:2 }}
+              {# Con humanize:  ${{ riesgos|totalRiesgo|floatformat:2|intcomma }} #}
             </th>
           </tr>
         </tfoot>

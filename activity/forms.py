@@ -132,7 +132,8 @@ class MemoryManoObraForm(forms.ModelForm):
             "prestaciones": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",
                 "step": "0.01",
-                "min": "0.01"
+                "min": "0.01",
+                "max": "0.99"
             }),
             "rendimiento": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",

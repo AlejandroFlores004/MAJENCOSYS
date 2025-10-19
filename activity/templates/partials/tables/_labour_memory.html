@@ -1,23 +1,41 @@
 {% load equationsTables %}
-{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
-{# {% load humanize %} #}
+{# {% load humanize %}  Para miles: ${{ n|floatformat:2|intcomma }} #}
 
-<!-- Materiales -->
 <div class="card shadow-sm">
   <div class="card-body">
+
+    <!-- Encabezado -->
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h5 class="mb-0">Mano de obra</h5>
-      <span class="badge bg-primary">{{ labour|length }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="mb-0">Mano de obra</h5>
+        <span class="badge bg-primary">{{ labour|length }}</span>
+      </div>
+      <a
+        href="{% url 'memoryManoObra' project.id activity.id %}"
+        class="btn btn-outline-primary btn-sm"
+      >
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
     </div>
 
     <div class="table-responsive">
       <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <!-- Anchos sugeridos -->
+        <colgroup>
+          <col style="width: 28%;">  {# Nombre #}
+          <col style="width: 14%;">  {# Jornal #}
+          <col style="width: 14%;">  {# Prestaciones #}
+          <col style="width: 16%;">  {# Jornal total #}
+          <col style="width: 14%;">  {# Rendimiento #}
+          <col style="width: 14%;">  {# Subtotal #}
+        </colgroup>
+
         <thead class="table-light">
           <tr>
-            <th>Nombre</th>
-            <th>Jornal</th>
-            <th class="text-end">Prestaciones</th>
-            <th class="text-end">Jornal Total</th>
+            <th class="text-start">Nombre</th>
+            <th class="text-end">Jornal ($)</th>
+            <th class="text-end">Prestaciones (%)</th>
+            <th class="text-end">Jornal total ($)</th>
             <th class="text-end">Rendimiento</th>
             <th class="text-end">Subtotal ($)</th>
           </tr>
@@ -26,22 +44,41 @@
         <tbody>
           {% for l in labour %}
             <tr>
-              <td>{{ l.manoobra.name }}</td>
-              <td>{{ l.manoobra.jornada }}</td>
-              <td class="text-end">
-                %{{ l.prestaciones|multiplica:100 }}
+              <!-- Nombre -->
+              <td class="text-start">
+                <span class="d-inline-block text-truncate" style="max-width: 280px;"
+                      title="{{ l.manoobra.name }}">{{ l.manoobra.name }}</span>
               </td>
-              <td class="text-end">{{ l.manoobra.jornada|jornalTotal:l.prestaciones|floatformat:2 }}</td>
-              <td class="text-end">
-                {{ l.rendimiento }}
+
+              <!-- Jornal -->
+              <td class="text-end text-nowrap">
+                ${{ l.manoobra.jornada|floatformat:2 }}
+                {# Con humanize:  ${{ l.manoobra.jornada|floatformat:2|intcomma }} #}
               </td>
-              <td class="text-end">
-                {{ l.manoobra.jornada|jornalTotal:l.prestaciones|dividir:l.rendimiento|floatformat:2 }}
+
+              <!-- Prestaciones -->
+              <td class="text-end text-nowrap">
+                {{ l.prestaciones|multiplica:100|floatformat:2 }}%
+              </td>
+
+              <!-- Jornal total (jornal + prestaciones) -->
+              <td class="text-end text-nowrap">
+                ${{ l.manoobra.jornada|jornalTotal:l.prestaciones|floatformat:2 }}
+              </td>
+
+              <!-- Rendimiento -->
+              <td class="text-end text-nowrap">
+                {% if l.rendimiento %}{{ l.rendimiento }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Subtotal -->
+              <td class="text-end text-nowrap">
+                ${{ l.manoobra.jornada|jornalTotal:l.prestaciones|dividir:l.rendimiento|floatformat:2 }}
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="6" class="text-center text-muted">Sin materiales</td>
+              <td colspan="6" class="text-center text-muted">Sin mano de obra</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -49,8 +86,9 @@
         <tfoot class="table-light">
           <tr>
             <th colspan="5" class="text-end">Total</th>
-            <th class="text-end">
+            <th class="text-end text-nowrap">
               ${{ labour|totalManoObra|floatformat:2 }}
+              {# Con humanize:  ${{ labour|totalManoObra|floatformat:2|intcomma }} #}
             </th>
           </tr>
         </tfoot>

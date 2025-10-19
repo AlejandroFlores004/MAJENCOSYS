@@ -1,24 +1,42 @@
 {% load equationsTables %}
-{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
-{# {% load humanize %} #}
+{# {% load humanize %}  Para miles: ${{ n|floatformat:2|intcomma }} #}
 
-<!-- Materiales -->
 <div class="card shadow-sm">
   <div class="card-body">
+
+    <!-- Encabezado -->
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h5 class="mb-0">Hidrologica</h5>
-      <span class="badge bg-primary">{{ hidrologica|length }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="mb-0">Pruebas Hidrológicas</h5>
+        <span class="badge bg-primary">{{ hidrologica|length }}</span>
+      </div>
+      <a
+        href="{% url 'memoryHidrologica' project.id activity.id %}"
+        class="btn btn-outline-primary btn-sm"
+      >
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
     </div>
 
     <div class="table-responsive">
       <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <!-- Anchos sugeridos -->
+        <colgroup>
+          <col style="width: 22%;">  {# Nombre #}
+          <col style="width: 30%;">  {# Descripción #}
+          <col style="width: 16%;">  {# Tipo de ubicación #}
+          <col style="width: 16%;">  {# Parámetro #}
+          <col style="width: 8%;">   {# Unidad #}
+          <col style="width: 8%;">   {# Subtotal #}
+        </colgroup>
+
         <thead class="table-light">
           <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th class="text-end">Tipo de ublicación</th>
-            <th class="text-end">Párametro</th>
-            <th class="text-end">Unidad</th>
+            <th class="text-start">Nombre</th>
+            <th class="text-start">Descripción</th>
+            <th class="text-start">Tipo de ubicación</th>
+            <th class="text-start">Parámetro</th>
+            <th class="text-start">Unidad</th>
             <th class="text-end">Subtotal ($)</th>
           </tr>
         </thead>
@@ -26,25 +44,46 @@
         <tbody>
           {% for h in hidrologica %}
             <tr>
-              <td>{{ h.hidrologica.name }}</td>
-              <td>{{ h.hidrologica.description }}</td>
-              <td class="text-end">
-                {{ h.hidrologica.ubicacion }}
+              <!-- Nombre -->
+              <td class="text-start">
+                <span class="d-inline-block text-truncate" style="max-width: 240px;"
+                      title="{{ h.hidrologica.name }}">{{ h.hidrologica.name }}</span>
               </td>
 
-              <td class="text-end">
-                {{ h.hidrologica.parametro }}
+              <!-- Descripción -->
+              <td class="text-start">
+                {% if h.hidrologica.description %}
+                  <span class="d-inline-block text-truncate text-muted" style="max-width: 420px;"
+                        title="{{ h.hidrologica.description }}">{{ h.hidrologica.description }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
               </td>
-              <td class="text-end">
-                {{ h.hidrologica.unidad }}
+
+              <!-- Tipo de ubicación -->
+              <td class="text-start text-nowrap">
+                {% if h.hidrologica.ubicacion %}{{ h.hidrologica.ubicacion }}{% else %}<span class="text-muted">—</span>{% endif %}
               </td>
-              <td class="text-end">
-                {{ h.costo }}
+
+              <!-- Parámetro -->
+              <td class="text-start text-nowrap">
+                {% if h.hidrologica.parametro %}{{ h.hidrologica.parametro }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Unidad -->
+              <td class="text-start text-nowrap">
+                {% if h.hidrologica.unidad %}{{ h.hidrologica.unidad }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Subtotal -->
+              <td class="text-end text-nowrap">
+                ${{ h.costo|floatformat:2 }}
+                {# Con humanize:  ${{ h.costo|floatformat:2|intcomma }} #}
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="6" class="text-center text-muted">Sin materiales</td>
+              <td colspan="6" class="text-center text-muted">Sin pruebas hidrológicas</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -52,8 +91,9 @@
         <tfoot class="table-light">
           <tr>
             <th colspan="5" class="text-end">Total</th>
-            <th class="text-end">
-                ${{ hidrologica|totalHidrologica|floatformat:2 }}
+            <th class="text-end text-nowrap">
+              ${{ hidrologica|totalHidrologica|floatformat:2 }}
+              {# Con humanize:  ${{ hidrologica|totalHidrologica|floatformat:2|intcomma }} #}
             </th>
           </tr>
         </tfoot>

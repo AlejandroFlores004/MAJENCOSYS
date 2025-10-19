@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinLengthValidator, MinValueValidator
+from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 from project.models import Project
 from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
 from decimal import Decimal
@@ -137,12 +137,12 @@ class MemoryManoObra(models.Model):
     prestaciones = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.01"))],
+        validators=[MinValueValidator(Decimal("0.01")), MaxValueValidator(Decimal("0.99"))],
         null=False,
         blank=False,
         verbose_name="Prestaciones",
         help_text="Ingrese el porsentaje de prestaciones",
-        default=1
+        default=0.1
     )
     rendimiento = models.DecimalField(
         max_digits=10,

@@ -1,22 +1,39 @@
 {% load equationsTables %}
-{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
-{# {% load humanize %} #}
+{# {% load humanize %}  Para miles: ${{ n|floatformat:2|intcomma }} #}
 
-<!-- Materiales -->
 <div class="card shadow-sm">
   <div class="card-body">
+
+    <!-- Encabezado -->
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h5 class="mb-0">Materiales</h5>
-      <span class="badge bg-primary">{{ materials|length }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="mb-0">Materiales</h5>
+        <span class="badge bg-primary">{{ materials|length }}</span>
+      </div>
+      <a
+        href="{% url 'memoryMateriales' project.id activity.id %}"
+        class="btn btn-outline-primary btn-sm"
+      >
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
     </div>
 
     <div class="table-responsive">
       <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <!-- Anchos sugeridos para mantener la alineación -->
+        <colgroup>
+          <col style="width: 40%;">  {# Nombre #}
+          <col style="width: 18%;">  {# Unidad #}
+          <col style="width: 14%;">  {# Precio #}
+          <col style="width: 14%;">  {# Cantidad #}
+          <col style="width: 14%;">  {# Subtotal #}
+        </colgroup>
+
         <thead class="table-light">
           <tr>
-            <th>Nombre</th>
-            <th>Unidad</th>
-            <th class="text-end">Precio</th>
+            <th class="text-start">Nombre</th>
+            <th class="text-start">Unidad</th>
+            <th class="text-end">Precio ($)</th>
             <th class="text-end">Cantidad</th>
             <th class="text-end">Subtotal ($)</th>
           </tr>
@@ -25,15 +42,37 @@
         <tbody>
           {% for m in materials %}
             <tr>
-              <td>{{ m.material.name }}</td>
-              <td>{{ m.material.unit.name }}</td>
-              <td class="text-end">
-                ${{ m.material.price|floatformat:2 }}
-                {# o con miles: {{ m.material.price|floatformat:2|intcomma }} #}
+              <!-- Nombre -->
+              <td class="text-start">
+                <span class="d-inline-block text-truncate" style="max-width: 420px;"
+                      title="{{ m.material.name }}">{{ m.material.name }}</span>
               </td>
-              <td class="text-end">{{ m.quantity }}</td>
-              <td class="text-end">
+
+              <!-- Unidad -->
+              <td class="text-start">
+                {% if m.material.unit and m.material.unit.name %}
+                  <span class="d-inline-block text-truncate" style="max-width: 200px;"
+                        title="{{ m.material.unit.name }}">{{ m.material.unit.name }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+
+              <!-- Precio -->
+              <td class="text-end text-nowrap">
+                ${{ m.material.price|floatformat:2 }}
+                {# Con humanize:  ${{ m.material.price|floatformat:2|intcomma }} #}
+              </td>
+
+              <!-- Cantidad -->
+              <td class="text-end text-nowrap">
+                {{ m.quantity|floatformat:2 }}
+              </td>
+
+              <!-- Subtotal -->
+              <td class="text-end text-nowrap">
                 ${{ m.material.price|multiplica:m.quantity|floatformat:2 }}
+                {# Con humanize:  ${{ m.material.price|multiplica:m.quantity|floatformat:2|intcomma }} #}
               </td>
             </tr>
           {% empty %}
@@ -46,8 +85,9 @@
         <tfoot class="table-light">
           <tr>
             <th colspan="4" class="text-end">Total</th>
-            <th class="text-end">
+            <th class="text-end text-nowrap">
               ${{ materials|totalMateriales|floatformat:2 }}
+              {# Con humanize:  ${{ materials|totalMateriales|floatformat:2|intcomma }} #}
             </th>
           </tr>
         </tfoot>

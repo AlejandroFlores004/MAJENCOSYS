@@ -1,24 +1,42 @@
 {% load equationsTables %}
-{# Si quieres separadores de miles, descomenta la siguiente línea y usa |intcomma #}
-{# {% load humanize %} #}
+{# {% load humanize %}  Para miles: ${{ n|floatformat:2|intcomma }} #}
 
-<!-- Materiales -->
 <div class="card shadow-sm">
   <div class="card-body">
+
+    <!-- Encabezado -->
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h5 class="mb-0">Equipo</h5>
-      <span class="badge bg-primary">{{ equipo|length }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="mb-0">Equipo</h5>
+        <span class="badge bg-primary">{{ equipo|length }}</span>
+      </div>
+      <a
+        href="{% url 'memoryEquipo' project.id activity.id %}"
+        class="btn btn-outline-primary btn-sm"
+      >
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
     </div>
 
     <div class="table-responsive">
       <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <!-- Anchos sugeridos -->
+        <colgroup>
+          <col style="width: 26%;">  {# Nombre #}
+          <col style="width: 18%;">  {# Tipo #}
+          <col style="width: 14%;">  {# Capacidad #}
+          <col style="width: 14%;">  {# Rendimiento #}
+          <col style="width: 14%;">  {# Costo #}
+          <col style="width: 14%;">  {# Subtotal #}
+        </colgroup>
+
         <thead class="table-light">
           <tr>
-            <th>Nombre</th>
-            <th>Tipo</th>
+            <th class="text-start">Nombre</th>
+            <th class="text-start">Tipo</th>
             <th class="text-end">Capacidad</th>
             <th class="text-end">Rendimiento</th>
-            <th class="text-end">Costo</th>
+            <th class="text-end">Costo ($)</th>
             <th class="text-end">Subtotal ($)</th>
           </tr>
         </thead>
@@ -26,22 +44,47 @@
         <tbody>
           {% for e in equipo %}
             <tr>
-              <td>{{ e.equipo.name }}</td>
-              <td>{{ e.equipo.tipo }}</td>
-              <td class="text-end">
-                {{ e.equipo.capacidad }}
+              <!-- Nombre -->
+              <td class="text-start">
+                <span class="d-inline-block text-truncate" style="max-width: 260px;"
+                      title="{{ e.equipo.name }}">{{ e.equipo.name }}</span>
               </td>
-              <td class="text-end">{{ e.rendimiento }}</td>
-              <td class="text-end">
-                {{ e.equipo.costodia }}
+
+              <!-- Tipo -->
+              <td class="text-start">
+                {% if e.equipo.tipo %}
+                  <span class="d-inline-block text-truncate" style="max-width: 200px;"
+                        title="{{ e.equipo.tipo }}">{{ e.equipo.tipo }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
               </td>
-              <td class="text-end">
-                {{ e.equipo.costodia|multiplica:e.rendimiento }}
+
+              <!-- Capacidad -->
+              <td class="text-end text-nowrap">
+                {% if e.equipo.capacidad %}{{ e.equipo.capacidad }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Rendimiento -->
+              <td class="text-end text-nowrap">
+                {% if e.rendimiento %}{{ e.rendimiento }}{% else %}<span class="text-muted">—</span>{% endif %}
+              </td>
+
+              <!-- Costo -->
+              <td class="text-end text-nowrap">
+                ${{ e.equipo.costodia|floatformat:2 }}
+                {# Con humanize:  ${{ e.equipo.costodia|floatformat:2|intcomma }} #}
+              </td>
+
+              <!-- Subtotal -->
+              <td class="text-end text-nowrap">
+                ${{ e.equipo.costodia|multiplica:e.rendimiento|floatformat:2 }}
+                {# Con humanize:  ${{ e.equipo.costodia|multiplica:e.rendimiento|floatformat:2|intcomma }} #}
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="5" class="text-center text-muted">Sin equipo</td>
+              <td colspan="6" class="text-center text-muted">Sin equipo</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -49,8 +92,9 @@
         <tfoot class="table-light">
           <tr>
             <th colspan="5" class="text-end">Total</th>
-            <th class="text-end">
-              $ {{ equipo|totalEquipo|floatformat:2 }}
+            <th class="text-end text-nowrap">
+              ${{ equipo|totalEquipo|floatformat:2 }}
+              {# Con humanize:  ${{ equipo|totalEquipo|floatformat:2|intcomma }} #}
             </th>
           </tr>
         </tfoot>
