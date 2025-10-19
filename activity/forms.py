@@ -90,7 +90,7 @@ class MemoryMaterialForm(forms.ModelForm):
         model = MemoryMaterial
         fields = ("material", "quantity")
         widgets = {
-            "material": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "material": forms.Select(attrs={"class": "form-select form-select-sm w-100 select2"}),
             "quantity": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100", "step": "0.01", "min": "0.01"
             }),
@@ -128,7 +128,7 @@ class MemoryManoObraForm(forms.ModelForm):
         model = MemoryManoObra
         fields = ("manoobra", "prestaciones", "rendimiento")
         widgets = {
-            "manoobra": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "manoobra": forms.Select(attrs={"class": "form-select form-select-sm w-100 select2"}),
             "prestaciones": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",
                 "step": "0.01",
@@ -174,7 +174,7 @@ class MemoryHerramientaForm(forms.ModelForm):
         model = MemoryHerramienta
         fields = ("herramienta", "rendimiento")
         widgets = {
-            "herramienta": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "herramienta": forms.Select(attrs={"class": "form-select form-select-sm w-100 select2"}),
             "rendimiento": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",
                 "step": "0.01",
@@ -215,7 +215,7 @@ class MemoryEquipoForm(forms.ModelForm):
         model = MemoryEquipo
         fields = ("equipo", "rendimiento")
         widgets = {
-            "equipo": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "equipo": forms.Select(attrs={"class": "form-select form-select-sm w-100 select2"}),
             "rendimiento": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",
                 "step": "0.01",
@@ -272,7 +272,7 @@ class MemoryRiesgosForm(forms.ModelForm):
         # activity y project no se editan aquí (activity lo pone el inline, project lo fijamos en save)
         fields = ("riesgo", "medida", "descripcion_medida", "costo")
         widgets = {
-            "riesgo": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "riesgo": forms.Select(attrs={"class": "form-select form-select-sm w-100 select2"}),
             "medida": forms.TextInput(attrs={"class": "form-control form-control-sm w-100"}),
             "descripcion_medida": forms.Textarea(attrs={
                 "class": "form-control form-control-sm w-100",
@@ -330,7 +330,7 @@ class MemoryCalidadForm(forms.ModelForm):
         model = MemoryCalidad
         fields = ("calidad", "cantidad", "responsable")
         widgets = {
-            "calidad": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "calidad": forms.Select(attrs={"class": "form-select form-select-sm w-100 select2"}),
             "cantidad": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",
                 "min": "1",
@@ -386,7 +386,7 @@ class MemoryAmbientalForm(forms.ModelForm):
         model = MemoryAmbiental
         fields = ("ambiental", "valor")
         widgets = {
-            "ambiental": forms.Select(attrs={"class": "form-select form-select-sm w-100"}),
+            "ambiental": forms.Select(attrs={"class": "form-select form-select-sm w-100 select2"}),
             "valor": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",
                 "step": "0.01",
@@ -445,7 +445,7 @@ class MemoryHidrologicaForm(forms.ModelForm):
         fields = ("hidrologica", "costo")
         widgets = {
             "hidrologica": forms.Select(attrs={
-                "class": "form-select form-select-sm w-100",
+                "class": "form-select form-select-sm w-100 select2",
             }),
             "costo": forms.NumberInput(attrs={
                 "class": "form-control form-control-sm w-100",

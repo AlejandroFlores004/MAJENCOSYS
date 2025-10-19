@@ -224,50 +224,83 @@
     .fixed-columns-table td, .fixed-columns-table th { padding: .5rem .5rem; }
   }
 </style>
-
-<script>
-(function() {
-  const tbody = document.getElementById('tabla-formset');
-  const addBtn = document.getElementById('add-row');
-  const totalForms = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
-  const emptyFields = document.getElementById('empty-form-fields');
-  const rowTemplate = document.getElementById('empty-form-template').innerHTML;
-
-  const hiddensHTML   = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
-    .map(el => el.outerHTML).join('');
-  const manoobraHTML  = emptyFields.querySelector('[name$="-manoobra"]').outerHTML;
-  const prestacionesHTML = emptyFields.querySelector('[name$="-prestaciones"]').outerHTML;
-  const rendimientoHTML  = emptyFields.querySelector('[name$="-rendimiento"]').outerHTML;
-
-  function addRow() {
-    const i = parseInt(totalForms.value, 10);
-
-    const hiddens      = hiddensHTML.replace(/__prefix__/g, i);
-    const manoobra     = manoobraHTML.replace(/__prefix__/g, i);
-    const prestaciones = prestacionesHTML.replace(/__prefix__/g, i);
-    const rendimiento  = rendimientoHTML.replace(/__prefix__/g, i);
-
-    const html = rowTemplate
-      .replace('__HIDDENS__', hiddens)
-      .replace('__EMPTY_MANOOBRA__', manoobra)
-      .replace('__EMPTY_PRESTACIONES__', prestaciones)
-      .replace('__EMPTY_RENDIMIENTO__', rendimiento);
-
-    tbody.insertAdjacentHTML('beforeend', html);
-    totalForms.value = i + 1;
-  }
-
-  function removeRow(btn) {
-    const tr = btn.closest('tr');
-    if (tr) tr.remove();
-    // TOTAL_FORMS no se decrementa (válido para formsets inline)
-  }
-
-  if (addBtn) addBtn.addEventListener('click', addRow);
-  tbody.addEventListener('click', function(e) {
-    const b = e.target.closest('.btn-remove-row');
-    if (b) removeRow(b);
-  });
-})();
-</script>
 {% endblock content %}
+
+{% block page_scripts %}
+<script>
+  (function() {
+    const tbody       = document.getElementById('tabla-formset');
+    const addBtn      = document.getElementById('add-row');
+    const totalForms  = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
+    const emptyFields = document.getElementById('empty-form-fields');
+    const rowTemplate = document.getElementById('empty-form-template').innerHTML;
+
+    // HTML base para clonar
+    const hiddensHTML       = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
+                                  .map(el => el.outerHTML).join('');
+    const manoobraHTML      = emptyFields.querySelector('[name$="-manoobra"]').outerHTML;
+    const prestacionesHTML  = emptyFields.querySelector('[name$="-prestaciones"]').outerHTML;
+    const rendimientoHTML   = emptyFields.querySelector('[name$="-rendimiento"]').outerHTML;
+
+    // 🔹 Inicializa Select2
+    function initSelect2($ctx) {
+      ($ctx || $(document)).find('select.select2').each(function() {
+        if ($(this).hasClass('select2-hidden-accessible')) return; // evita duplicar
+        $(this).select2({
+          width: '100%',
+          placeholder: 'Seleccione una mano de obra',
+          allowClear: true
+        });
+      });
+    }
+
+    // 🔹 Agregar nueva fila
+    function addRow() {
+      const i = parseInt(totalForms.value, 10);
+
+      const hiddens      = hiddensHTML.replace(/__prefix__/g, i);
+      const manoobra     = manoobraHTML.replace(/__prefix__/g, i);
+      const prestaciones = prestacionesHTML.replace(/__prefix__/g, i);
+      const rendimiento  = rendimientoHTML.replace(/__prefix__/g, i);
+
+      const html = rowTemplate
+        .replace('__HIDDENS__', hiddens)
+        .replace('__EMPTY_MANOOBRA__', manoobra)
+        .replace('__EMPTY_PRESTACIONES__', prestaciones)
+        .replace('__EMPTY_RENDIMIENTO__', rendimiento);
+
+      tbody.insertAdjacentHTML('beforeend', html);
+      totalForms.value = i + 1;
+
+      // Inicializa Select2 solo en la nueva fila agregada
+      const $lastRow = $(tbody).children('tr').last();
+      initSelect2($lastRow);
+    }
+
+    // 🔹 Quitar fila
+    function removeRow(btn) {
+      const tr = btn.closest('tr');
+      if (!tr) return;
+
+      // destruye select2 para evitar fugas de memoria
+      const $sel = $(tr).find('select.select2');
+      if ($sel.length && $sel.hasClass('select2-hidden-accessible')) {
+        $sel.select2('destroy');
+      }
+
+      tr.remove();
+      // Django mantiene el índice de TOTAL_FORMS (no se decrementa)
+    }
+
+    // Eventos principales
+    if (addBtn) addBtn.addEventListener('click', addRow);
+    tbody.addEventListener('click', function(e) {
+      const b = e.target.closest('.btn-remove-row');
+      if (b) removeRow(b);
+    });
+
+    // 🔹 Al cargar la página: inicializa todos los selects existentes
+    $(function() { initSelect2($(document)); });
+  })();
+</script>
+{% endblock page_scripts %}

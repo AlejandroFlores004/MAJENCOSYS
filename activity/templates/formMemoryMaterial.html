@@ -211,46 +211,82 @@
   }
 </style>
 
-<script>
-(function() {
-  const tbody = document.getElementById('tabla-formset');
-  const addBtn = document.getElementById('add-row');
-  const totalForms = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
-  const emptyFields = document.getElementById('empty-form-fields');
-  const rowTemplate = document.getElementById('empty-form-template').innerHTML;
-
-  const hiddensHTML  = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
-    .map(el => el.outerHTML).join('');
-  const materialHTML = emptyFields.querySelector('[name$="-material"]').outerHTML;
-  const quantityHTML = emptyFields.querySelector('[name$="-quantity"]').outerHTML;
-
-  function addRow() {
-    const i = parseInt(totalForms.value, 10);
-
-    const hiddens  = hiddensHTML.replace(/__prefix__/g, i);
-    const material = materialHTML.replace(/__prefix__/g, i);
-    const quantity = quantityHTML.replace(/__prefix__/g, i);
-
-    const html = rowTemplate
-      .replace('__HIDDENS__', hiddens)
-      .replace('__EMPTY_MATERIAL__', material)
-      .replace('__EMPTY_QUANTITY__', quantity);
-
-    tbody.insertAdjacentHTML('beforeend', html);
-    totalForms.value = i + 1;
-  }
-
-  function removeRow(btn) {
-    const tr = btn.closest('tr');
-    if (tr) tr.remove();
-    // Nota: TOTAL_FORMS no se actualiza aquí (ver comentario abajo)
-  }
-
-  if (addBtn) addBtn.addEventListener('click', addRow);
-  tbody.addEventListener('click', function(e) {
-    const b = e.target.closest('.btn-remove-row');
-    if (b) removeRow(b);
-  });
-})();
-</script>
 {% endblock content %}
+
+{% block page_scripts %}
+<script>
+  (function() {
+    const tbody = document.getElementById('tabla-formset');
+    const addBtn = document.getElementById('add-row');
+    const totalForms = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
+    const emptyFields = document.getElementById('empty-form-fields');
+    const rowTemplate = document.getElementById('empty-form-template').innerHTML;
+
+    // HTML base para clonar
+    const hiddensHTML  = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
+      .map(el => el.outerHTML).join('');
+    const materialHTML = emptyFields.querySelector('[name$="-material"]').outerHTML;
+    const quantityHTML = emptyFields.querySelector('[name$="-quantity"]').outerHTML;
+
+    // 🔹 función central para inicializar select2
+    function initSelect2($ctx) {
+      // $ctx puede ser $(document) o una fila nueva
+      ($ctx || $(document)).find('select.select2').each(function() {
+        // evita re-inicializar si ya está
+        if ($(this).hasClass('select2-hidden-accessible')) return;
+        $(this).select2({
+          width: '100%',
+          placeholder: 'Seleccione un material',
+          allowClear: true
+        });
+      });
+    }
+
+    function addRow() {
+      const i = parseInt(totalForms.value, 10);
+
+      const hiddens  = hiddensHTML.replace(/__prefix__/g, i);
+      const material = materialHTML.replace(/__prefix__/g, i);
+      const quantity = quantityHTML.replace(/__prefix__/g, i);
+
+      const html = rowTemplate
+        .replace('__HIDDENS__', hiddens)
+        .replace('__EMPTY_MATERIAL__', material)
+        .replace('__EMPTY_QUANTITY__', quantity);
+
+      tbody.insertAdjacentHTML('beforeend', html);
+      totalForms.value = i + 1;
+
+      // 🔹 inicializa el select2 SOLO en la última fila insertada
+      const $lastRow = $(tbody).children('tr').last();
+      initSelect2($lastRow);
+    }
+
+    function removeRow(btn) {
+      const tr = btn.closest('tr');
+      if (tr) {
+        // 🔹 destruye select2 en ese select (si existía) para evitar fugas
+        const $sel = $(tr).find('select.select2');
+        if ($sel.length && $sel.hasClass('select2-hidden-accessible')) {
+          $sel.select2('destroy');
+        }
+        tr.remove();
+      }
+      // NOTA: no se decrementa TOTAL_FORMS porque Django espera índices compactos crecientes
+    }
+
+    // eventos
+    if (addBtn) addBtn.addEventListener('click', addRow);
+    tbody.addEventListener('click', function(e) {
+      const b = e.target.closest('.btn-remove-row');
+      if (b) removeRow(b);
+    });
+
+    // 🔹 inicializa todos los selects ya renderizados al cargar la página
+    $(function() {
+      initSelect2($(document));
+    });
+  })();
+</script>
+{% endblock page_scripts %}
+

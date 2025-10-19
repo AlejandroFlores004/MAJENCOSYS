@@ -89,7 +89,7 @@ class Material(models.Model):
         ]
 
     def __str__(self):
-        return self.name
+        return f"{self.name} (${self.price}) c/{ self.unit.abbreviation if self.unit else 'sin unidad' }"
     
 class ManoObra(models.Model):
     name = models.CharField(

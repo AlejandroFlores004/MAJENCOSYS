@@ -225,52 +225,82 @@
     .fixed-columns-table td, .fixed-columns-table th { padding: .5rem .5rem; }
   }
 </style>
-
-<script>
-(function() {
-  const tbody = document.getElementById('tabla-formset');
-  const addBtn = document.getElementById('add-row');
-  const totalForms = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
-  const emptyFields = document.getElementById('empty-form-fields');
-  const rowTemplate = document.getElementById('empty-form-template').innerHTML;
-
-  const hiddensHTML  = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
-    .map(el => el.outerHTML).join('');
-  const riesgoHTML   = emptyFields.querySelector('[name$="-riesgo"]').outerHTML;
-  const medidaHTML   = emptyFields.querySelector('[name$="-medida"]').outerHTML;
-  const descHTML     = emptyFields.querySelector('[name$="-descripcion_medida"]').outerHTML;
-  const costoHTML    = emptyFields.querySelector('[name$="-costo"]').outerHTML;
-
-  function addRow() {
-    const i = parseInt(totalForms.value, 10);
-
-    const hiddens = hiddensHTML.replace(/__prefix__/g, i);
-    const riesgo  = riesgoHTML.replace(/__prefix__/g, i);
-    const medida  = medidaHTML.replace(/__prefix__/g, i);
-    const desc    = descHTML.replace(/__prefix__/g, i);
-    const costo   = costoHTML.replace(/__prefix__/g, i);
-
-    const html = rowTemplate
-      .replace('__HIDDENS__', hiddens)
-      .replace('__EMPTY_RIESGO__', riesgo)
-      .replace('__EMPTY_MEDIDA__', medida)
-      .replace('__EMPTY_DESCRIPCION__', desc)
-      .replace('__EMPTY_COSTO__', costo);
-
-    tbody.insertAdjacentHTML('beforeend', html);
-    totalForms.value = i + 1;
-  }
-
-  function removeRow(btn) {
-    const tr = btn.closest('tr');
-    if (tr) tr.remove();
-  }
-
-  if (addBtn) addBtn.addEventListener('click', addRow);
-  tbody.addEventListener('click', function(e) {
-    const b = e.target.closest('.btn-remove-row');
-    if (b) removeRow(b);
-  });
-})();
-</script>
 {% endblock content %}
+
+{% block page_scripts %}
+<script>
+  (function() {
+    const tbody       = document.getElementById('tabla-formset');
+    const addBtn      = document.getElementById('add-row');
+    const totalForms  = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
+    const emptyFields = document.getElementById('empty-form-fields');
+    const rowTemplate = document.getElementById('empty-form-template').innerHTML;
+
+    // 🧩 Clon base
+    const hiddensHTML  = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
+                                  .map(el => el.outerHTML).join('');
+    const riesgoHTML   = emptyFields.querySelector('[name$="-riesgo"]').outerHTML;
+    const medidaHTML   = emptyFields.querySelector('[name$="-medida"]').outerHTML;
+    const descHTML     = emptyFields.querySelector('[name$="-descripcion_medida"]').outerHTML;
+    const costoHTML    = emptyFields.querySelector('[name$="-costo"]').outerHTML;
+
+    // 🔹 Inicializa Select2 (buscador en los selects)
+    function initSelect2($ctx) {
+      ($ctx || $(document)).find('select.select2').each(function() {
+        if ($(this).hasClass('select2-hidden-accessible')) return; // evita reinicializar
+        $(this).select2({
+          width: '100%',
+          placeholder: 'Seleccione un valor',
+          allowClear: true
+        });
+      });
+    }
+
+    // 🔹 Agregar fila dinámica
+    function addRow() {
+      const i = parseInt(totalForms.value, 10);
+
+      const hiddens = hiddensHTML.replace(/__prefix__/g, i);
+      const riesgo  = riesgoHTML.replace(/__prefix__/g, i);
+      const medida  = medidaHTML.replace(/__prefix__/g, i);
+      const desc    = descHTML.replace(/__prefix__/g, i);
+      const costo   = costoHTML.replace(/__prefix__/g, i);
+
+      const html = rowTemplate
+        .replace('__HIDDENS__', hiddens)
+        .replace('__EMPTY_RIESGO__', riesgo)
+        .replace('__EMPTY_MEDIDA__', medida)
+        .replace('__EMPTY_DESCRIPCION__', desc)
+        .replace('__EMPTY_COSTO__', costo);
+
+      tbody.insertAdjacentHTML('beforeend', html);
+      totalForms.value = i + 1;
+
+      // Inicializa Select2 en la nueva fila
+      const $lastRow = $(tbody).children('tr').last();
+      initSelect2($lastRow);
+    }
+
+    // 🔹 Quitar fila con limpieza de select2
+    function removeRow(btn) {
+      const tr = btn.closest('tr');
+      if (!tr) return;
+
+      const $sels = $(tr).find('select.select2');
+      if ($sels.length) $sels.select2('destroy');
+
+      tr.remove();
+    }
+
+    // 🔹 Eventos
+    if (addBtn) addBtn.addEventListener('click', addRow);
+    tbody.addEventListener('click', function(e) {
+      const b = e.target.closest('.btn-remove-row');
+      if (b) removeRow(b);
+    });
+
+    // 🔹 Al cargar la página
+    $(function() { initSelect2($(document)); });
+  })();
+</script>
+{% endblock page_scripts %}

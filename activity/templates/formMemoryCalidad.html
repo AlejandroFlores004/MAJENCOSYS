@@ -191,71 +191,86 @@
   </div>
 </div>
 
-<style>
-  .fixed-columns-table { table-layout: fixed; width: 100%; }
-  .fixed-columns-table td, .fixed-columns-table th { vertical-align: middle; }
 
-  #tabla-formset select,
-  #tabla-formset input[type="text"],
-  #tabla-formset input[type="number"] {
-    width: 100%;
-    box-sizing: border-box;
-  }
 
-  #tabla-formset .form-check-label { white-space: nowrap; }
-
-  .fixed-columns-table th:nth-child(2),
-  .fixed-columns-table td:nth-child(2),
-  .fixed-columns-table th:nth-child(4),
-  .fixed-columns-table td:nth-child(4) { text-align: center; }
-
-  @media (max-width: 768px) {
-    .fixed-columns-table td, .fixed-columns-table th { padding: .5rem .5rem; }
-  }
-</style>
-
-<script>
-(function() {
-  const tbody = document.getElementById('tabla-formset');
-  const addBtn = document.getElementById('add-row');
-  const totalForms = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
-  const emptyFields = document.getElementById('empty-form-fields');
-  const rowTemplate = document.getElementById('empty-form-template').innerHTML;
-
-  const hiddensHTML  = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
-    .map(el => el.outerHTML).join('');
-  const calidadHTML   = emptyFields.querySelector('[name$="-calidad"]').outerHTML;
-  const cantidadHTML  = emptyFields.querySelector('[name$="-cantidad"]').outerHTML;
-  const responsableHTML = emptyFields.querySelector('[name$="-responsable"]').outerHTML;
-
-  function addRow() {
-    const i = parseInt(totalForms.value, 10);
-
-    const hiddens = hiddensHTML.replace(/__prefix__/g, i);
-    const calidad = calidadHTML.replace(/__prefix__/g, i);
-    const cantidad = cantidadHTML.replace(/__prefix__/g, i);
-    const responsable = responsableHTML.replace(/__prefix__/g, i);
-
-    const html = rowTemplate
-      .replace('__HIDDENS__', hiddens)
-      .replace('__EMPTY_CALIDAD__', calidad)
-      .replace('__EMPTY_CANTIDAD__', cantidad)
-      .replace('__EMPTY_RESPONSABLE__', responsable);
-
-    tbody.insertAdjacentHTML('beforeend', html);
-    totalForms.value = i + 1;
-  }
-
-  function removeRow(btn) {
-    const tr = btn.closest('tr');
-    if (tr) tr.remove();
-  }
-
-  if (addBtn) addBtn.addEventListener('click', addRow);
-  tbody.addEventListener('click', function(e) {
-    const b = e.target.closest('.btn-remove-row');
-    if (b) removeRow(b);
-  });
-})();
-</script>
 {% endblock content %}
+
+
+{% block page_scripts %}
+<script>
+  (function() {
+    const tbody       = document.getElementById('tabla-formset');
+    const addBtn      = document.getElementById('add-row');
+    const totalForms  = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
+    const emptyFields = document.getElementById('empty-form-fields');
+    const rowTemplate = document.getElementById('empty-form-template').innerHTML;
+
+    // HTML base para clonar
+    const hiddensHTML     = Array.from(emptyFields.querySelectorAll('input[type="hidden"]'))
+                                 .map(el => el.outerHTML).join('');
+    const calidadHTML     = emptyFields.querySelector('[name$="-calidad"]').outerHTML;
+    const cantidadHTML    = emptyFields.querySelector('[name$="-cantidad"]').outerHTML;
+    const responsableHTML = emptyFields.querySelector('[name$="-responsable"]').outerHTML;
+
+    // Inicializador reutilizable de Select2
+    function initSelect2($ctx) {
+      ($ctx || $(document)).find('select.select2').each(function () {
+        if ($(this).hasClass('select2-hidden-accessible')) return;
+        const ph = $(this).data('placeholder') || 'Seleccione una opción';
+        $(this).select2({
+          width: '100%',
+          placeholder: ph,
+          allowClear: true
+        });
+      });
+    }
+
+    function addRow() {
+      const i = parseInt(totalForms.value, 10);
+
+      const hiddens     = hiddensHTML.replace(/__prefix__/g, i);
+      const calidad     = calidadHTML.replace(/__prefix__/g, i);
+      const cantidad    = cantidadHTML.replace(/__prefix__/g, i);
+      const responsable = responsableHTML.replace(/__prefix__/g, i);
+
+      const html = rowTemplate
+        .replace('__HIDDENS__', hiddens)
+        .replace('__EMPTY_CALIDAD__', calidad)
+        .replace('__EMPTY_CANTIDAD__', cantidad)
+        .replace('__EMPTY_RESPONSABLE__', responsable);
+
+      tbody.insertAdjacentHTML('beforeend', html);
+      totalForms.value = i + 1;
+
+      // Inicializa Select2 en la nueva fila
+      const $lastRow = $(tbody).children('tr').last();
+      initSelect2($lastRow);
+    }
+
+    function removeRow(btn) {
+      const tr = btn.closest('tr');
+      if (!tr) return;
+
+      // Destruye Select2 de esa fila (si aplica) para evitar fugas
+      const $sels = $(tr).find('select.select2');
+      $sels.each(function(){
+        if ($(this).hasClass('select2-hidden-accessible')) {
+          $(this).select2('destroy');
+        }
+      });
+      tr.remove();
+      // Nota: no decrementamos TOTAL_FORMS (Django espera índices crecientes).
+    }
+
+    // Eventos
+    if (addBtn) addBtn.addEventListener('click', addRow);
+    tbody.addEventListener('click', function(e) {
+      const b = e.target.closest('.btn-remove-row');
+      if (b) removeRow(b);
+    });
+
+    // Al cargar la página, inicializa los selects existentes
+    $(function(){ initSelect2($(document)); });
+  })();
+</script>
+{% endblock page_scripts %}
