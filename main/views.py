@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from project.models import Project
 from activity.models import Activity, Header
-from catalog.models import Material
+from catalog.models import Material, ManoObra, Equipo, Herramienta, Riesgo, Calidad, Ambiental, Hidrologica
 from django.core.paginator import Paginator
 from django.db.models import Count, Prefetch
 
@@ -121,6 +121,13 @@ def dashboardProject(request, pk):
         activities_page = paginator.page(paginator.num_pages)
 
     countMaterial = Material.objects.filter(project=project).count()
+    countEquipo = Equipo.objects.filter(project=project).count()
+    countManoObra = ManoObra.objects.filter(project=project).count()
+    countHerramienta = Herramienta.objects.filter(project=project).count()
+    countRiesgo = Riesgo.objects.filter(project=project).count()
+    countCalidad = Calidad.objects.filter(project=project).count()
+    countAmbiental = Ambiental.objects.filter(project=project).count()
+    countHidrologica = Hidrologica.objects.filter(project=project).count()
 
     context = {
         "project": project,
@@ -129,6 +136,13 @@ def dashboardProject(request, pk):
         "is_paginated_activities": paginator.num_pages > 1,
         "per_page_activities": per_page,
         "quiantyMaterial": countMaterial,
+        "quiantyEquipo": countEquipo,
+        "quiantyManoObra": countManoObra,
+        "quiantyHerramienta": countHerramienta,
+        "quiantyRiesgo": countRiesgo,
+        "quiantyCalidad": countCalidad,
+        "quiantyAmbiental": countAmbiental,
+        "quiantyHidrologica": countHidrologica,
     }
     return render(request, 'dashboardProject.html', context)
 # ------ Herramientas de base de datos (Backup y Restore) ------
