@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'main',
     'user',
     'catalog',
-    'activity'
+    'activity',
+    'reporte'
 ]
 
 MIDDLEWARE = [

@@ -18,6 +18,7 @@ urlpatterns = [
     path('dashboard/project/<int:pk>/', dashboardProject, name='dashboardProject'),
     path('dashboard/project/<int:pk>/catalgos/',include('catalog.urls') , name='dashboardProject'),
     path('dashboard/project/<int:pk>/actividades/',include('activity.urls'), name="dashboardProject"),
+    path('dashboard/project/<int:pk>/reportes/',include('reporte.urls'), name="reportes"),
     
 
     # ---- Rutas para el cambio de contraseña ----
