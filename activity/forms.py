@@ -262,8 +262,6 @@ class MemoryRiesgosForm(forms.ModelForm):
     def save(self, commit=True):
         obj = super().save(commit=False)
         # Asegurar que el registro quede amarrado al proyecto actual
-        if self._project:
-            obj.project = self._project
         if commit:
             obj.save()
         return obj
@@ -321,8 +319,6 @@ class MemoryCalidadForm(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=False)
-        if self._project:
-            obj.project = self._project  # Asignar proyecto antes de guardar
         if commit:
             obj.save()
         return obj
@@ -377,8 +373,6 @@ class MemoryAmbientalForm(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=False)
-        if self._project:
-            obj.project = self._project  # asegurar vínculo al proyecto actual
         if commit:
             obj.save()
         return obj
@@ -435,8 +429,6 @@ class MemoryHidrologicaForm(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=False)
-        if self._project:
-            obj.project = self._project  # aseguramos vínculo con el proyecto actual
         if commit:
             obj.save()
         return obj
