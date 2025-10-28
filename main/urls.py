@@ -20,6 +20,7 @@ urlpatterns = [
     path('dashboard/project/<int:pk>/catalgos/',include('catalog.urls') , name='dashboardProject'),
     path('dashboard/project/<int:pk>/actividades/',include('activity.urls'), name="dashboardProject"),
     path('dashboard/project/<int:pk>/reportes/',include('reporte.urls'), name="reportes"),
+    path('dashboard/project/<int:pk>/cronograma/',include('schedule.urls'), name="cronograma"),
     
 
     # ---- Rutas para el cambio de contraseña ----
