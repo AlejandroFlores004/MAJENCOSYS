@@ -31,7 +31,7 @@
       {% load tz %}  {# Solo si quieres controlar zonas horarias #}
       <p><strong>A la fecha de: <i>{% now "d/m/Y" %}</i></strong></p>
     </div>
-<hr>
+    <hr class="my-5">
 
     {% if materiales %}
     <h2>Lista de Materiales</h2>
@@ -60,7 +60,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
       
     {% if manoobra %}
@@ -88,7 +88,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
       
     {% if herramienta %}
@@ -116,7 +116,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
       
     {% if equipo %}
@@ -146,7 +146,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
       
     {% if riesgo %}
@@ -174,7 +174,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
       
     {% if calidad %}
@@ -206,7 +206,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
       
     {% if ambiental %}
@@ -236,7 +236,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
       
     {% if hidrologica %}
@@ -266,7 +266,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
+      </div><br>
     {% endif %}
   </body>
 </html>
