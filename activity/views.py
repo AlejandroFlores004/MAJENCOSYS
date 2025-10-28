@@ -6,9 +6,10 @@ from django.db.models import Prefetch, Count, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
 from catalog.models import Material, ManoObra
 from django.contrib.auth.decorators import login_required
-from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet, MemoryManoObraFormSet, MemoryHerramientaFormSet, MemoryEquipoFormSet, MemoryRiesgosFormSet, MemoryCalidadFormSet, MemoryAmbientalFormSet,MemoryHidrologicaFormSet, MemoryHidrologica
+from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet, MemoryManoObraFormSet, MemoryHerramientaFormSet, MemoryEquipoFormSet, MemoryRiesgosFormSet, MemoryCalidadFormSet, MemoryAmbientalFormSet,MemoryHidrologicaFormSet, MemoryHidrologica, ScheduleForm
 from django.contrib import messages
 from django.db import transaction
+from schedule.models import schedule
 
 
 # Create your views here.
@@ -86,64 +87,93 @@ def mainActivy(request, pk):
 @login_required(login_url='log')
 def crearActivity(request, pk):
     project = get_object_or_404(Project, pk=pk)
-
-    # Preasignamos el proyecto a la instancia (no tiene PK todavía)
     activity = Activity(project=project)
 
     if request.method == "POST":
         form = ActivityForm(request.POST, instance=activity)
         formset = HeaderFormSet(request.POST, instance=activity, prefix="headers")
-        if form.is_valid() and formset.is_valid():
-            # Guarda la actividad para que tenga PK
-            activity = form.save()
-            # Guarda encabezados ligados a esa actividad
-            formset.instance = activity
-            formset.save()
-            messages.success(request, "Actividad creada correctamente.")
-            # Ajusta el redirect a tu vista de detalle/listado
-            return redirect("mainAcivity", pk=project.pk)
+        # 👇 inyecta la activity en la instancia del form ANTES de validar
+        schedule_form = ScheduleForm(request.POST, instance=schedule(activity=activity), prefix="schedule")
+
+        if form.is_valid() and formset.is_valid() and schedule_form.is_valid():
+            try:
+                with transaction.atomic():
+                    activity = form.save()
+                    formset.instance = activity
+                    formset.save()
+
+                    sched = schedule_form.save(commit=False)
+                    # (ya viene con activity, pero por si acaso:)
+                    if sched.activity_id is None:
+                        sched.activity = activity
+                    sched.save()
+
+                messages.success(request, "Actividad y cronograma creados correctamente.")
+                return redirect("mainAcivity", pk=project.pk)
+            except Exception:
+                form.add_error(None, "No se pudo guardar la actividad y/o el cronograma. Verifique los datos.")
     else:
         form = ActivityForm(instance=activity)
         formset = HeaderFormSet(instance=activity, prefix="headers")
+        schedule_form = ScheduleForm(instance=schedule(activity=activity), prefix="schedule")  # opcional, para precargar
 
-    ctx = {
+    return render(request, "formActivity.html", {
         "project": project,
         "form": form,
         "formset": formset,
-    }
-    return render(request, "formActivity.html", ctx)
+        "schedule_form": schedule_form,
+        "is_edit": False,
+    })
+
+
 
 @login_required(login_url='log')
 def editarActivity(request, pk, activity_id):
-    """
-    Edita una Activity y sus Headers (inline formset) usando el MISMO template formActivity.html
-    """
     project = get_object_or_404(Project, pk=pk)
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
+    # Traer schedule existente si hay; si no, None para permitir crearlo
+    existing_schedule = schedule.objects.filter(activity=activity).first()
+    schedule_form = ScheduleForm(
+        request.POST or None,
+        instance=existing_schedule,   # <-- importante
+        prefix="schedule",
+    )
 
     if request.method == "POST":
         form = ActivityForm(request.POST, instance=activity)
         formset = HeaderFormSet(request.POST, instance=activity, prefix="headers")
-        if form.is_valid() and formset.is_valid():
+        schedule_form = ScheduleForm(request.POST, instance=existing_schedule, prefix="schedule")
+
+        if form.is_valid() and formset.is_valid() and schedule_form.is_valid():
             try:
                 with transaction.atomic():
                     form.save()
                     formset.save()
-                messages.success(request, "Actividad actualizada correctamente.")
+
+                    sched = schedule_form.save(commit=False)
+                    # Si no existía, ligarlo
+                    if sched.activity_id is None:
+                        sched.activity = activity
+                    sched.save()
+
+                messages.success(request, "Actividad y cronograma actualizados correctamente.")
                 return redirect("mainAcivity", pk=project.pk)
-            except Exception as e:
-                # Blindaje extra por si se colara algún error de integridad
-                form.add_error(None, "No se pudo guardar la actividad. Verifica los datos.")
+
+            except Exception:
+                form.add_error(None, "No se pudo guardar la actividad y/o el cronograma. Verifique los datos.")
     else:
         form = ActivityForm(instance=activity)
         formset = HeaderFormSet(instance=activity, prefix="headers")
+        schedule_form = ScheduleForm(instance=existing_schedule, prefix="schedule")
 
     ctx = {
         "project": project,
         "form": form,
         "formset": formset,
-        "activity": activity,   # por si quieres mostrar info en el template
-        "is_edit": True,        # flag opcional para cambiar textos en la UI
+        "schedule_form": schedule_form,
+        "activity": activity,
+        "is_edit": True,
     }
     return render(request, "formActivity.html", ctx)
 

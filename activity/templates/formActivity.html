@@ -15,20 +15,24 @@
       <form method="post" novalidate>
         {% csrf_token %}
 
-        {# Errores generales del form principal #}
+        {# Errores generales #}
         {% if form.non_field_errors %}
           <div class="alert alert-danger small mb-3">
             {{ form.non_field_errors }}
           </div>
         {% endif %}
-
-        {# Errores generales del formset (duplicados, etc.) #}
         {% if formset.non_form_errors %}
           <div class="alert alert-danger small mb-3">
             {{ formset.non_form_errors }}
           </div>
         {% endif %}
+        {% if schedule_form.non_field_errors %}
+          <div class="alert alert-danger small mb-3">
+            {{ schedule_form.non_field_errors }}
+          </div>
+        {% endif %}
 
+        {# Nombre de la actividad #}
         <div class="mb-4">
           <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
           {{ form.name }}
@@ -44,6 +48,55 @@
 
         <hr class="my-4">
 
+        {# --- SECCIÓN CRONOGRAMA --- #}
+        <div class="mb-2 d-flex align-items-center justify-content-between">
+          <h5 class="mb-0">Cronograma</h5>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label for="{{ schedule_form.start_date.id_for_label }}" class="form-label">Fecha de inicio</label>
+            {{ schedule_form.start_date }}
+            {% if schedule_form.start_date.errors %}
+              <div class="invalid-feedback d-block small">
+                {{ schedule_form.start_date.errors|join:", " }}
+              </div>
+            {% endif %}
+            {% if schedule_form.start_date.help_text %}
+              <div class="form-text small">{{ schedule_form.start_date.help_text }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label for="{{ schedule_form.end_date.id_for_label }}" class="form-label">Fecha de fin</label>
+            {{ schedule_form.end_date }}
+            {% if schedule_form.end_date.errors %}
+              <div class="invalid-feedback d-block small">
+                {{ schedule_form.end_date.errors|join:", " }}
+              </div>
+            {% endif %}
+            {% if schedule_form.end_date.help_text %}
+              <div class="form-text small">{{ schedule_form.end_date.help_text }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label for="{{ schedule_form.status.id_for_label }}" class="form-label">Estado</label>
+            {{ schedule_form.status }}
+            {% if schedule_form.status.errors %}
+              <div class="invalid-feedback d-block small">
+                {{ schedule_form.status.errors|join:", " }}
+              </div>
+            {% endif %}
+            {% if schedule_form.status.help_text %}
+              <div class="form-text small">{{ schedule_form.status.help_text }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        {# --- SECCIÓN ENCABEZADOS --- #}
         <div class="d-flex align-items-center justify-content-between mb-2">
           <h5 class="mb-0">Encabezados</h5>
           <button type="button" class="btn btn-sm btn-primary" id="add-header">
@@ -139,5 +192,6 @@
     </div>
   </div>
 </div>
+
 <script src="{% static 'js/scriptsActivity.js' %}"></script>
 {% endblock content %}
