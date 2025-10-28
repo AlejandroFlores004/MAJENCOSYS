@@ -37,8 +37,6 @@ class schedule(models.Model):
     activity = models.ForeignKey(
         Activity,
         on_delete=models.CASCADE,
-        null=False,
-        blank=False,
         related_name="schedule_activity",
         verbose_name="Actividad",
         help_text="Referencia a la actividad que pertenecen"
@@ -56,6 +54,10 @@ class schedule(models.Model):
             models.CheckConstraint(
                 check=Q(end_date__gte=F("start_date")),
                 name="schedule_end_gte_start",
+            ),
+            models.UniqueConstraint(
+                fields=["activity"],
+                name="unique_schedule_per_activity",
             ),
         ]
 
@@ -88,6 +90,18 @@ class schedule(models.Model):
         # 3) (Opcional) Si el estado es FINALIZADO, exige que end_date sea hoy o anterior
         if self.status == self.Status.FINALIZADO and self.end_date > timezone.localdate():
             raise ValidationError({"status": "No puede marcarse como Finalizado si la fecha de fin es posterior a hoy."})
+        
+        # 4️) Validar que una actividad no tenga más de un cronograma
+        existe_otro = (
+            schedule.objects
+            .filter(activity=self.activity)
+            .exclude(pk=self.pk)  # excluye el actual en caso de edición
+            .exists()
+        )
+        if existe_otro:
+            raise ValidationError({
+                "activity": "Esta actividad ya tiene un cronograma asignado. No puede registrarse nuevamente."
+            })
 
     # Asegura que se validen reglas antes de guardar
     def save(self, *args, **kwargs):

@@ -1,0 +1,82 @@
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+<style>
+  #calendar {
+    min-height: 680px;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: .75rem;
+    padding: .5rem;
+    background: var(--bs-body-bg);
+  }
+  .fc .fc-toolbar-title { font-size: 1.15rem; }
+  .fc .fc-daygrid-event { cursor: pointer; }
+  .fc .fc-daygrid-day.fc-day-today { background: rgba(13,110,253,.08); }
+  .legend-dot {
+    display:inline-block; width:.75rem; height:.75rem; border-radius:50%; margin-right:.35rem;
+    vertical-align:middle;
+  }
+</style>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+      <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i> Calendario del proyecto</h5>
+      <div class="small text-muted d-flex gap-3 flex-wrap">
+        <span><span class="legend-dot" style="background:#6c757d"></span>Planeado</span>
+        <span><span class="legend-dot" style="background:#ffc107"></span>En proceso</span>
+        <span><span class="legend-dot" style="background:#198754"></span>Finalizado</span>
+        <span><span class="legend-dot" style="background:#0d6efd"></span>Nota</span>
+      </div>
+    </div>
+    <div id="calendar"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      height: 'auto',
+      themeSystem: 'bootstrap5',
+      locale: 'es',
+      timeZone: 'local',
+      firstDay: 1,
+      headerToolbar: { left:'prev,next today', center:'title', right:'dayGridMonth,timeGridWeek,listWeek' },
+      navLinks: true,
+      nowIndicator: true,
+      eventTimeFormat: { hour:'2-digit', minute:'2-digit', meridiem:false },
+      displayEventEnd: true,
+
+      // Eventos desde tu API
+      events: {
+        url: "{% url 'project_schedule_events' project.id %}",
+        failure: function() {
+          console.warn('No se pudieron cargar eventos.');
+        }
+      },
+
+      // 🔹 Al hacer clic: redirigir a la URL del evento (editarActivity)
+      eventClick: function(info){
+        info.jsEvent.preventDefault();
+        const url = info.event.extendedProps?.url;
+        if (url && url !== '#') {
+          window.location.href = url; // Redirección
+        }
+      },
+
+      eventDidMount: function(info){
+        const desc = info.event.extendedProps?.description;
+        if (desc) { info.el.setAttribute('title', desc.replace(/<[^>]*>/g, '')); }
+      }
+    });
+
+    calendar.render();
+  });
+})();
+</script>

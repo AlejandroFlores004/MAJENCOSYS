@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views    
-from .views import startpage, dashboard, loginPage, database_tools, download_backup, userInfo, logoutUser, dashboardProject
+from .views import startpage, dashboard, loginPage, database_tools, download_backup, userInfo, logoutUser, dashboardProject, project_schedule_events
 from .forms import CustomSetPasswordForm,CustomPasswordResetForm
 
 urlpatterns = [
@@ -16,6 +16,7 @@ urlpatterns = [
     path('admon_project',include('project.urls'),name='project'),
     path('usuario_informacion', userInfo, name="infoUser"),
     path('dashboard/project/<int:pk>/', dashboardProject, name='dashboardProject'),
+    path('projects/<int:pk>/calendar/events/', project_schedule_events, name='project_schedule_events'),
     path('dashboard/project/<int:pk>/catalgos/',include('catalog.urls') , name='dashboardProject'),
     path('dashboard/project/<int:pk>/actividades/',include('activity.urls'), name="dashboardProject"),
     path('dashboard/project/<int:pk>/reportes/',include('reporte.urls'), name="reportes"),

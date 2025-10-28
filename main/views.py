@@ -1,20 +1,32 @@
 import os
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta, date
+
 from django.conf import settings
-from django.http import HttpResponse, FileResponse
-from django.shortcuts import render,redirect, get_object_or_404
-from django.contrib.auth import login,logout, authenticate
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
-from .forms import UserRegistrationForm
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count, Prefetch, Q
+from django.http import HttpResponse, FileResponse, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+
+from .forms import UserRegistrationForm
 from project.models import Project
 from activity.models import Activity, Header
-from catalog.models import Material, ManoObra, Equipo, Herramienta, Riesgo, Calidad, Ambiental, Hidrologica
-from django.core.paginator import Paginator
-from django.db.models import Count, Prefetch
+from catalog.models import (
+    Material,
+    ManoObra,
+    Equipo,
+    Herramienta,
+    Riesgo,
+    Calidad,
+    Ambiental,
+    Hidrologica,
+)
+from schedule.models import schedule
+
 
 
 # Create your views here.
@@ -145,6 +157,76 @@ def dashboardProject(request, pk):
         "quiantyHidrologica": countHidrologica,
     }
     return render(request, 'dashboardProject.html', context)
+
+
+def _parse_date(value: str) -> date | None:
+    try:
+        return date.fromisoformat(value[:10])  # 'YYYY-MM-DD...' -> date
+    except Exception:
+        return None
+
+def _status_color(code: str) -> str:
+    # P=Planeado, E=Ejecutando, F=Finalizado
+    return {
+        'P': '#6c757d',  # gris
+        'E': '#ffc107',  # amarillo
+        'F': '#198754',  # verde
+    }.get(code, '#0d6efd')  # fallback azul
+
+@login_required(login_url='log')
+def project_schedule_events(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    # Rangos que envía FullCalendar (opcional, pero recomendado)
+    start_qs = _parse_date(request.GET.get('start', ''))
+    end_qs   = _parse_date(request.GET.get('end', ''))
+
+    qs = (
+        schedule.objects
+        .filter(activity__project=project)
+        .select_related('activity')
+        .only('id', 'start_date', 'end_date', 'status', 'activity_id')
+        .order_by('start_date', 'id')
+    )
+
+    # Filtrado por rango: traer cualquier schedule que toque la ventana
+    if start_qs and end_qs:
+        qs = qs.filter(
+            Q(start_date__lte=end_qs) & Q(end_date__gte=start_qs)
+        )
+
+    events = []
+    for s in qs:
+        # Como son DateField y se mostrarán "allDay", FullCalendar espera end EXCLUSIVO.
+        # Sumamos +1 día para que el rango sea inclusivo en UI.
+        end_exclusive = s.end_date + timedelta(days=1)
+
+        # (Opcional) link a algún detalle de actividad o cronograma
+        # Ajusta a tu URL real (ej. 'memoryMananer' ya lo vi en tu proyecto)
+        try:
+            detail_url = reverse('memoryMananer', args=[project.pk, s.activity.pk])
+        except Exception:
+            detail_url = '#'
+
+        color = _status_color(s.status)
+
+        events.append({
+            "id": s.id,
+            "title": s.activity.name,  # Título del evento (nota en el calendario)
+            "start": s.start_date.isoformat(),
+            "end": end_exclusive.isoformat(),
+            "allDay": True,
+            "backgroundColor": color,
+            "borderColor": color,
+            "extendedProps": {
+                "status": s.get_status_display(),
+                "author": "",  # si luego quieres incluir usuario creador, etc.
+                "description": f"{s.get_status_display()} · {s.start_date} → {s.end_date}",
+                "url": detail_url,
+            },
+        })
+
+    return JsonResponse(events, safe=False)
 # ------ Herramientas de base de datos (Backup y Restore) ------
 def admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
