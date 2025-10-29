@@ -4,6 +4,8 @@ from .models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerr
 from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
 from project.models import Project
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from schedule.models import schedule
 
 class ActivityForm(forms.ModelForm):
     class Meta:
@@ -71,6 +73,43 @@ HeaderFormSet = inlineformset_factory(
     fk_name="activity",
 )
 
+class ScheduleForm(forms.ModelForm):
+    class Meta:
+        model = schedule
+        fields = ["start_date", "end_date", "status"]
+        widgets = {
+            "start_date": forms.DateInput(
+                format="%Y-%m-%d",
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                    "min": timezone.localdate().isoformat(),
+                },
+            ),
+            "end_date": forms.DateInput(
+                format="%Y-%m-%d",
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                    "min": timezone.localdate().isoformat(),
+                },
+            ),
+            "status": forms.Select(attrs={"class": "form-select"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Mantener los campos como <input type="date"> y aceptar ISO
+        self.fields["start_date"].input_formats = ["%Y-%m-%d"]
+        self.fields["end_date"].input_formats = ["%Y-%m-%d"]
+
+        # Asegurar que al editar se muestren con el formato correcto
+        if getattr(self.instance, "pk", None):
+            if self.instance.start_date:
+                self.initial["start_date"] = self.instance.start_date.strftime("%Y-%m-%d")
+            if self.instance.end_date:
+                self.initial["end_date"] = self.instance.end_date.strftime("%Y-%m-%d")
 class MemoryMaterialForm(forms.ModelForm):
     def __init__(self, *args, project=None, **kwargs):
         super().__init__(*args, **kwargs)

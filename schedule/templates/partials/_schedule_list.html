@@ -1,7 +1,7 @@
 <section class="container py-3" id="cronograma">
   <!-- Barra superior -->
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h4 class="mb-0">Actividades del proyecto</h4>
+    <h4 class="mb-0">Cronograma por actividad</h4>
 
     <div class="d-flex flex-wrap gap-2 align-items-center">
       {# Buscar por nombre de actividad #}
@@ -141,13 +141,13 @@
     {% endfor %}
   </div>
 
-      <!-- Pie con paginación -->
-      {% if activities_page %}
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 small text-muted">
-          <div>
-            Mostrando {{ activities_page.start_index }}–{{ activities_page.end_index }} de {{ paginator_activities.count }}
-            {% if q %} para “{{ q }}”{% endif %}
-          </div>
+  <!-- Pie con paginación -->
+  {% if activities_page %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 small text-muted">
+      <div>
+        Mostrando {{ activities_page.start_index }}–{{ activities_page.end_index }} de {{ paginator_activities.count }}
+        {% if q %} para “{{ q }}”{% endif %}
+      </div>
 
       {% if is_paginated_activities %}
         <nav aria-label="Paginación de cronograma">
@@ -160,61 +160,59 @@
               {% endif %}
             </li>
 
-                <li class="page-item {% if not activities_page.has_previous %}disabled{% endif %}">
-                  {% if activities_page.has_previous %}
-                    <a class="page-link" href="?page={{ activities_page.previous_page_number }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">‹</a>
+            <li class="page-item {% if not activities_page.has_previous %}disabled{% endif %}">
+              {% if activities_page.has_previous %}
+                <a class="page-link" href="?page={{ activities_page.previous_page_number }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">‹</a>
+              {% else %}
+                <span class="page-link">‹</span>
+              {% endif %}
+            </li>
+
+            {% for num in activities_page.paginator.page_range %}
+              {% if num >= activities_page.number|add:'-2' and num <= activities_page.number|add:'2' %}
+                <li class="page-item {% if num == activities_page.number %}active{% endif %}">
+                  {% if num == activities_page.number %}
+                    <span class="page-link">{{ num }}</span>
                   {% else %}
-                    <span class="page-link">‹</span>
+                    <a class="page-link" href="?page={{ num }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ num }}</a>
                   {% endif %}
                 </li>
+              {% endif %}
+            {% endfor %}
 
-                {% for num in activities_page.paginator.page_range %}
-                  {% if num >= activities_page.number|add:'-2' and num <= activities_page.number|add:'2' %}
-                    <li class="page-item {% if num == activities_page.number %}active{% endif %}">
-                      {% if num == activities_page.number %}
-                        <span class="page-link">{{ num }}</span>
-                      {% else %}
-                        <a class="page-link" href="?page={{ num }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ num }}</a>
-                      {% endif %}
-                    </li>
-                  {% endif %}
-                {% endfor %}
+            <li class="page-item {% if not activities_page.has_next %}disabled{% endif %}">
+              {% if activities_page.has_next %}
+                <a class="page-link" href="?page={{ activities_page.next_page_number }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">›</a>
+              {% else %}
+                <span class="page-link">›</span>
+              {% endif %}
+            </li>
 
-                <li class="page-item {% if not activities_page.has_next %}disabled{% endif %}">
-                  {% if activities_page.has_next %}
-                    <a class="page-link" href="?page={{ activities_page.next_page_number }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">›</a>
-                  {% else %}
-                    <span class="page-link">›</span>
-                  {% endif %}
-                </li>
-
-                <li class="page-item {% if not activities_page.has_next %}disabled{% endif %}">
-                  {% if activities_page.has_next %}
-                    <a class="page-link" href="?page={{ paginator_activities.num_pages }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">»</a>
-                  {% else %}
-                    <span class="page-link">»</span>
-                  {% endif %}
-                </li>
-              </ul>
-            </nav>
-          {% endif %}
-        </div>
-      {% else %}
-        <div class="text-center text-muted py-4 w-100">
-          {% if q %}
-            No se encontraron actividades con el nombre “{{ q }}”.
-            <div class="mt-2">
-              <a class="btn btn-sm btn-outline-dark" href="?per_page={{ per_page_activities }}">
-                Limpiar búsqueda
-              </a>
-            </div>
-          {% else %}
-            No hay actividades registradas para este proyecto.
-          {% endif %}
-        </div>
+            <li class="page-item {% if not activities_page.has_next %}disabled{% endif %}">
+              {% if activities_page.has_next %}
+                <a class="page-link" href="?page={{ paginator_activities.num_pages }}&per_page={{ per_page_activities }}{% if q %}&q={{ q|urlencode }}{% endif %}">»</a>
+              {% else %}
+                <span class="page-link">»</span>
+              {% endif %}
+            </li>
+          </ul>
+        </nav>
       {% endif %}
     </div>
-  </div>
+  {% else %}
+    <div class="text-center text-muted py-4 w-100">
+      {% if q %}
+        No se encontraron actividades con el nombre “{{ q }}”.
+        <div class="mt-2">
+          <a class="btn btn-sm btn-outline-dark" href="?per_page={{ per_page_activities }}">
+            Limpiar búsqueda
+          </a>
+        </div>
+      {% else %}
+        No hay actividades registradas para este proyecto.
+      {% endif %}
+    </div>
+  {% endif %}
 </section>
 
 {# Script para los botones de colapso #}

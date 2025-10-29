@@ -25,6 +25,7 @@
           <option value="calidad">Control de calidad</option>
           <option value="ambiental">Control Ambiental</option>
           <option value="hidrologica">Pruebas Hidrológicas</option>
+          <option value="schedule">Cronograma</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary">
@@ -60,6 +61,43 @@
         {% endfor %}
       </div>
       {% endif %}
+
+      {# ====================== CRONOGRAMA (SOLO FECHAS Y ESTADO) ====================== #}
+      {% if schedules %}
+      <hr>
+      <div class="mb-3">
+        <h6 class="mb-2">
+          <i class="bi bi-calendar-event me-1"></i> Cronograma de la actividad
+        </h6>
+
+        <div class="row g-3">
+          {% for s in schedules %}
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 bg-light h-100">
+              <div class="fw-semibold text-muted small mb-1">
+                Estado:
+                {% if s.status == 'P' %}
+                  <span class="badge bg-secondary">{{ s.get_status_display }}</span>
+                {% elif s.status == 'E' %}
+                  <span class="badge bg-info text-dark">{{ s.get_status_display }}</span>
+                {% elif s.status == 'F' %}
+                  <span class="badge bg-success">{{ s.get_status_display }}</span>
+                {% else %}
+                  <span class="badge bg-light text-muted">{{ s.get_status_display }}</span>
+                {% endif %}
+              </div>
+              <div class="text-muted small">
+                Fecha de inicio: <span class="fw-semibold">{{ s.start_date|date:"d/m/Y" }}</span><br>
+                Fecha de fin: <span class="fw-semibold">{{ s.end_date|date:"d/m/Y" }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      {# ==================== FIN CRONOGRAMA ==================== #}
+
     </div>
   </div>
 
@@ -229,14 +267,14 @@
     const accion = document.getElementById('accionMemoria').value;
     let destino = "#";
     switch (accion) {
-      case "materiales": destino = "{% url "memoryMateriales" project.id activity.id %}"; break;
-      case "mano_obra": destino = "{% url "memoryManoObra" project.id activity.id %}"; break;
-      case "herramientas": destino = "{% url "memoryHerramienta" project.id activity.id %}"; break;
-      case "equipo": destino = "{% url "memoryEquipo" project.id activity.id %}"; break;
-      case "riesgo": destino = "{% url "memoryRiesgos" project.id activity.id %}"; break;
-      case "calidad": destino = "{% url "memoryCalidad" project.id activity.id %}"; break;
-      case "ambiental": destino = "{% url "memoryAmbiental" project.id activity.id %}"; break;
-      case "hidrologica": destino = "{% url "memoryHidrologica" project.id activity.id %}"; break;
+      case "materiales": destino = "{% url 'memoryMateriales' project.id activity.id %}"; break;
+      case "mano_obra": destino = "{% url 'memoryManoObra' project.id activity.id %}"; break;
+      case "herramientas": destino = "{% url 'memoryHerramienta' project.id activity.id %}"; break;
+      case "equipo": destino = "{% url 'memoryEquipo' project.id activity.id %}"; break;
+      case "riesgo": destino = "{% url 'memoryRiesgos' project.id activity.id %}"; break;
+      case "calidad": destino = "{% url 'memoryCalidad' project.id activity.id %}"; break;
+      case "ambiental": destino = "{% url 'memoryAmbiental' project.id activity.id %}"; break;
+      case "hidrologica": destino = "{% url 'memoryHidrologica' project.id activity.id %}"; break;
     }
     window.location.href = destino;
   }
@@ -260,7 +298,6 @@
     }
 
     tabs.forEach(btn => btn.addEventListener('click', () => activate(btn.getAttribute('data-target'))));
-    // Pestaña "Todos" activa por defecto
     activate("#pane-todos");
   })();
 </script>
