@@ -177,13 +177,8 @@ def editarActivity(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
 
-    # Traer schedule existente si hay; si no, None para permitir crearlo
+    # Traer schedule existente si hay
     existing_schedule = schedule.objects.filter(activity=activity).first()
-    schedule_form = ScheduleForm(
-        request.POST or None,
-        instance=existing_schedule,   # <-- importante
-        prefix="schedule",
-    )
 
     if request.method == "POST":
         form = ActivityForm(request.POST, instance=activity)
@@ -197,12 +192,17 @@ def editarActivity(request, pk, activity_id):
                     formset.save()
 
                     sched = schedule_form.save(commit=False)
-                    # Si no existía, ligarlo
+
+                    # 👇 Forzar estado a PLANEADO en cada edición
+                    sched.status = schedule.Status.PLANEADO
+
+                    # Si no existía, ligarlo a la actividad
                     if sched.activity_id is None:
                         sched.activity = activity
+
                     sched.save()
 
-                messages.success(request, "Actividad y cronograma actualizados correctamente.")
+                messages.success(request, "Actividad y cronograma actualizados correctamente (estado forzado a Planeado).")
                 return redirect("mainAcivity", pk=project.pk)
 
             except Exception:
@@ -210,7 +210,13 @@ def editarActivity(request, pk, activity_id):
     else:
         form = ActivityForm(instance=activity)
         formset = HeaderFormSet(instance=activity, prefix="headers")
+
+        # Opcional: mostrar en el formulario el estado preseleccionado como Planeado al entrar a editar
         schedule_form = ScheduleForm(instance=existing_schedule, prefix="schedule")
+        try:
+            schedule_form.fields["status"].initial = schedule.Status.PLANEADO
+        except Exception:
+            pass
 
     ctx = {
         "project": project,

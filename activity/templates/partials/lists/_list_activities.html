@@ -121,14 +121,23 @@
               <a href="#" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-eye"></i> Ver
               </a>
-              <a href="{% url 'memoryMananer' project.id ac.id %}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-calculator"></i> Memorias
-              </a>
-              <a href="{% url 'editarActivity' project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-pencil"></i> Editar
-              </a>
+
+              {% if sch and sch.status == 'F' %}
+                <a class="btn btn-sm btn-outline-primary disabled" tabindex="-1" aria-disabled="true" title="Actividad finalizada">
+                  <i class="bi bi-calculator"></i> Memorias
+                </a>
+                <a class="btn btn-sm btn-outline-secondary disabled" tabindex="-1" aria-disabled="true" title="Actividad finalizada">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+              {% else %}
+                <a href="{% url 'memoryMananer' project.id ac.id %}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-calculator"></i> Memorias
+                </a>
+                <a href="{% url 'editarActivity' project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+              {% endif %}
             </div>
-          </div>
 
           <div class="mt-auto"></div>
         </div>
