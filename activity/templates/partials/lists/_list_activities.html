@@ -1,19 +1,18 @@
-<section class="container py-3" id="actividades">
+<section class="container py-3" id="cronograma">
   <!-- Barra superior -->
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h4 class="mb-0">Actividades</h4>
+    <h4 class="mb-0">Actividades del proyecto</h4>
 
     <div class="d-flex flex-wrap gap-2 align-items-center">
-      {# Buscar por nombre #}
+      {# Buscar por nombre de actividad #}
       <form method="get" class="d-flex align-items-center gap-2">
         <input
           type="text"
           name="q"
           value="{{ q }}"
           class="form-control form-control-sm"
-          placeholder="Buscar por nombre..."
+          placeholder="Buscar actividad..."
         >
-        {# Conserva per_page al buscar #}
         <input type="hidden" name="per_page" value="{{ per_page_activities }}">
         <button class="btn btn-sm btn-outline-secondary" type="submit">
           <i class="bi bi-search"></i> Buscar
@@ -39,62 +38,82 @@
         {% endif %}
       </form>
 
-      <a href="{% url "crearActivity" project.id %}" class="btn btn-sm btn-primary">
+      <a href="{% url 'crearActivity' project.id %}" class="btn btn-sm btn-primary">
         <i class="bi bi-plus-lg"></i> Nueva actividad
       </a>
     </div>
   </div>
 
-  <!-- Lista vertical de actividades -->
+  <!-- Lista -->
   <div class="vstack gap-3">
     {% for ac in activities_page %}
+      {% with sch=ac.schedule_activity.all|first %}
       <div class="card h-100 border-0 shadow-sm w-100">
         <div class="card-body d-flex flex-column">
           <div class="d-flex justify-content-between align-items-start gap-3">
             <div class="flex-grow-1">
-              <h5 class="mb-2">{{ ac.name }}</h5>
+              <h5 class="mb-1">{{ ac.name }}</h5>
 
-              <button
-                class="btn btn-sm btn-outline-primary mb-2"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#activityDetail{{ ac.id }}"
-                aria-expanded="false"
-                aria-controls="activityDetail{{ ac.id }}"
-              >
-                <i class="bi bi-chevron-down"></i> Ver detalles
-              </button>
+              {% if sch %}
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <span class="badge
+                    {% if sch.status == 'P' %} bg-secondary
+                    {% elif sch.status == 'E' %} bg-primary
+                    {% elif sch.status == 'F' %} bg-success
+                    {% else %} bg-dark
+                    {% endif %}">
+                    {{ sch.get_status_display }}
+                  </span>
+                  <span class="text-muted small">
+                    {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
+                  </span>
+                </div>
 
-              <!-- Detalles -->
-              <div class="collapse" id="activityDetail{{ ac.id }}">
-                <div class="row g-3">
-                  <!-- Encabezados -->
-                  <div class="col-12">
-                    <div class="card border-0 bg-light-subtle">
-                      <div class="card-body py-2">
-                        <h6 class="mb-2 d-flex align-items-center gap-2">
-                          <i class="bi bi-journal-text"></i> Encabezados
-                        </h6>
+                <button
+                  class="btn btn-sm btn-outline-primary mt-2"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#activityDetail{{ ac.id }}"
+                  aria-expanded="false"
+                  aria-controls="activityDetail{{ ac.id }}"
+                >
+                  <i class="bi bi-chevron-down"></i> Ver detalles
+                </button>
 
-                        {% with headers=ac.header_activity.all %}
-                          {% if headers %}
-                            <ul class="list-group list-group-flush">
-                              {% for h in headers %}
-                                <li class="list-group-item px-0 bg-transparent">
-                                  <span class="fw-bold text-dark">{{ h.name }}:</span>
-                                  <span class="text-muted ms-1">{{ h.content }}</span>
-                                </li>
-                              {% endfor %}
-                            </ul>
-                          {% else %}
-                            <div class="text-muted small">Sin información adicional para esta actividad.</div>
-                          {% endif %}
-                        {% endwith %}
+                <div class="collapse" id="activityDetail{{ ac.id }}">
+                  <div class="row g-3 mt-1">
+                    <div class="col-12">
+                      <div class="card border-0 bg-light-subtle">
+                        <div class="card-body py-2">
+                          <div class="small text-muted">
+                            <i class="bi bi-calendar2"></i>
+                            Creado: {{ sch.created_at|date:"d/m/Y H:i" }} ·
+                            Actualizado: {{ sch.updated_at|date:"d/m/Y H:i" }}
+                          </div>
+                          {% with headers=ac.header_activity.all %}
+                            {% if headers %}
+                              <hr class="my-2">
+                              <h6 class="mb-2 d-flex align-items-center gap-2">
+                                <i class="bi bi-journal-text"></i> Encabezados
+                              </h6>
+                              <ul class="list-group list-group-flush">
+                                {% for h in headers %}
+                                  <li class="list-group-item px-0 bg-transparent">
+                                    <span class="fw-bold text-dark">{{ h.name }}:</span>
+                                    <span class="text-muted ms-1">{{ h.content }}</span>
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% endif %}
+                          {% endwith %}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              {% else %}
+                <div class="text-muted small">Sin cronograma para esta actividad.</div>
+              {% endif %}
             </div>
 
             <!-- Acciones -->
@@ -102,10 +121,10 @@
               <a href="#" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-eye"></i> Ver
               </a>
-              <a href="{% url "memoryMananer" project.id ac.id %}" class="btn btn-sm btn-outline-primary">
+              <a href="{% url 'memoryMananer' project.id ac.id %}" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-calculator"></i> Memorias
               </a>
-              <a href="{% url "editarActivity" project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
+              <a href="{% url 'editarActivity' project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-pencil"></i> Editar
               </a>
             </div>
@@ -114,6 +133,7 @@
           <div class="mt-auto"></div>
         </div>
       </div>
+      {% endwith %}
     {% empty %}
       <div class="text-center text-muted py-4 w-100">
         No hay actividades registradas para este proyecto.
@@ -130,7 +150,7 @@
       </div>
 
       {% if is_paginated_activities %}
-        <nav aria-label="Paginación de actividades">
+        <nav aria-label="Paginación de cronograma">
           <ul class="pagination pagination-sm mb-0">
             <li class="page-item {% if not activities_page.has_previous %}disabled{% endif %}">
               {% if activities_page.has_previous %}
@@ -195,6 +215,7 @@
   {% endif %}
 </section>
 
+{# Script para los botones de colapso #}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('[data-bs-toggle="collapse"]').forEach((btn) => {

@@ -1,16 +1,31 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from project.models import Project
-from .models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental
-from django.db.models import Prefetch, Count, Sum, Value, DecimalField
-from django.db.models.functions import Coalesce
-from catalog.models import Material, ManoObra
-from django.contrib.auth.decorators import login_required
-from .forms import ActivityForm, HeaderFormSet, MemoryMaterialFormSet, MemoryManoObraFormSet, MemoryHerramientaFormSet, MemoryEquipoFormSet, MemoryRiesgosFormSet, MemoryCalidadFormSet, MemoryAmbientalFormSet,MemoryHidrologicaFormSet, MemoryHidrologica, ScheduleForm
+# Librerías estándar
+from django.shortcuts import get_object_or_404, redirect, render
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from schedule.models import schedule
+from django.db.models import (
+    Case, Count, DecimalField, DurationField, ExpressionWrapper,
+    F, IntegerField, Prefetch, Sum, Value, When
+)
+from django.db.models.functions import Coalesce
+from django.utils import timezone
+from django.db.models.functions import Abs
 
+# Modelos del proyecto
+from project.models import Project
+from schedule.models import schedule
+from .models import (
+    Activity, Header, MemoryAmbiental, MemoryCalidad, MemoryEquipo,
+    MemoryHerramienta, MemoryManoObra, MemoryMaterial, MemoryRiesgos
+)
+
+# Formularios del módulo actual
+from .forms import (
+    ActivityForm, HeaderFormSet, MemoryAmbientalFormSet, MemoryCalidadFormSet,
+    MemoryEquipoFormSet, MemoryHerramientaFormSet, MemoryHidrologica, MemoryHidrologicaFormSet,
+    MemoryManoObraFormSet, MemoryMaterialFormSet, MemoryRiesgosFormSet, ScheduleForm
+)
 
 # Create your views here.
 @login_required(login_url='log')
@@ -26,17 +41,18 @@ def mainActivy(request, pk):
     if q:
         base_qs = base_qs.filter(name__icontains=q)
 
+    today = timezone.localdate()
+
     qs = (
         base_qs
         .annotate(
-            # Materiales
+            # --- TUS ANOTACIONES ---
             mm_rows=Count('memoryMaterial_activity', distinct=True),
             mm_qty=Coalesce(
                 Sum('memoryMaterial_activity__quantity'),
                 Value(0),
                 output_field=DecimalField(max_digits=12, decimal_places=2)
             ),
-            # Mano de obra (usar related_name y campos correctos)
             mmo_rows=Count('MemoryManoObra_activity', distinct=True),
             mmo_prestaciones=Coalesce(
                 Sum('MemoryManoObra_activity__prestaciones'),
@@ -48,8 +64,37 @@ def mainActivy(request, pk):
                 Value(0),
                 output_field=DecimalField(max_digits=12, decimal_places=2)
             ),
+
+            # --- ORDEN POR PROXIMIDAD A HOY ---
+            # Trae la fecha de inicio del schedule (puede ser NULL)
+            sched_start=F("schedule_activity__start_date"),
+
+            # Diferencia cuando es futuro/igual (>= hoy): start - hoy
+            future_delta=ExpressionWrapper(
+                F("schedule_activity__start_date") - Value(today),
+                output_field=DurationField(),
+            ),
+            # Diferencia cuando es pasado (< hoy): hoy - start
+            past_delta=ExpressionWrapper(
+                Value(today) - F("schedule_activity__start_date"),
+                output_field=DurationField(),
+            ),
+            # Tomamos el valor absoluto vía CASE (compatible en Postgres y MySQL)
+            abs_delta=Case(
+                When(schedule_activity__start_date__isnull=True, then=Value(None)),
+                When(schedule_activity__start_date__gte=today, then=F("future_delta")),
+                default=F("past_delta"),
+                output_field=DurationField(),
+            ),
+            # Flag para empujar sin-schedule al final
+            has_schedule=Case(
+                When(schedule_activity__start_date__isnull=True, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
         )
-        .order_by('-id')
+        # Primero las que sí tienen schedule, luego por más cercano a hoy, y como tie-breaker por fecha
+        .order_by("has_schedule", "abs_delta", "sched_start", "-id")
         .prefetch_related(
             Prefetch(
                 'header_activity',
@@ -177,10 +222,13 @@ def editarActivity(request, pk, activity_id):
     }
     return render(request, "formActivity.html", ctx)
 
+from datetime import timedelta
+
 @login_required(login_url='log')
 def memoryManager(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)
-    activity = get_object_or_404(Activity, pk=activity_id)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+
     headers = Header.objects.filter(activity=activity)
     materials = MemoryMaterial.objects.filter(activity=activity)
     labour = MemoryManoObra.objects.filter(activity=activity)
@@ -188,24 +236,49 @@ def memoryManager(request, pk, activity_id):
     equipo = MemoryEquipo.objects.filter(activity=activity)
     riesgos = MemoryRiesgos.objects.filter(activity=activity)
     calidad = MemoryCalidad.objects.filter(activity=activity)
-    ambienta = MemoryAmbiental.objects.filter(activity=activity)
+    ambiental = MemoryAmbiental.objects.filter(activity=activity)   # <- corrige nombre (antes ambienta)
     hidrologica = MemoryHidrologica.objects.filter(activity=activity)
 
-    ctx = {
-        'project':project,
-        'activity':activity,
-        'headers': headers,
-        'materials': materials,
-        'labour':labour,
-        'herramientas': herramientas,
-        'equipo':equipo,
-        'riesgos':riesgos,
-        'calidad':calidad,
-        'ambiental':ambienta,
-        'hidrologica':hidrologica,
-    }
+    today = timezone.localdate()
 
-    return render(request, 'memoryManage.html', ctx)
+    schedules_qs = (
+        schedule.objects.filter(activity=activity)
+        .annotate(
+            # diferencia absoluta a hoy (duración)
+            abs_delta=ExpressionWrapper(
+                Abs(F("start_date") - Value(today)),
+                output_field=DurationField(),
+            ),
+            # por si quieres empujar nulos al final (aquí no aplica porque activity=…)
+            has_start=Case(
+                When(start_date__isnull=True, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField()
+            ),
+        )
+        .order_by("-has_start", "abs_delta", "start_date")
+    )
+
+    current_sched = schedules_qs.first()  # el más cercano a hoy (si existe)
+
+    ctx = {
+        "project": project,
+        "activity": activity,
+        "headers": headers,
+        "materials": materials,
+        "labour": labour,
+        "herramientas": herramientas,
+        "equipo": equipo,
+        "riesgos": riesgos,
+        "calidad": calidad,
+        "ambiental": ambiental,
+        "hidrologica": hidrologica,
+        "schedules": schedules_qs,         # 👈 ahora es QuerySet de modelos
+        "current_sched": current_sched,     # 👈 para mostrar en el encabezado
+    }
+    return render(request, "memoryManage.html", ctx)
+
+
 
 @login_required(login_url='log')
 def formMemoryMaterials(request, pk, activity_id):
