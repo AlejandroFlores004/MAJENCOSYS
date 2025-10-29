@@ -128,6 +128,7 @@
             </div>
           </div>
         </div>
+      
 
         <!-- Filtros -->
         <div class="col-12 col-lg-5">
@@ -201,6 +202,10 @@
           <input type="hidden" name="payload" id="payload">
           <input type="text" class="form-control" style="max-width:260px" name="name" placeholder="Guardar como…">
           <button class="btn btn-warning" type="submit">Guardar como predeterminado</button>
+            <a class="btn btn-success btn-sm"
+                 href="{% url 'reporte:excel_actividades_por_fecha' project_id=project.id %}?fecha={{ today }}&tipo=fin">
+                Descargar
+              </a>
         </form>
       </div>
 
