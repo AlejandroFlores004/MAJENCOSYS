@@ -76,7 +76,7 @@ HeaderFormSet = inlineformset_factory(
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = schedule
-        fields = ["start_date", "end_date", "status"]
+        fields = ["start_date", "end_date"]  # 👈 quitamos 'status'
         widgets = {
             "start_date": forms.DateInput(
                 format="%Y-%m-%d",
@@ -94,22 +94,30 @@ class ScheduleForm(forms.ModelForm):
                     "min": timezone.localdate().isoformat(),
                 },
             ),
-            "status": forms.Select(attrs={"class": "form-select"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Mantener los campos como <input type="date"> y aceptar ISO
+        # Mantener los campos como <input type="date"> y aceptar formato ISO
         self.fields["start_date"].input_formats = ["%Y-%m-%d"]
         self.fields["end_date"].input_formats = ["%Y-%m-%d"]
 
-        # Asegurar que al editar se muestren con el formato correcto
+        # Asegurar formato correcto al editar
         if getattr(self.instance, "pk", None):
             if self.instance.start_date:
                 self.initial["start_date"] = self.instance.start_date.strftime("%Y-%m-%d")
             if self.instance.end_date:
                 self.initial["end_date"] = self.instance.end_date.strftime("%Y-%m-%d")
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        # Si es nuevo, asegurar estado por defecto
+        if obj.pk is None:
+            obj.status = schedule.Status.PLANEADO
+        if commit:
+            obj.save()
+        return obj
 class MemoryMaterialForm(forms.ModelForm):
     def __init__(self, *args, project=None, **kwargs):
         super().__init__(*args, **kwargs)
