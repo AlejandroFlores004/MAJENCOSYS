@@ -5,4 +5,15 @@
 {% block content %}
   <h1 class="text-center">CRONOGRAMA DEL PROYECTO</h1>
   {% include "partials/_schedule_list.html" %}
+
+  {% if messages %}
+    <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+      {% for m in messages %}
+        <div class="alert alert-{{ m.tags }} shadow text-center mb-2">{{ m }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+    </script>
+{% endif %}
 {% endblock content %}
