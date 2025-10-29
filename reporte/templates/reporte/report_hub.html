@@ -1,0 +1,362 @@
+{% extends "baseMainWorkFlow.html" %}
+{% load static %}
+{% block title %}Reportes{% endblock title %}
+{% block id_project %}{{ project.id }}{% endblock id_project %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="m-0">📊 Reportes de: <strong>{{ project.name }}</strong></h4>
+    <a href="{% url 'dashboardProject' project.id %}" class="btn btn-outline-secondary">← Volver al proyecto</a>
+  </div>
+
+  <!-- ================ Reportes rápidos ================= -->
+  <div class="card mb-4">
+    <div class="card-header"><strong>Reportes rápidos</strong></div>
+    <div class="card-body d-flex flex-wrap gap-3">
+
+      <!-- Libro mayor -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Libro mayor</h6>
+          <p class="small text-muted m-0">Costos por actividad + cronograma.</p>
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <a class="btn btn-success btn-sm" href="{% url 'reporte:excel_libro_mayor' project_id=project.id %}">Descargar Excel</a>
+         <!-- <a class="btn btn-outline-primary btn-sm" href="?preview=libro">Vista previa</a>-->
+        </div>
+      </div>
+
+      <!-- Actividades detalle -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Actividades (detalle)</h6>
+          <p class="small text-muted m-0">Estado, inicio, fin y duración.</p>
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <a class="btn btn-success btn-sm" href="{% url 'reporte:excel_actividades_detalle' project_id=project.id %}">Descargar Excel</a>
+          <!--<a class="btn btn-outline-primary btn-sm" href="?preview=detalle">Vista previa</a>-->
+        </div>
+      </div>
+
+      <!-- Por estado -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Por estado</h6>
+          <div class="d-flex gap-1 flex-wrap">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=P">P</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=E">E</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=F">F</a>
+          <!--  <a class="btn btn-outline-primary btn-sm ms-auto" href="?preview=estado&v=E">Vista previa</a>-->
+          </div>
+        </div>
+      </div>
+
+      <!-- Por fecha -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Por fecha</h6>
+          <form class="row g-2" method="get">
+            <input type="hidden" name="preview" value="fecha">
+            <div class="col-7">
+              <input type="date" class="form-control form-control-sm" name="fecha" value="{{ today }}">
+            </div>
+            <div class="col-5">
+              <select class="form-select form-select-sm" name="tipo">
+                <option value="fin">Fin</option>
+                <option value="inicio">Inicio</option>
+              </select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <a class="btn btn-success btn-sm"
+                 href="{% url 'reporte:excel_actividades_por_fecha' project_id=project.id %}?fecha={{ today }}&tipo=fin">
+                Descargar Excel (hoy/fin)
+              </a>
+           <!--  <button class="btn btn-outline-primary btn-sm" type="submit">Vista previa</button>--> 
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================ Constructor (custom) ================= -->
+  <div class="card mb-4">
+    <div class="card-header"><strong>Armar reporte</strong></div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Columnas -->
+        <div class="col-12 col-lg-4">
+          <h6 class="mb-2">Columnas</h6>
+          <div class="row row-cols-2 row-cols-md-1 g-1">
+            <div class="col">
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" value="actividad" checked>
+                <span class="form-check-label">Actividad</span>
+              </label>
+            </div>
+            <div class="col">
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" value="estado" checked>
+                <span class="form-check-label">Estado</span>
+              </label>
+            </div>
+            <div class="col">
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" value="inicio" checked>
+                <span class="form-check-label">Inicio</span>
+              </label>
+            </div>
+            <div class="col">
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" value="fin" checked>
+                <span class="form-check-label">Fin</span>
+              </label>
+            </div>
+            <div class="col">
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" value="duracion">
+                <span class="form-check-label">Duración</span>
+              </label>
+            </div>
+            <div class="col">
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" value="total">
+                <span class="form-check-label">Total (USD)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="col-12 col-lg-5">
+          <h6 class="mb-2">Filtros</h6>
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="form-label small mb-1">Estado</label><br>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" value="P">
+                <span class="form-check-label">P</span>
+              </label>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" value="E" checked>
+                <span class="form-check-label">E</span>
+              </label>
+              <label class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" value="F">
+                <span class="form-check-label">F</span>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Inicio desde</label>
+              <input type="date" class="form-control form-control-sm" id="ini_desde">
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Inicio hasta</label>
+              <input type="date" class="form-control form-control-sm" id="ini_hasta">
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Fin desde</label>
+              <input type="date" class="form-control form-control-sm" id="fin_desde">
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Fin hasta</label>
+              <input type="date" class="form-control form-control-sm" id="fin_hasta">
+            </div>
+          </div>
+        </div>
+
+        <!-- Orden / Agrupar -->
+        <div class="col-12 col-lg-3">
+          <h6 class="mb-2">Orden / Agrupar</h6>
+          <div class="mb-2">
+            <label class="form-label small">Ordenar por</label>
+            <select id="ord" class="form-select form-select-sm">
+              <option value="actividad">Actividad</option>
+              <option value="inicio" selected>Inicio</option>
+              <option value="fin">Fin</option>
+              <option value="-fin">Fin (desc)</option>
+              <option value="total">Total</option>
+              <option value="-total">Total (desc)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label small">Agrupar por</label>
+            <select id="grp" class="form-select form-select-sm">
+              <option value="">(Ninguno)</option>
+              <option value="estado">Estado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="d-flex gap-2">
+        <button id="btnPreview" class="btn btn-outline-primary" type="button">Generar vista previa</button>
+
+        <form id="tplForm" method="post" action="{% url 'reporte:report_template_save' project_id=project.id %}" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="payload" id="payload">
+          <input type="text" class="form-control" style="max-width:260px" name="name" placeholder="Guardar como…">
+          <button class="btn btn-warning" type="submit">Guardar como predeterminado</button>
+        </form>
+      </div>
+
+      <!-- Preview simple -->
+      <div id="previewBox" class="alert alert-secondary mt-3 d-none"></div>
+    </div>
+  </div>
+
+  <!-- ================ Mis plantillas ================= -->
+  <div class="card">
+    <div class="card-header"><strong>Mis reportes guardados</strong></div>
+    <div class="card-body">
+      {% if templates %}
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Actualizado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in templates %}
+            <tr>
+              <td>{{ t.name }}</td>
+              <td class="text-muted small">{{ t.updated_at }}</td>
+              <td class="text-end">
+                <a class="btn btn-outline-primary btn-sm" href="?tpl={{ t.id }}">Cargar</a>
+                <a class="btn btn-outline-danger btn-sm"
+                   href="{% url 'reporte:report_template_delete' project_id=project.id pk=t.id %}"
+                   onclick="return confirm('¿Eliminar plantilla {{ t.name }}?');">Eliminar</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-muted">Aún no tienes reportes guardados.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ============= DATA (no JS, solo JSON seguro) ============= -->
+<script type="application/json" id="loadedTpl">
+{% if loaded_tpl %}
+{
+  "columns": {{ loaded_tpl.columns|safe }},
+  "filters": {{ loaded_tpl.filters|safe }},
+  "order": "{{ loaded_tpl.order|escapejs }}",
+  "group_by": "{{ loaded_tpl.group_by|escapejs }}",
+  "name": "{{ loaded_tpl.name|escapejs }}"
+}
+{% else %}null{% endif %}
+</script>
+
+<!-- ============= JS (auto preview y robustez) ============= -->
+<script>
+(function () {
+  function $(id){ return document.getElementById(id); }
+
+  var box = $('previewBox');
+  var payloadInput = $('payload');
+
+  function getSelectedColumns() {
+    var all = document.querySelectorAll('input.form-check-input[type="checkbox"]');
+    var cols = [];
+    all.forEach(function (el) {
+      var v = el.value;
+      var isState = (v === 'P' || v === 'E' || v === 'F');
+      if (!isState && el.checked) cols.push(v);
+    });
+    return cols;
+  }
+
+  function getEstados() {
+    var est = [];
+    ['P','E','F'].forEach(function (v) {
+      var el = document.querySelector('input.form-check-input[value="'+v+'"]');
+      if (el && el.checked) est.push(v);
+    });
+    return est;
+  }
+
+  function buildPayload() {
+    return {
+      columns: getSelectedColumns(),
+      filters: {
+        estado: getEstados(),
+        ini_desde: $('ini_desde').value || null,
+        ini_hasta: $('ini_hasta').value || null,
+        fin_desde: $('fin_desde').value || null,
+        fin_hasta: $('fin_hasta').value || null
+      },
+      order: $('ord').value || "",
+      group_by: $('grp').value || ""
+    };
+  }
+
+  // Vista previa
+  var btnPrev = $('btnPreview');
+  if (btnPrev) {
+    btnPrev.addEventListener('click', function () {
+      try{
+        var p = buildPayload();
+        payloadInput.value = JSON.stringify(p);
+        box.classList.remove('d-none');
+        box.innerHTML =
+          '<div><strong>Vista previa</strong> (parámetros seleccionados)</div>' +
+          '<div class="mt-2"><b>Columnas:</b> ' + (p.columns.join(', ') || '(ninguna)') + '</div>' +
+          '<div class="mt-1"><b>Estados:</b> ' + (p.filters.estado.join(', ') || '(todos)') + '</div>' +
+          '<div class="mt-1"><b>Rango inicio:</b> ' + (p.filters.ini_desde || '—') + ' → ' + (p.filters.ini_hasta || '—') + '</div>' +
+          '<div class="mt-1"><b>Rango fin:</b> ' + (p.filters.fin_desde || '—') + ' → ' + (p.filters.fin_hasta || '—') + '</div>' +
+          '<div class="mt-1"><b>Orden:</b> ' + (p.order || '(ninguno)') + ' · <b>Agrupar:</b> ' + (p.group_by || '(ninguno)') + '</div>' +
+          '<div class="mt-2 text-muted small">Para descargar, guarda como plantilla o usa los reportes rápidos de arriba.</div>';
+      }catch(err){
+        console.warn('Error generando vista previa:', err);
+      }
+    });
+  }
+
+  // Cargar plantilla guardada desde el <script type="application/json">
+  try {
+    var raw = $('loadedTpl');
+    var tpl = raw ? JSON.parse(raw.textContent || 'null') : null;
+    if (tpl) {
+      // Columnas
+      document.querySelectorAll('input.form-check-input[type="checkbox"]').forEach(function (ch) {
+        var v = ch.value;
+        if (v !== 'P' && v !== 'E' && v !== 'F') ch.checked = (tpl.columns || []).indexOf(v) !== -1;
+      });
+      // Estados
+      var estSet = new Set((tpl.filters && tpl.filters.estado) ? tpl.filters.estado : []);
+      ['P','E','F'].forEach(function (v) {
+        var el = document.querySelector('input.form-check-input[value="'+v+'"]');
+        if (el) el.checked = estSet.has(v);
+      });
+      // Fechas
+      $('ini_desde').value = (tpl.filters && tpl.filters.ini_desde) ? tpl.filters.ini_desde : "";
+      $('ini_hasta').value = (tpl.filters && tpl.filters.ini_hasta) ? tpl.filters.ini_hasta : "";
+      $('fin_desde').value = (tpl.filters && tpl.filters.fin_desde) ? tpl.filters.fin_desde : "";
+      $('fin_hasta').value = (tpl.filters && tpl.filters.fin_hasta) ? tpl.filters.fin_hasta : "";
+      // Orden/Agrupar
+      $('ord').value = tpl.order || "";
+      $('grp').value = tpl.group_by || "";
+      // Nombre (sobrescribir)
+      var nameBox = document.querySelector('#tplForm input[name="name"]');
+      if (nameBox) nameBox.value = tpl.name || "";
+      // Persistir payload
+      payloadInput.value = JSON.stringify(tpl);
+    }
+  } catch (e) {
+    console.warn('No se pudo cargar la plantilla:', e);
+  }
+})();
+</script>
+{% endblock content %}
