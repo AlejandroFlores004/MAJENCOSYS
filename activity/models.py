@@ -76,7 +76,6 @@ class Header(models.Model):
 
     def __str__(self):
         return self.name
-    
 
 class MemoryMaterial(models.Model):
     activity = models.ForeignKey(
@@ -294,8 +293,6 @@ class MemoryRiesgos(models.Model):
     def project(self):
         return self.activity.project
 
-    
-
 class MemoryCalidad(models.Model):
     activity = models.ForeignKey(
         Activity,
@@ -385,7 +382,6 @@ class MemoryAmbiental(models.Model):
     @property
     def project(self):
         return self.activity.project
-
 
 class MemoryHidrologica(models.Model):
     activity = models.ForeignKey(

@@ -483,7 +483,6 @@ def formMemoryAmbiental(request, pk, activity_id):
         "formset": formset,
     })
 
-
 @login_required(login_url='log')
 def formMemoryHidrologica(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)

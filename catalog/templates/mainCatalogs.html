@@ -19,54 +19,63 @@
 </div>
 
 <div class="container py-4">
-
-  <section id="0">
-    <!-- Materiales -->
-    {% include "partials/lists/listMaterials.html" %}
-  </section>
+  
+  <h3 class="text-uppercase font-weight-bold">GENERAR REPORTE</h3>
+  <a href="{% url 'catalogo_pdf' project.id %}" class="btn btn-primary" target="_blank">
+    <i class="bi bi-file-earmark-pdf"></i> PDF
+  </a>
   <hr class="my-5">
 
-  <section id="1">
-    <!-- Mano de Obra -->
-    {% include "partials/lists/listLabour.html" %}
-  </section>
-  <hr class="my-5">
+  <div class=" mt-4">
+    
+    <section id="0">
+      <!-- Materiales -->
+      {% include "partials/lists/listMaterials.html" %}
+    </section>
+    <hr class="my-5">
 
-  <section id="2">
-    <!-- Herramienta -->
-    {% include "partials/lists/listHerramienta.html" %}
-  </section>
-  <hr class="my-5">
+    <section id="1">
+      <!-- Mano de Obra -->
+      {% include "partials/lists/listLabour.html" %}
+    </section>
+    <hr class="my-5">
 
-  <section id="3">
-    <!-- Equipo -->
-    {% include "partials/lists/listEquipo.html" %}
-  </section>
-  <hr class="my-5">
+    <section id="2">
+      <!-- Herramienta -->
+      {% include "partials/lists/listHerramienta.html" %}
+    </section>
+    <hr class="my-5">
 
-  <section id="4">
-    <!-- Riesgo -->
-    {% include "partials/lists/listRiesgo.html" %}
-  </section>
-  <hr class="my-5">
+    <section id="3">
+      <!-- Equipo -->
+      {% include "partials/lists/listEquipo.html" %}
+    </section>
+    <hr class="my-5">
 
-  <section id="5">
-    <!-- Calidad -->
-    {% include "partials/lists/listCalidad.html" %}
-  </section>
-  <hr class="my-5">
+    <section id="4">
+      <!-- Riesgo -->
+      {% include "partials/lists/listRiesgo.html" %}
+    </section>
+    <hr class="my-5">
 
-  <section id="6">
-    <!-- Ambiental -->
-    {% include "partials/lists/listAmbiental.html" %}
-  </section>
-  <hr class="my-5">
+    <section id="5">
+      <!-- Calidad -->
+      {% include "partials/lists/listCalidad.html" %}
+    </section>
+    <hr class="my-5">
 
-  <section id="7">
-    <!-- Ambiental -->
-    {% include "partials/lists/listHidrologica.html" %}
-  </section>
+    <section id="6">
+      <!-- Ambiental -->
+      {% include "partials/lists/listAmbiental.html" %}
+    </section>
+    <hr class="my-5">
 
+    <section id="7">
+      <!-- Ambiental -->
+      {% include "partials/lists/listHidrologica.html" %}
+    </section>
+
+  </div>
 </div>
 {% if messages %}
     <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">

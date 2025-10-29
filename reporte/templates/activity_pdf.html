@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+{% load static %}
+{% load equationsTables %}
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+      rel="stylesheet"> <!-- Font Awesome (ICON) -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <!-- Google Web Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet">
+    <link rel="stylesheet"
+      href="{% static 'bootstrap-5.0.2-dist/css/bootstrap.min.css' %}">
+    <script
+      src="{% static 'bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Libro Mayor [{{project}}]</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'img/Logo.jpg' %}">
+  </head>
+  <body>
+
+    <h6 class="text-primary text-uppercase font-weight-bold">Libro Mayor del
+      Proyecto:</h6>
+    <h1 class="mb-2 text-uppercase">{{ project }}</h1>
+    <div class="mb-3">
+      {% load tz %} {# Solo si quieres controlar zonas horarias #}
+      <p><strong>A la fecha de: <i>{% now "d/m/Y" %}</i></strong></p>
+    </div>
+    <hr class="my-5">
+
+    {% if with_materials %}
+      <h2>Lista de Materiales</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Nombre</th>
+              <th>Unidad</th>
+              <th class="text-end">Precio ($)</th>
+              <th class="text-end">Cantidad</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for acm in activity_m %}
+              {% for m in acm.memoryMaterial_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted">{{ m.material.name }}</td>
+                  <td class="text-muted">{{ m.material.unit.name }}</td>
+                  <td class="text-muted text-end">
+                    ${{ m.material.price|floatformat:2 }}
+                    {# Con humanize:  ${{ m.material.price|floatformat:2|intcomma }} #}
+                  </td>
+                  <td class="text-muted text-end">{{ m.quantity|floatformat:2 }}</td>
+                  <td class="text-muted text-end">
+                    ${{ m.material.price|multiplica:m.quantity|floatformat:2 }}
+                    {# Con humanize:  ${{ m.material.price|multiplica:m.quantity|floatformat:2|intcomma }} #}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="4" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_m|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+    {% if with_manoonta %}
+      <h2>Lista de Mano de obra</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Nombre</th>
+              <th class="text-end">Jornal ($)</th>
+              <th class="text-end">Prestaciones (%)</th>
+              <th class="text-end">Jornal total ($)</th>
+              <th class="text-end">Rendimiento</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ac in activity_mo %}
+              {% for mo in ac.MemoryManoObra_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted text-start">{{ mo.manoobra.name }}</td>
+                  <td class="text-muted text-end">{{ mo.manoobra.jornada }}</td>
+                  <td class="text-muted text-end">
+                    {{ mo.prestaciones|multiplica:100|floatformat:2 }}%
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ mo.manoobra.jornada|jornalTotal:mo.prestaciones|floatformat:2 }}
+                  </td>
+                  <td class="text-muted text-end">
+                    {% if mo.rendimiento %}{{ mo.rendimiento }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ mo.manoobra.jornada|jornalTotal:mo.prestaciones|dividir:mo.rendimiento|floatformat:2 }}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="5" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_mo|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+    {% if with_herramienta %}
+      <h2>Lista de Herramientas</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Nombre</th>
+              <th class="text-start">Tipo</th>
+              <th class="text-end">Rendimiento</th>
+              <th class="text-end">Costo día ($)</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ac in activity_hrr %}
+              {% for hrr in ac.MemoryHerramienta_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted text-start">
+                    {{ hrr.herramienta.name }}
+                  </td>
+                  <td class="text-muted">
+                    {{ hrr.herramienta.tipo }}
+                  </td>
+                  <td class="text-muted text-end">
+                    {% if hrr.rendimiento %}{{ hrr.rendimiento }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  <td class="text-muted text-end">
+                    ${{ hrr.herramienta.costodia|floatformat:2 }}
+                    {# Con humanize:  ${{ hrr.herramienta.costodia|floatformat:2|intcomma }} #}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ hrr.herramienta.costodia|multiplica:hrr.rendimiento|floatformat:2 }}
+                    {# Con humanize:  ${{ hrr.herramienta.costodia|multiplica:hrr.rendimiento|floatformat:2|intcomma }} #}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="4" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_hrr|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+    {% if with_equipo %}
+      <h2>Lista de Equipos</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Nombre</th>
+              <th class="text-start">Tipo</th>
+              <th class="text-start">Capacidad</th>
+              <th class="text-end">Rendimiento</th>
+              <th class="text-end">Costo ($)</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ac in activity_eqp %}
+              {% for eqp in ac.MemoryEquipo_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted text-start">
+                    {{ eqp.equipo.name }}
+                  </td>
+                  <td class="text-muted">
+                    {{ eqp.equipo.tipo }}
+                  </td>
+                  <td class="text-muted">
+                    {% if eqp.equipo.capacidad %}{{ eqp.equipo.capacidad }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted text-end">
+                    {% if eqp.rendimiento %}{{ eqp.rendimiento }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ eqp.equipo.costodia|floatformat:2 }}
+                    {# Con humanize:  ${{ eqp.equipo.costodia|floatformat:2|intcomma }} #}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ eqp.equipo.costodia|multiplica:eqp.rendimiento|floatformat:2 }}
+                    {# Con humanize:  ${{ eqp.equipo.costodia|multiplica:eqp.rendimiento|floatformat:2|intcomma }} #}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="5" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_eqp|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+    {% if with_riesgo %}
+      <h2>Lista de Riesgos</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Nombre</th>
+              <th class="text-start">Peligro</th>
+              <th class="text-start">Tipo</th>
+              <th class="text-start">Nivel</th>
+              <th class="text-start">Medida</th>
+              <th class="text-start">Descripción</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ac in activity_rsg %}
+              {% for rsg in ac.memoryRiesgos_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted text-start">
+                    {{ rsg.riesgo.name }}
+                  </td>
+                  <td class="text-muted">
+                    {{ rsg.riesgo.peligros }}
+                  </td>
+                  <td class="text-muted">
+                    {% if rsg.riesgo.tipo %}{{ rsg.riesgo.tipo }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted">
+                    {% if rsg.riesgo.nivel %}{{ rsg.riesgo.nivel }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted">
+                    {{ rsg.medida }}
+                  </td>
+                  <td class="text-muted">
+                    {{ rsg.descripcion_medida }}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ rsg.costo|floatformat:2 }}
+                    {# Con humanize:  ${{ rsg.costo|floatformat:2|intcomma }} #}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="6" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_rsg|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+    {% if with_calidad %}
+      <h2>Lista de Control de Calidad</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Nombre</th>
+              <th class="text-start">Descripción</th>
+              <th class="text-end">Precio</th>
+              <th class="text-end">Cantidad</th>
+              <th class="text-start">Responsable</th>
+              <th class="text-start">Norma</th>
+              <th class="text-start">Tipo</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ac in activity_cld %}
+              {% for cld in ac.memoryCalidad_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted text-start">
+                    {{ cld.calidad.name }}
+                  </td>
+                  <td class="text-muted">
+                    {{ cld.calidad.description }}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ cld.calidad.precio|floatformat:2 }}
+                    {# Con humanize:  ${{ cld.calidad.precio|floatformat:2|intcomma }} #}
+                  </td>
+                  <td class="text-muted text-end">
+                    {{ cld.cantidad|floatformat:2 }}
+                  </td>
+                  <td class="text-muted">
+                    {% if cld.responsable %}{{ cld.responsable }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted">
+                    {% if cld.calidad.norma %}{{ cld.calidad.norma }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted">
+                    {% if cld.calidad.tipo %}{{ cld.calidad.tipo }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ cld.cantidad|multiplica:cld.calidad.precio|floatformat:2 }}
+                    {# Con humanize:  ${{ cld.cantidad|multiplica:cld.calidad.precio|floatformat:2|intcomma }} #}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="7" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_cld|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+    {% if with_ambiental %}
+      <h2>Lista de Control Ambiental</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Nombre</th>
+              <th class="text-start">Descripción</th>
+              <th class="text-start">Época</th>
+              <th class="text-start">Especie</th>
+              <th class="text-start">Insumo</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ac in activity_mbt %}
+              {% for mbt in ac.memoryAmbiental_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted text-start">
+                    {{ mbt.ambiental.name }}
+                  </td>
+                  <td class="text-muted">
+                    {{ mbt.ambiental.description }}
+                  </td>
+                  <td class="text-muted">
+                    {{ mbt.ambiental.epoca }}
+                  </td>
+                  <td class="text-muted">
+                    {% if mbt.ambiental.especie %}{{ mbt.ambiental.especie }}
+                    {% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted">
+                    {% if mbt.ambiental.insumo %}{{ mbt.ambiental.insumo }}
+                    {% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ mbt.valor|floatformat:2 }}
+                    {# Si habilitas humanize:  ${{ mbt.valor|floatformat:2|intcomma }} #}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="5" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_mbt|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+    {% if with_hidrologica %}
+      <h2>Lista de Pruebas Hidrologicas</h2>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="text-start">Nombre</th>
+              <th class="text-start">Descripción</th>
+              <th class="text-start">Tipo de ubicación</th>
+              <th class="text-start">Parámetro</th>
+              <th class="text-start">Unidad</th>
+              <th class="text-end">Subtotal ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ac in activity_hdg %}
+              {% for hdg in ac.memoryHidrologica_activity.all %}
+                <tr>
+                  <td class="fw-semibold text-muted text-start">
+                    {{ hdg.hidrologica.name }}
+                  </td>
+                  <td class="text-muted">
+                    {{ hdg.hidrologica.description }}
+                  </td>
+                  <td class="text-muted">
+                    {% if hdg.hidrologica.ubicacion %}{{ hdg.hidrologica.ubicacion }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted">
+                    {% if hdg.hidrologica.parametro %}{{ hdg.hidrologica.parametro }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted">
+                    {% if hdg.hidrologica.unidad %}{{ hdg.hidrologica.unidad }}{% else %}<span class="text-muted">—</span>{% endif %}
+                  </td>
+                  <td class="text-muted text-end">
+                    ${{ hdg.costo|floatformat:2 }}
+                    {# Con humanize:  ${{ hdg.costo|floatformat:2|intcomma }} #}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="5" class="text-end">Total</th>
+              <th class="text-end text-nowrap">${{ total_hdg|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div><br>
+    {% endif %}
+
+  </body>
+</html>
