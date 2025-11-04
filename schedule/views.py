@@ -6,7 +6,7 @@ from django.contrib import messages
 
 from project.models import Project
 from activity.models import Activity, Header
-from schedule.models import schedule as Schedule  # tu modelo
+from schedule.models import Schedule   # tu modelo
 
 
 @login_required(login_url='log')

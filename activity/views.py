@@ -14,7 +14,7 @@ from django.db.models.functions import Abs
 
 # Modelos del proyecto
 from project.models import Project
-from schedule.models import schedule
+from schedule.models import Schedule
 from .models import (
     Activity, Header, MemoryAmbiental, MemoryCalidad, MemoryEquipo,
     MemoryHerramienta, MemoryManoObra, MemoryMaterial, MemoryRiesgos
@@ -160,7 +160,7 @@ def crearActivity(request, pk):
     else:
         form = ActivityForm(instance=activity)
         formset = HeaderFormSet(instance=activity, prefix="headers")
-        schedule_form = ScheduleForm(instance=schedule(activity=activity), prefix="schedule")  # opcional, para precargar
+        schedule_form = ScheduleForm(instance=Schedule(activity=activity), prefix="schedule")  # opcional, para precargar
 
     return render(request, "formActivity.html", {
         "project": project,
@@ -178,7 +178,7 @@ def editarActivity(request, pk, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
 
     # Traer schedule existente si hay
-    existing_schedule = schedule.objects.filter(activity=activity).first()
+    existing_schedule =Schedule.objects.filter(activity=activity).first()
 
     if request.method == "POST":
         form = ActivityForm(request.POST, instance=activity)
@@ -194,7 +194,7 @@ def editarActivity(request, pk, activity_id):
                     sched = schedule_form.save(commit=False)
 
                     # 👇 Forzar estado a PLANEADO en cada edición
-                    sched.status = schedule.Status.PLANEADO
+                    sched.status = Schedule.Status.PLANEADO
 
                     # Si no existía, ligarlo a la actividad
                     if sched.activity_id is None:
@@ -214,7 +214,7 @@ def editarActivity(request, pk, activity_id):
         # Opcional: mostrar en el formulario el estado preseleccionado como Planeado al entrar a editar
         schedule_form = ScheduleForm(instance=existing_schedule, prefix="schedule")
         try:
-            schedule_form.fields["status"].initial = schedule.Status.PLANEADO
+            schedule_form.fields["status"].initial = Schedule.Status.PLANEADO
         except Exception:
             pass
 
@@ -234,6 +234,7 @@ from datetime import timedelta
 def memoryManager(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
+    sc = get_object_or_404(Schedule, activity=activity)
 
     headers = Header.objects.filter(activity=activity)
     materials = MemoryMaterial.objects.filter(activity=activity)
@@ -247,25 +248,7 @@ def memoryManager(request, pk, activity_id):
 
     today = timezone.localdate()
 
-    schedules_qs = (
-        schedule.objects.filter(activity=activity)
-        .annotate(
-            # diferencia absoluta a hoy (duración)
-            abs_delta=ExpressionWrapper(
-                Abs(F("start_date") - Value(today)),
-                output_field=DurationField(),
-            ),
-            # por si quieres empujar nulos al final (aquí no aplica porque activity=…)
-            has_start=Case(
-                When(start_date__isnull=True, then=Value(0)),
-                default=Value(1),
-                output_field=IntegerField()
-            ),
-        )
-        .order_by("-has_start", "abs_delta", "start_date")
-    )
-
-    current_sched = schedules_qs.first()  # el más cercano a hoy (si existe)
+    
 
     ctx = {
         "project": project,
@@ -279,8 +262,7 @@ def memoryManager(request, pk, activity_id):
         "calidad": calidad,
         "ambiental": ambiental,
         "hidrologica": hidrologica,
-        "schedules": schedules_qs,         # 👈 ahora es QuerySet de modelos
-        "current_sched": current_sched,     # 👈 para mostrar en el encabezado
+        "schedule": sc,
     }
     return render(request, "memoryManage.html", ctx)
 

@@ -5,7 +5,7 @@ from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Cali
 from project.models import Project
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from schedule.models import schedule
+from schedule.models import Schedule
 
 class ActivityForm(forms.ModelForm):
     class Meta:
@@ -75,7 +75,7 @@ HeaderFormSet = inlineformset_factory(
 
 class ScheduleForm(forms.ModelForm):
     class Meta:
-        model = schedule
+        model = Schedule
         fields = ["start_date", "end_date"]  # 👈 quitamos 'status'
         widgets = {
             "start_date": forms.DateInput(

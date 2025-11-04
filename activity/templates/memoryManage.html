@@ -25,7 +25,6 @@
           <option value="calidad">Control de calidad</option>
           <option value="ambiental">Control Ambiental</option>
           <option value="hidrologica">Pruebas Hidrológicas</option>
-          <option value="schedule">Cronograma</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary">
@@ -63,7 +62,7 @@
       {% endif %}
 
       {# ====================== CRONOGRAMA (SOLO FECHAS Y ESTADO) ====================== #}
-      {% if schedules %}
+      {% if schedule %}
       <hr>
       <div class="mb-3">
         <h6 class="mb-2">
@@ -71,28 +70,28 @@
         </h6>
 
         <div class="row g-3">
-          {% for s in schedules %}
+          
           <div class="col-md-6">
             <div class="border rounded-3 p-3 bg-light h-100">
               <div class="fw-semibold text-muted small mb-1">
                 Estado:
-                {% if s.status == 'P' %}
-                  <span class="badge bg-secondary">{{ s.get_status_display }}</span>
-                {% elif s.status == 'E' %}
-                  <span class="badge bg-info text-dark">{{ s.get_status_display }}</span>
-                {% elif s.status == 'F' %}
-                  <span class="badge bg-success">{{ s.get_status_display }}</span>
+                {% if schedule.status == 'P' %}
+                  <span class="badge bg-secondary">{{ schedule.get_status_display }}</span>
+                {% elif schedule.status == 'E' %}
+                  <span class="badge bg-info text-dark">{{ schedule.get_status_display }}</span>
+                {% elif schedule.status == 'F' %}
+                  <span class="badge bg-success">{{ schedule.get_status_display }}</span>
                 {% else %}
-                  <span class="badge bg-light text-muted">{{ s.get_status_display }}</span>
+                  <span class="badge bg-light text-muted">{{ schedule.get_status_display }}</span>
                 {% endif %}
               </div>
               <div class="text-muted small">
-                Fecha de inicio: <span class="fw-semibold">{{ s.start_date|date:"d/m/Y" }}</span><br>
-                Fecha de fin: <span class="fw-semibold">{{ s.end_date|date:"d/m/Y" }}</span>
+                Fecha de inicio: <span class="fw-semibold">{{ schedule.start_date|date:"d/m/Y" }}</span><br>
+                Fecha de fin: <span class="fw-semibold">{{ schedule.end_date|date:"d/m/Y" }}</span>
               </div>
             </div>
           </div>
-          {% endfor %}
+ 
         </div>
       </div>
       {% endif %}

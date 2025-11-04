@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 # Create your models here.
-class schedule(models.Model):
+class Schedule(models.Model):
     class Status(models.TextChoices):
         PLANEADO = "P", "Planeado"
         EJECUTANDO = "E", "Ejecutando"

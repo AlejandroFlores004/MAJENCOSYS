@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import schedule
+from .models import Schedule
 # Register your models here.
-admin.site.register(schedule)
+admin.site.register(Schedule)
