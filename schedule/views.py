@@ -106,7 +106,7 @@ def schedule_start_page(request, pk, activity_id):
         "today": today,
         "can_start_today": can_start_today,
     }
-    return render(request, "schedules/start_now.html", context)
+    return render(request, "start_now.html", context)
 
 
 def schedule_finish_page(request, pk, activity_id):
@@ -153,4 +153,4 @@ def schedule_finish_page(request, pk, activity_id):
         "today": today,
         "can_finish_today": can_finish_today,
     }
-    return render(request, "schedules/finish_now.html", context)
+    return render(request, "finish_now.html", context)

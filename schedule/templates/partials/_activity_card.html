@@ -1,0 +1,62 @@
+{# partials/_activity_card.html #}
+<!--
+{# Parámetros esperados:
+   ac, sch,
+   accent (accent-today|accent-progress|accent-ending|accent-upcoming|accent-finished),
+   badge_class (bg-...),
+   badge_text (string),
+   show_start_btn (bool),
+   show_finish_btn (bool),
+   project_id (int)
+#}
+-->
+<div class="card card-accent {{ accent }}" data-status="{{ badge_text|default_if_none:'-' }}">
+  <div class="card-body d-flex justify-content-between align-items-start gap-3">
+    <div class="flex-grow-1">
+      <h6 class="mb-1">{{ ac.name }}</h6>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        {% if badge_text %}
+          <span class="badge {{ badge_class }}">{{ badge_text }}</span>
+        {% endif %}
+        <span class="small text-muted">
+          {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
+        </span>
+      </div>
+
+      {% if ac.header_activity.all %}
+        <div class="mt-2 small text-muted">
+          {% for h in ac.header_activity.all %}
+            <div><span class="fw-semibold text-dark">{{ h.name }}:</span> {{ h.content }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="actions">
+      {% if show_start_btn %}
+        {# Ir a la pantalla de confirmación (GET) #}
+        <a href="{% url 'schedule_start_page' pk=project_id activity_id=ac.id %}"
+           class="btn btn-sm btn-primary">
+          <i class="bi bi-play-fill"></i> Comenzar ahora
+        </a>
+      {% endif %}
+
+      {% if show_finish_btn %}
+        {# Ir a la pantalla de confirmación (GET) #}
+        <a href="{% url 'schedule_finish_page' pk=project_id activity_id=ac.id %}"
+           class="btn btn-sm btn-success">
+          <i class="bi bi-check2-circle"></i> Finalizar ahora
+        </a>
+      {% endif %}
+
+      <a href="{% url 'editarActivity' project_id ac.id %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-pencil"></i> Editar
+      </a>
+
+      {# Si tu URL real es 'memoryManager', cámbiala aquí #}
+      <a href="{% url 'memoryMananer' project_id ac.id %}" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-calculator"></i> Memorias
+      </a>
+    </div>
+  </div>
+</div>

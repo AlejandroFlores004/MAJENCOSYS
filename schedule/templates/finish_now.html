@@ -1,5 +1,5 @@
 {# templates/schedules/finish_now.html #}
-{% extends "baseMainWorkflow.html" %}
+{% extends "baseMainWorkFlow.html" %}
 {% block title %}Finalizar actividad{% endblock %}
 
 {% block content %}
@@ -18,13 +18,13 @@
           <button class="btn btn-success">
             <i class="bi bi-check2-circle"></i> Finalizar ahora
           </button>
-          <a href="{% url 'schedule_home' project.id %}" class="btn btn-outline-secondary">Cancelar</a>
+          <a href="{% url 'schedule_home' pk=project.id %}" class="btn btn-outline-secondary">Cancelar</a>
         </form>
       {% else %}
         <div class="alert alert-warning mb-3">
           No se puede finalizar aún. Fecha de fin: {{ sch.end_date|date:"d/m/Y" }}.
         </div>
-        <a href="{% url 'schedule_home' project.id %}" class="btn btn-outline-secondary">Volver</a>
+          <a href="{% url 'schedule_home' pk=project.id %}" class="btn btn-outline-secondary">Volver</a>
       {% endif %}
     </div>
   </div>

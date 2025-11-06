@@ -1,339 +1,175 @@
+{# partials/_schedule_list.html #}
 <section class="container py-3" id="cronograma">
 
   <style>
-    /* --------- Secciones / divisores --------- */
-    .section-divider {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
+    /* ---------- Encabezados llamativos ---------- */
+    .section-title {
+      display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: .75rem;
-      margin: 1.25rem 0 .75rem;
-    }
-    .section-divider::before,
-    .section-divider::after {
-      content: "";
-      height: 1px;
-      background: var(--bs-border-color);
-      display: block;
-    }
-    .section-chip {
-      font-size: .875rem;
-      padding: .25rem .65rem;
+      padding: .85rem 1rem;
+      border-radius: .9rem;
       border: 1px solid var(--bs-border-color);
-      border-radius: 999px;
-      background: var(--bs-body-bg);
-    }
-    .section-meta {
-      display: inline-flex; 
-      align-items: center; 
-      gap: .5rem;
-    }
-
-    /* --------- Tarjetas con acento a la izquierda --------- */
-    .card-accent {
-      border: 1px solid var(--bs-border-color);
-      border-left-width: .4rem !important;
-      border-radius: .75rem;
-      overflow: hidden;
       box-shadow: var(--bs-box-shadow-sm);
+      color: var(--bs-body-color);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      font-weight: 700;
     }
-    .accent-today     { border-left-color: #6c757d !important; } /* secondary */
-    .accent-progress  { border-left-color: #0d6efd !important; } /* primary   */
-    .accent-ending    { border-left-color: #ffc107 !important; } /* warning   */
-    .accent-upcoming  { border-left-color: #0dcaf0 !important; } /* info      */
-    .accent-finished  { border-left-color: #198754 !important; } /* success   */
-
-    /* --------- Cabecera / barra superior --------- */
-    .toolbar {
-      border: 1px solid var(--bs-border-color);
-      border-radius: .75rem;
-      padding: .75rem;
-      background: var(--bs-body-bg);
-    }
-
-    /* --------- Empty state --------- */
-    .empty {
-      border: 1px dashed var(--bs-border-color);
-      border-radius: .75rem;
-      padding: .75rem .9rem;
-      color: var(--bs-secondary-color);
+    .section-title .left {
       display: inline-flex;
       align-items: center;
-      gap: .5rem;
-      background: transparent;
+      gap: .65rem;
+      font-size: .95rem;
+    }
+    .section-title .icon {
+      width: 34px; height: 34px;
+      border-radius: 999px;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,.6);
+      border: 1px solid rgba(0,0,0,.06);
+      font-size: 1.1rem;
+    }
+    .section-title .count {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .85rem;
+      padding: .25rem .6rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.6);
+      border: 1px solid rgba(0,0,0,.06);
+      font-weight: 600;
     }
 
-    /* --------- Columnas de acciones --------- */
-    .actions {
-      display: flex; 
-      flex-direction: column; 
-      gap: .5rem; 
-      align-items: flex-end;
-    }
+    /* Paletas por sección */
+    .title-progress { background: linear-gradient(135deg,#e8f1ff,#f2f6ff); border-left: .45rem solid #0d6efd; }
+    .title-today    { background: linear-gradient(135deg,#eceff3,#f6f7f9); border-left: .45rem solid #6c757d; }
+    .title-ending   { background: linear-gradient(135deg,#fff6db,#fff1c2); border-left: .45rem solid #ffc107; }
+    .title-finished { background: linear-gradient(135deg,#e9fbf1,#e4f8ef); border-left: .45rem solid #198754; }
 
-    @media (max-width: 576px) {
-      .actions { align-items: stretch; }
-    }
+    /* Tarjetas con acento (tu estilo original) */
+    .card-accent{border:1px solid var(--bs-border-color);border-left-width:.4rem!important;border-radius:.75rem;overflow:hidden;box-shadow:var(--bs-box-shadow-sm)}
+    .accent-today{border-left-color:#6c757d!important}
+    .accent-progress{border-left-color:#0d6efd!important}
+    .accent-ending{border-left-color:#ffc107!important}
+    .accent-upcoming{border-left-color:#0dcaf0!important}
+    .accent-finished{border-left-color:#198754!important}
+
+    /* Toolbar simple */
+    .toolbar{border:1px solid var(--bs-border-color);border-radius:.75rem;padding:.75rem;background:var(--bs-body-bg)}
+
+    .empty{border:1px dashed var(--bs-border-color);border-radius:.75rem;padding:.75rem .9rem;color:var(--bs-secondary-color);display:inline-flex;align-items:center;gap:.5rem;background:transparent}
+
+    .actions{display:flex;flex-direction:column;gap:.5rem;align-items:flex-end}
+    @media (max-width:576px){.actions{align-items:stretch}}
   </style>
 
-  <!-- Barra superior -->
+  <!-- Toolbar (sin buscador) -->
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 toolbar">
-    <div class="d-flex align-items-center gap-2">
-      <h4 class="mb-0">Cronograma por actividad</h4>
-    </div>
-    <div class="d-flex flex-wrap gap-2 align-items-center">
-
-      <a href="{% url 'crearActivity' project.id %}" class="btn btn-sm btn-primary">
-        <i class="bi bi-plus-lg"></i> Nueva actividad
-      </a>
-    </div>
+    <h4 class="mb-0">Cronograma por actividad</h4>
+    <a href="{% url 'crearActivity' project.id %}" class="btn btn-sm btn-primary">
+      <i class="bi bi-plus-lg"></i> Nueva actividad
+    </a>
   </div>
 
-  <!-- ====================== BLOQUE 1: EMPIEZAN HOY ====================== -->
-  <div class="section-divider">
-    <span class="section-chip">
-      <span class="section-meta">
-        <i class="bi bi-sunrise-fill"></i> Empiezan hoy
-        <span class="badge bg-secondary">{{ starting_today|length }}</span>
-      </span>
-    </span>
-  </div>
-
-  {% if starting_today %}
-    <div class="vstack gap-3 mb-4">
-      {% for ac, sch in starting_today %}
-        <div class="card card-accent accent-today">
-          <div class="card-body d-flex justify-content-between align-items-start gap-3">
-            <div class="flex-grow-1">
-              <h6 class="mb-1">{{ ac.name }}</h6>
-              <div class="small text-muted">
-                {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
-              </div>
-              {% if ac.header_activity.all %}
-                <div class="mt-2 small text-muted">
-                  {% for h in ac.header_activity.all %}
-                    <div><span class="fw-semibold text-dark">{{ h.name }}:</span> {{ h.content }}</div>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-            <div class="actions">
-              <form action="{% url 'schedule_start_page' project.id ac.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-sm btn-primary">
-                  <i class="bi bi-play-fill"></i> Comenzar ahora
-                </button>
-              </form>
-              <a href="{% url 'editarActivity' project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-pencil"></i> Editar
-              </a>
-              <a href="{% url 'memoryMananer' project.id ac.id %}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-calculator"></i> Memorias
-              </a>
-            </div>
-          </div>
+  <!-- ======= Fila superior: Izq En curso / Der Empiezan hoy ======= -->
+  <div class="row g-3">
+    <!-- En curso (IZQUIERDA) -->
+    <div class="col-12 col-lg-6">
+      <div class="section-title title-progress mb-3">
+        <div class="left">
+          <span class="icon"><i class="bi bi-lightning-charge-fill"></i></span>
+          <span>En curso</span>
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="mb-4">
-      <span class="empty"><i class="bi bi-dot"></i> No hay actividades que inicien hoy.</span>
-    </div>
-  {% endif %}
+        <span class="count"><i class="bi bi-list-task"></i> {{ in_progress|length }}</span>
+      </div>
 
-  <!-- ====================== BLOQUE 2: EN CURSO ====================== -->
-  <div class="section-divider">
-    <span class="section-chip">
-      <span class="section-meta">
-        <i class="bi bi-lightning-charge-fill"></i> En curso
-        <span class="badge bg-primary">{{ in_progress|length }}</span>
-      </span>
-    </span>
+      {% if in_progress %}
+        <div class="vstack gap-3 mb-4">
+          {% for ac, sch in in_progress %}
+            {% include "partials/_activity_card.html" with ac=ac sch=sch project_id=project.id accent="accent-progress" badge_class="badge bg-primary" badge_text=sch.get_status_display show_start_btn=False show_finish_btn=False %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="mb-4"><span class="empty"><i class="bi bi-dot"></i> No hay actividades en curso.</span></div>
+      {% endif %}
+    </div>
+
+    <!-- Empiezan hoy (DERECHA) -->
+    <div class="col-12 col-lg-6">
+      <div class="section-title title-today mb-3">
+        <div class="left">
+          <span class="icon"><i class="bi bi-sunrise-fill"></i></span>
+          <span>Empiezan hoy</span>
+        </div>
+        <span class="count"><i class="bi bi-list-task"></i> {{ starting_today|length }}</span>
+      </div>
+
+      {% if starting_today %}
+        <div class="vstack gap-3 mb-4">
+          {% for ac, sch in starting_today %}
+            {% include "partials/_activity_card.html" with ac=ac sch=sch project_id=project.id accent="accent-today" badge_class="badge bg-secondary" badge_text="" show_start_btn=True show_finish_btn=False %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="mb-4"><span class="empty"><i class="bi bi-dot"></i> No hay actividades que inicien hoy.</span></div>
+      {% endif %}
+    </div>
   </div>
 
-  {% if in_progress %}
-    <div class="vstack gap-3 mb-4">
-      {% for ac, sch in in_progress %}
-        <div class="card card-accent accent-progress">
-          <div class="card-body d-flex justify-content-between align-items-start gap-3">
-            <div class="flex-grow-1">
-              <h6 class="mb-1">{{ ac.name }}</h6>
-              <div class="d-flex flex-wrap align-items-center gap-2">
-                <span class="badge bg-primary">{{ sch.get_status_display }}</span>
-                <span class="small text-muted">
-                  {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
-                </span>
-              </div>
-            </div>
-            <div class="actions">
-              <a href="{% url 'editarActivity' project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-pencil"></i> Editar
-              </a>
-              <a href="{% url 'memoryMananer' project.id ac.id %}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-calculator"></i> Memorias
-              </a>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
+  <!-- ======= Debajo: Finalizan hoy ======= -->
+  <div class="section-title title-ending mb-3 mt-1">
+    <div class="left">
+      <span class="icon"><i class="bi bi-flag-fill"></i></span>
+      <span>Finalizan hoy</span>
     </div>
-  {% else %}
-    <div class="mb-4">
-      <span class="empty"><i class="bi bi-dot"></i> No hay actividades en curso.</span>
-    </div>
-  {% endif %}
-
-  <!-- ====================== BLOQUE 3: FINALIZAN HOY ====================== -->
-  <div class="section-divider">
-    <span class="section-chip">
-      <span class="section-meta">
-        <i class="bi bi-flag-fill"></i> Finalizan hoy
-        <span class="badge bg-warning text-dark">{{ ending_today|length }}</span>
-      </span>
-    </span>
+    <span class="count"><i class="bi bi-list-task"></i> {{ ending_today|length }}</span>
   </div>
 
   {% if ending_today %}
     <div class="vstack gap-3 mb-4">
       {% for ac, sch in ending_today %}
-        <div class="card card-accent accent-ending">
-          <div class="card-body d-flex justify-content-between align-items-start gap-3">
-            <div class="flex-grow-1">
-              <h6 class="mb-1">{{ ac.name }}</h6>
-              <div class="d-flex flex-wrap align-items-center gap-2">
-                <span class="badge bg-warning text-dark">Termina hoy</span>
-                <span class="small text-muted">
-                  {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
-                </span>
-              </div>
-              {% if ac.header_activity.all %}
-                <div class="mt-2 small text-muted">
-                  {% for h in ac.header_activity.all %}
-                    <div><span class="fw-semibold text-dark">{{ h.name }}:</span> {{ h.content }}</div>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-            <div class="actions">
-              <form action="{% url 'schedule_finish_page' project.id ac.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-sm btn-success">
-                  <i class="bi bi-check2-circle"></i> Finalizar ahora
-                </button>
-              </form>
-              <a href="{% url 'editarActivity' project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-pencil"></i> Editar
-              </a>
-              <a href="{% url 'memoryMananer' project.id ac.id %}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-calculator"></i> Memorias
-              </a>
-            </div>
-          </div>
-        </div>
+        {% include "partials/_activity_card.html" with ac=ac sch=sch project_id=project.id accent="accent-ending" badge_class="badge bg-warning text-dark" badge_text="Termina hoy" show_start_btn=False show_finish_btn=True %}
       {% endfor %}
     </div>
   {% else %}
-    <div class="mb-4">
-      <span class="empty"><i class="bi bi-dot"></i> No hay actividades que finalicen hoy.</span>
-    </div>
+    <div class="mb-4"><span class="empty"><i class="bi bi-dot"></i> No hay actividades que finalicen hoy.</span></div>
   {% endif %}
 
-  <!-- ====================== BLOQUE 4: PRÓXIMAS (FUTURAS) ====================== -->
-  <div class="section-divider">
-    <span class="section-chip">
-      <span class="section-meta">
-        <i class="bi bi-calendar2-week"></i> Próximas (futuras)
-        <span class="badge bg-info text-dark">{{ upcoming|length }}</span>
-      </span>
-    </span>
-  </div>
-
-  {% if upcoming %}
-    <div class="vstack gap-3 mb-4">
-      {% for ac, sch in upcoming %}
-        <div class="card card-accent accent-upcoming">
-          <div class="card-body d-flex justify-content-between align-items-start gap-3">
-            <div class="flex-grow-1">
-              <h6 class="mb-1">{{ ac.name }}</h6>
-              <div class="d-flex flex-wrap align-items-center gap-2">
-                <span class="badge bg-secondary">Planeado</span>
-                <span class="small text-muted">
-                  {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
-                </span>
-              </div>
-              {% if ac.header_activity.all %}
-                <div class="mt-2 small text-muted">
-                  {% for h in ac.header_activity.all %}
-                    <div><span class="fw-semibold text-dark">{{ h.name }}:</span> {{ h.content }}</div>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-            <div class="actions">
-              <a href="{% url 'editarActivity' project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-pencil"></i> Editar
-              </a>
-              <a href="{% url 'memoryMananer' project.id ac.id %}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-calculator"></i> Memorias
-              </a>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
+  <!-- ======= Último: Finalizadas (collapse) ======= -->
+  <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+    <div class="section-title title-finished flex-grow-1 mb-0">
+      <div class="left">
+        <span class="icon"><i class="bi bi-check2-square"></i></span>
+        <span>Finalizadas</span>
+      </div>
+      <span class="count"><i class="bi bi-list-task"></i> {{ finished|length }}</span>
     </div>
-  {% else %}
-    <div class="mb-4">
-      <span class="empty"><i class="bi bi-dot"></i> No hay actividades futuras.</span>
+    <div class="ms-2">
+      <button
+        class="btn btn-sm btn-outline-dark"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#finalizadasCollapse"
+        aria-expanded="false"
+        aria-controls="finalizadasCollapse"
+        id="toggleFinalizadasBtn">
+        <i class="bi bi-eye"></i> Mostrar finalizadas
+      </button>
     </div>
-  {% endif %}
-
-  <!-- ====================== BLOQUE 5: FINALIZADAS (COLLAPSE) ====================== -->
-  <div class="section-divider">
-    <span class="section-chip">
-      <span class="section-meta">
-        <i class="bi bi-check2-square"></i> Finalizadas
-        <span class="badge bg-success">{{ finished|length }}</span>
-      </span>
-    </span>
-  </div>
-
-  <div class="mb-2 d-flex justify-content-between align-items-center">
-    <button
-      class="btn btn-sm btn-outline-dark"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#finalizadasCollapse"
-      aria-expanded="false"
-      aria-controls="finalizadasCollapse"
-      id="toggleFinalizadasBtn"
-    >
-      <i class="bi bi-eye"></i> Mostrar finalizadas
-    </button>
   </div>
 
   <div class="collapse" id="finalizadasCollapse">
     {% if finished %}
       <div class="vstack gap-3 mb-4">
         {% for ac, sch in finished %}
-          <div class="card card-accent accent-finished">
-            <div class="card-body d-flex justify-content-between align-items-start gap-3">
-              <div class="flex-grow-1">
-                <h6 class="mb-1">{{ ac.name }}</h6>
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                  <span class="badge bg-success">{{ sch.get_status_display }}</span>
-                  <span class="small text-muted">
-                    {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          {% include "partials/_activity_card.html" with ac=ac sch=sch project_id=project.id accent="accent-finished" badge_class="badge bg-success" badge_text=sch.get_status_display show_start_btn=False show_finish_btn=False %}
         {% endfor %}
       </div>
     {% else %}
-      <div class="mb-4">
-        <span class="empty"><i class="bi bi-dot"></i> No hay actividades finalizadas.</span>
-      </div>
+      <div class="mb-4"><span class="empty"><i class="bi bi-dot"></i> No hay actividades finalizadas.</span></div>
     {% endif %}
   </div>
 </section>
