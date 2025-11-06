@@ -182,7 +182,7 @@ def project_schedule_events(request, pk):
     end_qs   = _parse_date(request.GET.get('end', ''))
 
     qs = (
-        schedule.objects
+        Schedule.objects
         .filter(activity__project=project)
         .select_related('activity')
         .only('id', 'start_date', 'end_date', 'status', 'activity_id')

@@ -114,10 +114,12 @@ class ScheduleForm(forms.ModelForm):
         obj = super().save(commit=False)
         # Si es nuevo, asegurar estado por defecto
         if obj.pk is None:
-            obj.status = schedule.Status.PLANEADO
+            obj.status = Schedule.Status.PLANEADO
         if commit:
             obj.save()
         return obj
+    
+
 class MemoryMaterialForm(forms.ModelForm):
     def __init__(self, *args, project=None, **kwargs):
         super().__init__(*args, **kwargs)

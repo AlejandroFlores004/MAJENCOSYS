@@ -93,7 +93,7 @@ class Schedule(models.Model):
         
         # 4️) Validar que una actividad no tenga más de un cronograma
         existe_otro = (
-            schedule.objects
+            Schedule.objects
             .filter(activity=self.activity)
             .exclude(pk=self.pk)  # excluye el actual en caso de edición
             .exists()

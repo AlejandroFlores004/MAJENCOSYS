@@ -138,7 +138,7 @@ def crearActivity(request, pk):
         form = ActivityForm(request.POST, instance=activity)
         formset = HeaderFormSet(request.POST, instance=activity, prefix="headers")
         # 👇 inyecta la activity en la instancia del form ANTES de validar
-        schedule_form = ScheduleForm(request.POST, instance=schedule(activity=activity), prefix="schedule")
+        schedule_form = ScheduleForm(request.POST, instance=Schedule(activity=activity), prefix="schedule")
 
         if form.is_valid() and formset.is_valid() and schedule_form.is_valid():
             try:

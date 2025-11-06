@@ -73,7 +73,7 @@
 
               <!-- Subtotal -->
               <td class="text-end text-nowrap">
-                ${{ l.manoobra.jornada|jornalTotal:l.prestaciones|dividir:l.rendimiento|floatformat:2 }}
+                ${{ l.manoobra.jornada|jornalTotal:l.prestaciones|dividir:l.rendimiento|times_business_days:schedule|floatformat:2 }}
               </td>
             </tr>
           {% empty %}
@@ -87,7 +87,7 @@
           <tr>
             <th colspan="5" class="text-end">Total</th>
             <th class="text-end text-nowrap">
-              ${{ labour|totalManoObra|floatformat:2 }}
+              ${{ labour|totalManoObra:schedule|floatformat:2 }}
               {# Con humanize:  ${{ labour|totalManoObra|floatformat:2|intcomma }} #}
             </th>
           </tr>
