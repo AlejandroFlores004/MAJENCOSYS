@@ -1,26 +1,30 @@
-  {% extends "baseMainWorkFlow.html" %}
-  {% load static %}
+{% extends "baseMainWorkFlow.html" %}
+{% load static %}
 
-  {% block title %}Comenzar actividad{% endblock title %}
+{% block title %}Comenzar actividad{% endblock title %}
 
-  {% block content %}
-  <div class="container py-4">
-    <!-- Migas / encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="d-flex align-items-center gap-2">
-        <a href="{% url 'schedule_home' project.pk %}" class="btn btn-sm btn-outline-secondary">
-          <i class="bi bi-arrow-left"></i> Regresar
-        </a>
-        <h4 class="mb-0">Comenzar actividad</h4>
-      </div>
+{% block content %}
+<div class="container py-4">
+
+  <!-- ====== Encabezado / Migas ====== -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-2">
+      <a href="{% url 'schedule_home' project.pk %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Regresar
+      </a>
+      <h4 class="mb-0 fw-semibold text-primary">
+        <i class="bi bi-play-fill me-1"></i> Comenzar actividad
+      </h4>
     </div>
+  </div>
 
-    <div class="card border-0 shadow-sm">
-      <div class="card-body">
-        <h5 class="mb-1">{{ activity.name }}</h5>
-
-        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-          <span class="badge
+  <!-- ====== Tarjeta principal ====== -->
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body">
+      <div class="mb-3">
+        <h5 class="fw-semibold mb-1">{{ activity.name }}</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <span class="badge 
             {% if sch.status == 'P' %}bg-secondary
             {% elif sch.status == 'E' %}bg-primary
             {% elif sch.status == 'F' %}bg-success
@@ -28,33 +32,62 @@
             {{ sch.get_status_display }}
           </span>
 
-          <span class="text-muted small">
+          <small class="text-muted">
+            <i class="bi bi-calendar3"></i>
             {{ sch.start_date|date:"d/m/Y" }} &rarr; {{ sch.end_date|date:"d/m/Y" }}
-          </span>
+          </small>
         </div>
+      </div>
 
-        {% if not can_start_today %}
-          <div class="alert alert-warning small mb-3">
+      <!-- Mensajes de advertencia -->
+      {% if not can_start_today %}
+        <div class="alert alert-warning small mb-3 d-flex align-items-start gap-2">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>
             {% if sch.status != 'P' %}
               Esta actividad no está en estado <strong>Planeado</strong>.
             {% elif sch.start_date > today %}
               Aún no es la fecha de inicio (empieza el <strong>{{ sch.start_date|date:"d/m/Y" }}</strong>).
             {% endif %}
           </div>
-        {% endif %}
+        </div>
+      {% else %}
+        <div class="alert alert-info small mb-3 d-flex align-items-start gap-2">
+          <i class="bi bi-info-circle-fill"></i>
+          <div>
+            Una vez iniciada la actividad, <strong>no se podrán editar sus fechas</strong>.
+          </div>
+        </div>
+      {% endif %}
 
-        <form method="post" action="{% url 'schedule_start_page' pk=project.id activity_id=activity.id %}">
-          {% csrf_token %}
-          <button class="btn btn-primary"
-                  type="submit"
-                  {% if not can_start_today %}disabled{% endif %}>
-            <i class="bi bi-play-fill"></i> Poner en estado Ejecutando
-          </button>
-          <a href="{% url 'editarActivity' project.id activity.id %}" class="btn btn-outline-secondary ms-2">
-            <i class="bi bi-pencil"></i> Editar actividad
-          </a>
-        </form>
-      </div>
+      <!-- Formulario para iniciar actividad -->
+      <form method="post" action="{% url 'schedule_start_page' pk=project.id activity_id=activity.id %}">
+        {% csrf_token %}
+        <button class="btn btn-primary px-4"
+                type="submit"
+                {% if not can_start_today %}disabled{% endif %}>
+          <i class="bi bi-play-fill me-1"></i> Poner en estado <strong>Ejecutando</strong>
+        </button>
+
+        <a href="{% url 'editarActivity' project.id activity.id %}"
+           class="btn btn-outline-secondary ms-2 px-4"
+           {% if sch.status != 'P' %}disabled title="No puede editar fechas si ya ha comenzado"{% endif %}>
+          <i class="bi bi-pencil me-1"></i> Editar actividad
+        </a>
+      </form>
     </div>
   </div>
-  {% endblock content %}
+</div>
+
+<style>
+  .alert i {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    margin-top: 2px;
+  }
+  .btn[disabled] {
+    opacity: 0.65;
+    pointer-events: none;
+  }
+</style>
+{% endblock content %}
