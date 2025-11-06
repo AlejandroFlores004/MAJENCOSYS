@@ -18,27 +18,23 @@
 </div>
 
 <div class="container py-4">
-    
-  <h3 class="text-uppercase font-weight-bold">GENERAR REPORTE</h3>
+  <h3 class="text-uppercase fw-bold">GENERAR REPORTE</h3>
   <a href="{% url 'activity_pdf' project.id %}" class="btn btn-primary" target="_blank">
     <i class="bi bi-file-earmark-pdf"></i> PDF
   </a>
   <hr class="my-5">
 
-  <div class=" mt-4">
-    {% include "partials/lists/_list_activities.html" %}
-  </div>
-  
+  <div class="mt-4">{% include "partials/lists/_list_activities.html" %}</div>
 </div>
-    {% if messages %}
-    <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
-        {% for m in messages %}
-        <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
-        {% endfor %}
-    </div>
-    <script>
-        setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
-    </script>
 
+{% if messages %}
+  <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+    {% for m in messages %}
+      <div class="alert alert-success shadow text-center mb-2">{{ m }}</div>
+    {% endfor %}
+  </div>
+  <script>
+    setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+  </script>
 {% endif %}
 {% endblock content %}
