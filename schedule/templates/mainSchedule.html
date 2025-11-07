@@ -3,6 +3,28 @@
 {% block title %}CRONOGRAMA{% endblock title %}
 
 {% block content %}
+
+    <!-- 🔹 FORMULARIO DE CONSULTA -->
+    <form method="get" action="{% url 'fecha_pdf' project.pk %}">
+      <div class="row g-3 align-items-center">
+        <div class="col-auto">
+          <label for="fecha" class="col-form-label fw-semibold">Seleccione una fecha:</label>
+        </div>
+        <div class="col-auto">
+          <input 
+            type="date" 
+            id="fecha" 
+            name="fecha" 
+            class="form-control"
+            required>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+      </div>
+    </form>
+    
+    <hr class="my-5">
   <h1 class="text-center">CRONOGRAMA DEL PROYECTO</h1>
   {% include "partials/_schedule_list.html" %}
 {% endblock content %}
