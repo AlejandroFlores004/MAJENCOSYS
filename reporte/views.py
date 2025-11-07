@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
 from datetime import datetime
 from weasyprint import HTML
@@ -11,6 +12,12 @@ from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Cali
 from activity.models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental, MemoryHidrologica
 from schedule.models import schedule
 from django.db.models import Prefetch, Q
+
+
+@login_required(login_url='log')
+def mainReporte(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    return render(request)
 
 def demo_pdf(request, pk):
     project = get_object_or_404(Project, pk=pk)

@@ -1,0 +1,85 @@
+{% extends "baseMainWorkFlow.html" %}
+{% load static %}
+{% block title %}Reportes{% endblock title %}
+{% block id_project %}{{ project.id }}{% endblock id_project %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="m-0">📊 Reportes de: <strong>{{ project }}</strong></h4>
+    <a href="{% url 'dashboardProject' project.id %}" class="btn btn-outline-secondary">← Volver al proyecto</a>
+  </div>
+
+  <!-- ================ Reportes rápidos ================= -->
+  <div class="card mb-4">
+    <div class="card-header"><strong>Reportes rápidos</strong></div>
+    <div class="card-body d-flex flex-wrap gap-3">
+
+      <!-- Libro mayor -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Libro mayor</h6>
+          <p class="small text-muted m-0">Costos por actividad + cronograma.</p>
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <a class="btn btn-success btn-sm" href="{% url 'reporte:excel_libro_mayor' project_id=project.id %}">Descargar Excel</a>
+         <!-- <a class="btn btn-outline-primary btn-sm" href="?preview=libro">Vista previa</a>-->
+        </div>
+      </div>
+
+      <!-- Actividades detalle -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Actividades (detalle)</h6>
+          <p class="small text-muted m-0">Estado, inicio, fin y duración.</p>
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <a class="btn btn-success btn-sm" href="{% url 'reporte:excel_actividades_detalle' project_id=project.id %}">Descargar Excel</a>
+          <!--<a class="btn btn-outline-primary btn-sm" href="?preview=detalle">Vista previa</a>-->
+        </div>
+      </div>
+
+      <!-- Por estado -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Por estado</h6>
+          <div class="d-flex gap-1 flex-wrap">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=P">P</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=E">E</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=F">F</a>
+          <!--  <a class="btn btn-outline-primary btn-sm ms-auto" href="?preview=estado&v=E">Vista previa</a>-->
+          </div>
+        </div>
+      </div>
+
+      <!-- Por fecha -->
+      <div class="card shadow-sm" style="min-width:260px;">
+        <div class="card-body">
+          <h6 class="card-title">Por fecha</h6>
+          <form class="row g-2" method="get">
+            <input type="hidden" name="preview" value="fecha">
+            <div class="col-7">
+              <input type="date" class="form-control form-control-sm" name="fecha" value="{{ today }}">
+            </div>
+            <div class="col-5">
+              <select class="form-select form-select-sm" name="tipo">
+                <option value="fin">Fin</option>
+                <option value="inicio">Inicio</option>
+              </select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <a class="btn btn-success btn-sm"
+                 href="{% url 'reporte:excel_actividades_por_fecha' project_id=project.id %}?fecha={{ today }}&tipo=fin">
+                Descargar Excel (hoy/fin)
+              </a>
+           <!--  <button class="btn btn-outline-primary btn-sm" type="submit">Vista previa</button>--> 
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
