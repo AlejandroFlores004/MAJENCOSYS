@@ -1,23 +1,25 @@
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.utils.timezone import now
+from django.utils.timezone import now, localdate
 from datetime import datetime
 from weasyprint import HTML
 from io import BytesIO
 from openpyxl import Workbook
 from project.models import Project
 from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
-from activity.models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental, MemoryHidrologica
+from activity.models import Activity, Header
 from schedule.models import schedule
 from django.db.models import Prefetch, Q
 
-
-@login_required(login_url='log')
-def mainReporte(request, pk):
+def report_center_pdf(request, pk: int):
     project = get_object_or_404(Project, pk=pk)
-    return render(request)
+
+    context = {
+        'project': project,
+    }
+
+    return render(request, 'report_center_pdf.html', context)
 
 def demo_pdf(request, pk):
     project = get_object_or_404(Project, pk=pk)
