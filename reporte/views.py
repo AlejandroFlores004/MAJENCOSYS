@@ -1,13 +1,25 @@
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404
+from django.utils.timezone import now, localdate
+from datetime import datetime
 from weasyprint import HTML
 from io import BytesIO
 from openpyxl import Workbook
 from project.models import Project
 from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
-from activity.models import Activity, Header, MemoryMaterial, MemoryManoObra, MemoryHerramienta, MemoryEquipo, MemoryRiesgos, MemoryCalidad, MemoryAmbiental, MemoryHidrologica
-from django.db.models import Q
+from activity.models import Activity, Header
+from schedule.models import schedule
+from django.db.models import Prefetch, Q
+
+def report_center_pdf(request, pk: int):
+    project = get_object_or_404(Project, pk=pk)
+
+    context = {
+        'project': project,
+    }
+
+    return render(request, 'report_center_pdf.html', context)
 
 def demo_pdf(request, pk):
     project = get_object_or_404(Project, pk=pk)
@@ -85,9 +97,9 @@ def catalogo_pdf(request, pk):
     )
 
     pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
-    return _pdf_response(pdf_bytes, filename="demo_weasyprint.pdf")
+    return _pdf_response(pdf_bytes, filename="Reporte de Catalogo.pdf")
 
-def activity_pdf(request, pk):
+def libromayor_pdf(request, pk):
     project = get_object_or_404(Project, pk=pk)
     activity = Activity.objects.filter(project=project)
 
@@ -168,7 +180,7 @@ def activity_pdf(request, pk):
 
     # Renderizar HTML con la lista
     html_string2 = render_to_string(
-        'activity_pdf.html',
+        'libromayor_pdf.html',
         {
             'project':project,
             'activity':activity,
@@ -200,7 +212,76 @@ def activity_pdf(request, pk):
     )
 
     pdf_bytes = HTML(string=html_string2, base_url=request.build_absolute_uri('/')).write_pdf()
-    return _pdf_response(pdf_bytes, filename="demo_weasyprint.pdf")
+    return _pdf_response(pdf_bytes, filename="Reporte de Libro Mayor.pdf")
+
+def activities_pdf(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    activities_qs = (
+        Activity.objects
+        .filter(project=project)
+        .prefetch_related(
+            Prefetch("header_activity", queryset=Header.objects.all()),
+            # Traemos el cronograma (uno por actividad según tu UniqueConstraint)
+            Prefetch("schedule_activity", queryset=schedule.objects.all())
+        )
+        .order_by("name")
+    )
+
+    # ---------------------------------------------------
+    
+    # Renderizar HTML con la lista de Actividades
+    html_string = render_to_string(
+        'activities_pdf.html',
+        {
+            'project': project,
+            'activities': activities_qs,  # <-- aquí mandas la lista al HTML
+        }
+    )
+    # base_url para que resuelva /static/ cuando lo uses
+    pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    return _pdf_response(pdf_bytes, filename="Reporte de Actividades.pdf")
+
+def fecha_pdf(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    fecha_str = request.GET.get("fecha")
+    if fecha_str:
+        try:
+            fecha_consulta = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        except ValueError:
+            fecha_consulta = now().date()  # valor por defecto si hay error
+    else:
+        fecha_consulta = now().date()
+
+
+    activities_qs = (
+        Activity.objects
+        .filter(project=project,
+            schedule_activity__start_date__lte=fecha_consulta,
+            schedule_activity__end_date__gte=fecha_consulta
+        )
+        .prefetch_related(
+            Prefetch("header_activity", queryset=Header.objects.all()),
+            Prefetch("schedule_activity", queryset=schedule.objects.all())
+        )
+        .order_by("name")
+    )
+
+    # ---------------------------------------------------
+    
+    # Renderizar HTML con la lista de Actividades
+    html_string = render_to_string(
+        'fecha_pdf.html',
+        {
+            'project': project,
+            'activities': activities_qs,  # <-- aquí mandas la lista al HTML
+            'fecha_consulta': fecha_consulta,
+        }
+    )
+    # base_url para que resuelva /static/ cuando lo uses
+    pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    return _pdf_response(pdf_bytes, filename="Reporte del.pdf")
 
 def _pdf_response(pdf_bytes: bytes, filename: str):
     resp = HttpResponse(pdf_bytes, content_type='application/pdf')
