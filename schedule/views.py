@@ -27,46 +27,52 @@ def mainSchedule(request, pk):
         )
         .order_by("name")
     )
-
     if q:
         activities_qs = activities_qs.filter(Q(name__icontains=q))
 
-    starting_today, ending_today, in_progress, upcoming, finished = [], [], [], [], []
+    to_start, to_finish, upcoming, finished = [], [], [], []
 
     for ac in activities_qs:
         sch = ac.schedule_activity.first()
         if not sch:
             continue
 
-        if sch.status == Schedule.Status.PLANEADO and sch.start_date == today:
-            starting_today.append((ac, sch))  # 1) Empiezan hoy
-        elif sch.end_date == today and sch.status in (Schedule.Status.PLANEADO, Schedule.Status.EJECUTANDO):
-            ending_today.append((ac, sch))    # 3) Finalizan hoy (no finalizadas)
-        elif sch.status == Schedule.Status.EJECUTANDO:
-            in_progress.append((ac, sch))     # 2) En curso
-        elif sch.status == Schedule.Status.PLANEADO and sch.start_date > today:
-            upcoming.append((ac, sch))        # 4) Próximas (futuras)
-        elif sch.status == Schedule.Status.FINALIZADO:
-            finished.append((ac, sch))        # 5) Finalizadas
+        # 1) Terminar: end_date <= hoy y no finalizadas
+        if sch.end_date and sch.end_date <= today and sch.status in (
+            Schedule.Status.PLANEADO, Schedule.Status.EJECUTANDO
+        ):
+            to_finish.append((ac, sch))
+            continue  # evitar duplicados
 
-    # Ordenes para UI
-    starting_today.sort(key=lambda t: (t[1].start_date, t[0].name.lower()))
-    in_progress.sort(key=lambda t: (t[1].start_date, t[0].name.lower()))
-    ending_today.sort(key=lambda t: (t[1].end_date, t[0].name.lower()))
+        # 2) Iniciar: start_date <= hoy y en PLANEADO
+        if sch.start_date and sch.start_date <= today and sch.status == Schedule.Status.PLANEADO:
+            to_start.append((ac, sch))
+            continue
+
+        # 3) Futuras: start_date > hoy y en PLANEADO
+        if sch.status == Schedule.Status.PLANEADO and sch.start_date and sch.start_date > today:
+            upcoming.append((ac, sch))
+            continue
+
+        # 4) Finalizadas
+        if sch.status == Schedule.Status.FINALIZADO:
+            finished.append((ac, sch))
+
+    # Orden para UI
+    to_start.sort(key=lambda t: (t[1].start_date, t[0].name.lower()))
+    to_finish.sort(key=lambda t: (t[1].end_date or t[1].start_date, t[0].name.lower()))
     upcoming.sort(key=lambda t: (t[1].start_date, t[0].name.lower()))
     finished.sort(key=lambda t: (t[1].end_date or t[1].start_date, t[0].name.lower()), reverse=True)
 
     context = {
         "project": project,
         "q": q,
-        "starting_today": starting_today,
-        "in_progress": in_progress,
-        "ending_today": ending_today,
-        "upcoming": upcoming,      # <-- nuevo
+        "to_start": to_start,
+        "to_finish": to_finish,
+        "upcoming": upcoming,
         "finished": finished,
     }
     return render(request, "mainSchedule.html", context)
-
 
 @login_required(login_url='log')
 def schedule_start_page(request, pk, activity_id):
