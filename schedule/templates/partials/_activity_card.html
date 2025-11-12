@@ -1,4 +1,4 @@
-{# section: "start" | "finish" | "upcoming" | "finished" #}
+{# section: "start" | "progress" | "finish" | "upcoming" | "finished" #}
 <div class="card border rounded shadow-sm">
   <div class="card-body d-flex justify-content-between align-items-start gap-3">
     <div class="flex-grow-1">
@@ -24,6 +24,11 @@
         <a href="{% url 'editarActivity' project_id ac.id %}" class="btn btn-sm btn-outline-secondary">
           <i class="bi bi-pencil"></i> Editar
         </a>
+        <a href="{% url 'memoryMananer' project_id ac.id %}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-calculator"></i> Memorias
+        </a>
+
+      {% elif section == "progress" %}
         <a href="{% url 'memoryMananer' project_id ac.id %}" class="btn btn-sm btn-outline-primary">
           <i class="bi bi-calculator"></i> Memorias
         </a>

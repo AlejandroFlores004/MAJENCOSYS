@@ -9,7 +9,7 @@ from openpyxl import Workbook
 from project.models import Project
 from catalog.models import Material, ManoObra, Herramienta, Equipo, Riesgo, Calidad, Ambiental, Hidrologica
 from activity.models import Activity, Header
-from schedule.models import schedule
+from schedule.models import Schedule
 from django.db.models import Prefetch, Q
 
 def report_center_pdf(request, pk: int):
@@ -223,7 +223,7 @@ def activities_pdf(request, pk):
         .prefetch_related(
             Prefetch("header_activity", queryset=Header.objects.all()),
             # Traemos el cronograma (uno por actividad según tu UniqueConstraint)
-            Prefetch("schedule_activity", queryset=schedule.objects.all())
+            Prefetch("schedule_activity", queryset=Schedule.objects.all())
         )
         .order_by("name")
     )
@@ -263,7 +263,7 @@ def fecha_pdf(request, pk):
         )
         .prefetch_related(
             Prefetch("header_activity", queryset=Header.objects.all()),
-            Prefetch("schedule_activity", queryset=schedule.objects.all())
+            Prefetch("schedule_activity", queryset=Schedule.objects.all())
         )
         .order_by("name")
     )

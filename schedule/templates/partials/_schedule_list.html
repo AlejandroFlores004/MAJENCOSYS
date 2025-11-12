@@ -1,18 +1,16 @@
-{# SOLO Bootstrap #}
 <section id="cronograma">
 
-  {# ===== Fila superior: Iniciar / Terminar ===== #}
+  {# ===== Fila superior: Iniciar / En curso / Terminar ===== #}
   <div class="row g-3 mb-3">
 
     {# Iniciar #}
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-4">
       <div class="d-flex justify-content-between align-items-center bg-light border rounded px-3 py-2 mb-2">
         <h5 class="mb-0 d-flex align-items-center gap-2">
           <i class="bi bi-play-fill"></i> Iniciar
         </h5>
         <span class="badge text-bg-secondary">{{ to_start|length }}</span>
       </div>
-
       {% if to_start %}
         <div class="vstack gap-2">
           {% for ac, sch in to_start %}
@@ -24,15 +22,33 @@
       {% endif %}
     </div>
 
+    {# En curso #}
+    <div class="col-12 col-lg-4">
+      <div class="d-flex justify-content-between align-items-center bg-light border rounded px-3 py-2 mb-2">
+        <h5 class="mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-lightning-charge-fill"></i> En curso
+        </h5>
+        <span class="badge text-bg-secondary">{{ in_progress|length }}</span>
+      </div>
+      {% if in_progress %}
+        <div class="vstack gap-2">
+          {% for ac, sch in in_progress %}
+            {% include "partials/_activity_card.html" with ac=ac sch=sch project_id=project.id section="progress" %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-secondary small">No hay actividades en curso.</div>
+      {% endif %}
+    </div>
+
     {# Terminar #}
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-4">
       <div class="d-flex justify-content-between align-items-center bg-light border rounded px-3 py-2 mb-2">
         <h5 class="mb-0 d-flex align-items-center gap-2">
           <i class="bi bi-check2-circle"></i> Terminar
         </h5>
         <span class="badge text-bg-secondary">{{ to_finish|length }}</span>
       </div>
-
       {% if to_finish %}
         <div class="vstack gap-2">
           {% for ac, sch in to_finish %}
@@ -53,7 +69,6 @@
       </h5>
       <span class="badge text-bg-secondary">{{ upcoming|length }}</span>
     </div>
-
     {% if upcoming %}
       <div class="row g-2">
         {% for ac, sch in upcoming %}
@@ -96,7 +111,6 @@
       <div class="alert alert-secondary small mt-2">No hay actividades finalizadas.</div>
     {% endif %}
   </div>
-
 </section>
 
 <script>

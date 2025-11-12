@@ -20,46 +20,47 @@ def mainSchedule(request, pk):
         .filter(project=project)
         .prefetch_related(
             Prefetch("header_activity", queryset=Header.objects.all()),
-            Prefetch(
-                "schedule_activity",
-                queryset=Schedule.objects.order_by("-updated_at", "-id")
-            )
+            Prefetch("schedule_activity", queryset=Schedule.objects.order_by("-updated_at", "-id"))
         )
         .order_by("name")
     )
     if q:
         activities_qs = activities_qs.filter(Q(name__icontains=q))
 
-    to_start, to_finish, upcoming, finished = [], [], [], []
+    to_start, in_progress, to_finish, upcoming, finished = [], [], [], [], []
 
     for ac in activities_qs:
         sch = ac.schedule_activity.first()
         if not sch:
             continue
 
-        # 1) Terminar: end_date <= hoy y no finalizadas
-        if sch.end_date and sch.end_date <= today and sch.status in (
-            Schedule.Status.PLANEADO, Schedule.Status.EJECUTANDO
-        ):
+        # 1) Terminar: vencidas (end_date <= hoy) y NO finalizadas
+        if sch.end_date and sch.end_date <= today and sch.status in (Schedule.Status.PLANEADO, Schedule.Status.EJECUTANDO):
             to_finish.append((ac, sch))
-            continue  # evitar duplicados
+            continue
 
-        # 2) Iniciar: start_date <= hoy y en PLANEADO
-        if sch.start_date and sch.start_date <= today and sch.status == Schedule.Status.PLANEADO:
+        # 2) En curso: ejecutando y no vencidas
+        if sch.status == Schedule.Status.EJECUTANDO:
+            in_progress.append((ac, sch))
+            continue
+
+        # 3) Iniciar: planeadas con start_date <= hoy
+        if sch.status == Schedule.Status.PLANEADO and sch.start_date and sch.start_date <= today:
             to_start.append((ac, sch))
             continue
 
-        # 3) Futuras: start_date > hoy y en PLANEADO
+        # 4) Futuras: planeadas con start_date > hoy
         if sch.status == Schedule.Status.PLANEADO and sch.start_date and sch.start_date > today:
             upcoming.append((ac, sch))
             continue
 
-        # 4) Finalizadas
+        # 5) Finalizadas
         if sch.status == Schedule.Status.FINALIZADO:
             finished.append((ac, sch))
 
-    # Orden para UI
+    # Orden UI
     to_start.sort(key=lambda t: (t[1].start_date, t[0].name.lower()))
+    in_progress.sort(key=lambda t: (t[1].start_date, t[0].name.lower()))
     to_finish.sort(key=lambda t: (t[1].end_date or t[1].start_date, t[0].name.lower()))
     upcoming.sort(key=lambda t: (t[1].start_date, t[0].name.lower()))
     finished.sort(key=lambda t: (t[1].end_date or t[1].start_date, t[0].name.lower()), reverse=True)
@@ -68,6 +69,7 @@ def mainSchedule(request, pk):
         "project": project,
         "q": q,
         "to_start": to_start,
+        "in_progress": in_progress,
         "to_finish": to_finish,
         "upcoming": upcoming,
         "finished": finished,
