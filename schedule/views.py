@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch, Q
 from django.utils import timezone
 from django.contrib import messages
+from django.db import transaction
 
 from project.models import Project
 from activity.models import Activity, Header
@@ -101,9 +102,16 @@ def schedule_start_page(request, pk, activity_id):
             )
             return redirect("schedule_start_page", pk=pk, activity_id=activity_id)
 
-        sch.status = Schedule.Status.EJECUTANDO
-        sch.save(update_fields=["status", "updated_at"])
-        messages.success(request, "La actividad ahora está en estado: Ejecutando.")
+        # Cambiar a EJECUTANDO y fijar real_start_date si no existe
+        with transaction.atomic():
+            sch.status = Schedule.Status.EJECUTANDO
+            if not sch.real_start_date:
+                sch.real_start_date = today
+                sch.save(update_fields=["status", "real_start_date", "updated_at"])
+            else:
+                sch.save(update_fields=["status", "updated_at"])
+
+        messages.success(request, "La actividad ahora está en estado: Ejecutando (fecha real de inicio guardada).")
         return redirect("schedule_home", pk=pk)
 
     # GET
@@ -117,6 +125,7 @@ def schedule_start_page(request, pk, activity_id):
     return render(request, "start_now.html", context)
 
 
+@login_required(login_url='log')
 def schedule_finish_page(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
@@ -127,7 +136,7 @@ def schedule_finish_page(request, pk, activity_id):
         return redirect("schedule_home", pk=pk)
 
     today = timezone.localdate()
-    # Puede finalizar si su end_date es hoy o ya pasó
+    # Puede finalizar si su end_date es hoy o ya pasó y no está finalizado aún
     can_finish_today = (sch.end_date <= today) and (sch.status in (Schedule.Status.PLANEADO, Schedule.Status.EJECUTANDO))
 
     if request.method == "POST":
@@ -142,18 +151,24 @@ def schedule_finish_page(request, pk, activity_id):
             )
             return redirect("schedule_finish_page", pk=pk, activity_id=activity_id)
 
-        # Forzar a FINALIZADO
-        sch.status = Schedule.Status.FINALIZADO
-        # Si tu modelo tiene updated_at auto_now=True no hace falta, pero por si usas manual:
-        try:
-            sch.save(update_fields=["status", "updated_at"])
-        except Exception:
-            sch.save(update_fields=["status"])
+        # Finalizar y fijar real_end_date si no existe
+        with transaction.atomic():
+            sch.status = Schedule.Status.FINALIZADO
+            update_fields = ["status", "updated_at"]
 
-        messages.success(request, "La actividad ahora está en estado: Finalizado.")
+            if not sch.real_end_date:
+                sch.real_end_date = today
+                update_fields.insert(1, "real_end_date")  # mantener orden lógico
+
+            try:
+                sch.save(update_fields=update_fields)
+            except Exception:
+                sch.save()
+
+        messages.success(request, "La actividad ahora está en estado: Finalizado (fecha real de fin guardada).")
         return redirect("schedule_home", pk=pk)
 
-    # GET (opcional mostrar confirmación)
+    # GET (página de confirmación)
     context = {
         "project": project,
         "activity": activity,

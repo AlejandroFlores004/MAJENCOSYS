@@ -24,6 +24,20 @@ class Schedule(models.Model):
         db_index=True,
     )
 
+    real_start_date = models.DateField(
+        verbose_name="Fecha real de inicio",
+        help_text="Fecha en la que inicia la actividad.",
+        db_index=True,
+        null=True, blank=True,
+    )
+
+    real_end_date = models.DateField(
+        verbose_name="Fecha real de fin",
+        help_text="Fecha en la que finaliza la actividad.",
+        db_index=True,
+        null=True, blank=True,
+    )
+
     status = models.CharField(
         max_length=1,
         choices=Status.choices,
