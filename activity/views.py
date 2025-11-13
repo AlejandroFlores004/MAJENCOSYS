@@ -170,8 +170,6 @@ def crearActivity(request, pk):
         "is_edit": False,
     })
 
-
-
 @login_required(login_url='log')
 def editarActivity(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)
@@ -228,7 +226,41 @@ def editarActivity(request, pk, activity_id):
     }
     return render(request, "formActivity.html", ctx)
 
-from datetime import timedelta
+@login_required(login_url='log')
+def detailActivityPlanned(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+    sc = get_object_or_404(Schedule, activity=activity)
+
+    headers = Header.objects.filter(activity=activity)
+
+    today = timezone.localdate()
+
+    ctx = {
+        "project": project,
+        "activity": activity,
+        "headers": headers,
+        "schedule": sc,
+    }
+    return render(request, "activityDetailPlanned.html", ctx)
+
+@login_required(login_url='log')
+def detailActivityFinished(request, pk, activity_id):
+    project = get_object_or_404(Project, pk=pk)
+    activity = get_object_or_404(Activity, pk=activity_id, project=project)
+    sc = get_object_or_404(Schedule, activity=activity)
+
+    headers = Header.objects.filter(activity=activity)
+
+    today = timezone.localdate()
+
+    ctx = {
+        "project": project,
+        "activity": activity,
+        "headers": headers,
+        "schedule": sc,
+    }
+    return render(request, "activityDetailFinished.html", ctx)
 
 @login_required(login_url='log')
 def memoryManager(request, pk, activity_id):
@@ -265,8 +297,6 @@ def memoryManager(request, pk, activity_id):
         "schedule": sc,
     }
     return render(request, "memoryManage.html", ctx)
-
-
 
 @login_required(login_url='log')
 def formMemoryMaterials(request, pk, activity_id):

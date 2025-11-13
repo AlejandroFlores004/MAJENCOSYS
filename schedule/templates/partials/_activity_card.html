@@ -61,7 +61,7 @@
         </a>
 
       {% elif section == "finished" %}
-        <a href="#" class="btn btn-sm btn-outline-secondary">
+        <a href="{% url "detailActivityFinished" project_id ac.id %}" class="btn btn-sm btn-outline-secondary">
           <i class="bi bi-eye"></i> Ver
         </a>
       {% endif %}
