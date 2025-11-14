@@ -10,12 +10,14 @@
         <h5 class="mb-0">Pruebas Hidrológicas</h5>
         <span class="badge bg-primary">{{ hidrologica|length }}</span>
       </div>
-      <a
-        href="{% url 'memoryHidrologica' project.id activity.id %}"
-        class="btn btn-outline-primary btn-sm"
-      >
-        <i class="bi bi-pencil-square"></i> Editar
+      {% if not isShowPlanned %}
+        <a
+          href="{% url 'memoryHidrologica' project.id activity.id %}"
+          class="btn btn-outline-primary btn-sm"
+        >
+          <i class="bi bi-pencil-square"></i> Editar
       </a>
+      {% endif %}
     </div>
 
     <div class="table-responsive">

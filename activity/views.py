@@ -234,13 +234,31 @@ def detailActivityPlanned(request, pk, activity_id):
 
     headers = Header.objects.filter(activity=activity)
 
-    today = timezone.localdate()
+    materials = MemoryMaterial.objects.filter(activity=activity)
+    labour = MemoryManoObra.objects.filter(activity=activity)
+    herramientas = MemoryHerramienta.objects.filter(activity=activity)
+    equipo = MemoryEquipo.objects.filter(activity=activity)
+    riesgos = MemoryRiesgos.objects.filter(activity=activity)
+    calidad = MemoryCalidad.objects.filter(activity=activity)
+    ambiental = MemoryAmbiental.objects.filter(activity=activity)
+    hidrologica = MemoryHidrologica.objects.filter(activity=activity)
+
+    isShowPlanned = True
 
     ctx = {
         "project": project,
         "activity": activity,
         "headers": headers,
         "schedule": sc,
+        "materials": materials,
+        "labour": labour,
+        "herramientas": herramientas,
+        "equipo": equipo,
+        "riesgos": riesgos,
+        "calidad": calidad,
+        "ambiental": ambiental,
+        "hidrologica": hidrologica,
+        "isShowPlanned": isShowPlanned,
     }
     return render(request, "activityDetailPlanned.html", ctx)
 
@@ -252,13 +270,29 @@ def detailActivityFinished(request, pk, activity_id):
 
     headers = Header.objects.filter(activity=activity)
 
-    today = timezone.localdate()
+    materials = MemoryMaterial.objects.filter(activity=activity)
+    labour = MemoryManoObra.objects.filter(activity=activity)
+    herramientas = MemoryHerramienta.objects.filter(activity=activity)
+    equipo = MemoryEquipo.objects.filter(activity=activity)
+    riesgos = MemoryRiesgos.objects.filter(activity=activity)
+    calidad = MemoryCalidad.objects.filter(activity=activity)
+    ambiental = MemoryAmbiental.objects.filter(activity=activity)
+    hidrologica = MemoryHidrologica.objects.filter(activity=activity)
+
 
     ctx = {
         "project": project,
         "activity": activity,
         "headers": headers,
         "schedule": sc,
+        "materials": materials,
+        "labour": labour,
+        "herramientas": herramientas,
+        "equipo": equipo,
+        "riesgos": riesgos,
+        "calidad": calidad,
+        "ambiental": ambiental,
+        "hidrologica": hidrologica,
     }
     return render(request, "activityDetailFinished.html", ctx)
 
@@ -275,7 +309,7 @@ def memoryManager(request, pk, activity_id):
     equipo = MemoryEquipo.objects.filter(activity=activity)
     riesgos = MemoryRiesgos.objects.filter(activity=activity)
     calidad = MemoryCalidad.objects.filter(activity=activity)
-    ambiental = MemoryAmbiental.objects.filter(activity=activity)   # <- corrige nombre (antes ambienta)
+    ambiental = MemoryAmbiental.objects.filter(activity=activity)
     hidrologica = MemoryHidrologica.objects.filter(activity=activity)
 
     today = timezone.localdate()

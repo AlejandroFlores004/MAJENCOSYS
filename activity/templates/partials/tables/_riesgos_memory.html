@@ -10,12 +10,14 @@
         <h5 class="mb-0">Potenciales Riesgos</h5>
         <span class="badge bg-primary">{{ riesgos|length }}</span>
       </div>
-      <a
-        href="{% url 'memoryRiesgos' project.id activity.id %}"
-        class="btn btn-outline-primary btn-sm"
-      >
-        <i class="bi bi-pencil-square"></i> Editar
-      </a>
+      {% if not isShowPlanned %}
+        <a
+          href="{% url 'memoryRiesgos' project.id activity.id %}"
+          class="btn btn-outline-primary btn-sm"
+        >
+          <i class="bi bi-pencil-square"></i> Editar
+        </a>
+      {% endif %}
     </div>
 
     <div class="table-responsive">

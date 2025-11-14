@@ -1,1 +1,177 @@
-Aquí vamos cuando estan planeadas las actividades
+{% extends "baseMainWorkflow.html" %}
+
+{% block title %}Detalle de actividad planeada{% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Encabezado con botón de regresar -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+    <div>
+      <h1 class="h3 text-uppercase mb-1">Detalle de actividad planeada</h1>
+      <p class="mb-0 text-muted">
+        <span class="fw-semibold">Proyecto:</span> {{ project.name }}
+      </p>
+    </div>
+
+    <!-- Botón de regresar -->
+    <a href="{% url "mainAcivity" project.id %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Regresar
+    </a>
+
+  </div>
+
+  <!-- Información principal -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+      <h5 class="card-title text-uppercase mb-3">{{ activity.name }}</h5>
+
+      <!-- Fechas -->
+      <div class="d-flex flex-wrap gap-4 mb-4">
+        <div>
+          <div class="small text-muted mb-1">Fecha de inicio</div>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+            {{ schedule.start_date|date:"d/m/Y" }}
+          </span>
+        </div>
+        <div>
+          <div class="small text-muted mb-1">Fecha de fin</div>
+          <span class="badge bg-success-subtle text-success border border-success-subtle">
+            {{ schedule.end_date|date:"d/m/Y" }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Headers -->
+      {% if headers %}
+        <h6 class="text-uppercase text-muted small mb-2">Información adicional</h6>
+        <ul class="list-group list-group-flush">
+          {% for h in headers %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <span class="fw-semibold">{{ h.name }}:</span>
+              <span class="text-muted ms-2">{{ h.content }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ==== TABLAS ==== #}
+
+  {% if materials %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Materiales</span>
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_material_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if labour %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Mano de Obra</span>
+        <i class="bi bi-people"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_labour_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if equipment %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Equipo</span>
+        <i class="bi bi-truck-front"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_equipo_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if herramientas %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Herramientas</span>
+        <i class="bi bi-wrench-adjustable"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_herramientas_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if riesgos %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Riesgos</span>
+        <i class="bi bi-exclamation-triangle"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_riesgos_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if ambiental %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Ambiental</span>
+        <i class="bi bi-tree"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_ambiental_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if calidad %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Calidad</span>
+        <i class="bi bi-patch-check"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_calidad_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if hidrologica %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-uppercase small">Hidrológica</span>
+        <i class="bi bi-droplet-half"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% include "partials/tables/_hidrologica_memory.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock content %}
