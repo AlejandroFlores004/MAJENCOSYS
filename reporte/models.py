@@ -1,6 +1,6 @@
 from django.db import models
 from project.models import Project
-
+from django.conf import settings
 
 class ReportTemplate(models.Model):
     """

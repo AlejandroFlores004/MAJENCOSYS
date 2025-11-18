@@ -330,11 +330,16 @@ from .excel_builders import (
 
 def _get_project(request, project_id=None):
     if project_id is None and request.resolver_match:
-        project_id = request.resolver_match.kwargs.get("project_id")
+        kw = request.resolver_match.kwargs
+        # Busca con distintos nombres
+        project_id = kw.get("project_id") or kw.get("pk") or kw.get("id")
+
     if project_id is None:
         project_id = request.GET.get("project_id") or request.POST.get("project_id")
+
     if project_id is None:
         raise ValueError("project_id no está presente en la URL.")
+
     return get_object_or_404(Project, id=project_id)
 
 
@@ -642,9 +647,9 @@ def excel_from_template(request, pk, project_id=None, *args, **kwargs):
 
 
 @require_http_methods(["GET"])
-def template_load(request, project_id, pk):
+def template_load(request, project_id, tpl_id):
     project = get_object_or_404(Project, pk=project_id)
-    tpl = get_object_or_404(ReportTemplate, pk=pk, project=project)
+    tpl = get_object_or_404(ReportTemplate, pk=tpl_id, project=project)
     return JsonResponse(
         {
             "ok": True,
@@ -656,13 +661,13 @@ def template_load(request, project_id, pk):
 
 
 @require_http_methods(["POST"])
-def template_refresh(request, project_id, pk):
+def template_refresh(request, project_id, tpl_id):
     """
     Recalcula la plantilla para asegurarse de que el payload es válido
     y simplemente actualiza `updated_at`. Si algo truena, devuelve 400.
     """
     project = get_object_or_404(Project, pk=project_id)
-    tpl = get_object_or_404(ReportTemplate, pk=pk, project=project)
+    tpl = get_object_or_404(ReportTemplate, pk=tpl_id, project=project)
 
     try:
         build_custom_report(project, tpl.payload or {})
@@ -674,9 +679,9 @@ def template_refresh(request, project_id, pk):
 
 
 @require_http_methods(["POST"])
-def template_update(request, project_id, pk):
+def template_update(request, project_id, tpl_id):
     project = get_object_or_404(Project, pk=project_id)
-    tpl = get_object_or_404(ReportTemplate, pk=pk, project=project)
+    tpl = get_object_or_404(ReportTemplate, pk=tpl_id, project=project)
 
     try:
         data = json.loads(request.body.decode("utf-8") or "{}")
@@ -695,8 +700,8 @@ def template_update(request, project_id, pk):
 
 
 @require_http_methods(["POST"])
-def template_delete(request, project_id, pk):
+def template_delete(request, project_id, tpl_id):
     project = get_object_or_404(Project, pk=project_id)
-    tpl = get_object_or_404(ReportTemplate, pk=pk, project=project)
+    tpl = get_object_or_404(ReportTemplate, pk=tpl_id, project=project)
     tpl.delete()
     return JsonResponse({"ok": True})
