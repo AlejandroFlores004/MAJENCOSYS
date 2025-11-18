@@ -39,6 +39,45 @@ def jornalTotal(value, arg):
     except (TypeError, ValueError):
         return ''
     
+@register.filter(name='totalManoObraFinished')
+def totalManoObraFinished(manoObra, sched=None):
+    """
+    Suma: (jornada / (1 - prestaciones)) / rendimiento  de cada ítem,
+    y multiplica el total por los días hábiles (lun–sáb) del schedule si se pasa.
+    """
+    try:
+        total = Decimal('0')
+
+        # Sumar todos los ítems primero
+        for m in manoObra:
+            try:
+                jornada = Decimal(str(m.manoobra.jornada))
+                prestaciones = Decimal(str(m.prestaciones))
+                rendimiento = Decimal(str(m.rendimiento))
+
+                # Evitar divisiones inválidas
+                if rendimiento <= 0:
+                    continue
+                if prestaciones >= Decimal('1'):
+                    continue
+
+                jornada_total = jornada / (Decimal('1') - prestaciones)
+                total += (jornada_total / rendimiento)
+            except (InvalidOperation, DivisionByZero):
+                continue
+
+        # Multiplicar por días hábiles si recibimos schedule
+        if sched is not None:
+            start = getattr(sched, 'real_start_date', None)
+            end = getattr(sched, 'real_end_date', None)
+            if start and end:
+                days = _count_mon_sat(_to_date(start), _to_date(end))
+                total *= Decimal(days)
+
+        return total
+    except Exception:
+        return Decimal('0')
+    
 @register.filter(name='totalManoObra')
 def totalManoObra(manoObra, sched=None):
     """
@@ -107,6 +146,26 @@ def times_business_days(value, sched):
     try:
         start = getattr(sched, "start_date", None)
         end = getattr(sched, "end_date", None)
+        if not start or not end:
+            return value  # si falta alguna fecha, no toca el valor
+
+        start = _to_date(start)
+        end = _to_date(end)
+
+        days = _count_mon_sat(start, end)
+        return float(value) * days
+    except Exception:
+        return value
+    
+@register.filter(name="times_business_days_finished")
+def times_business_days_finished(value, sched):
+    """
+    Multiplica 'value' por la cantidad de días hábiles (lun–sáb) entre
+    sched.start_date y sched.end_date (ambos inclusive).
+    """
+    try:
+        start = getattr(sched, "real_start_date", None)
+        end = getattr(sched, "real_end_date", None)
         if not start or not end:
             return value  # si falta alguna fecha, no toca el valor
 

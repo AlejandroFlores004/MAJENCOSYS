@@ -10,7 +10,7 @@
         <h5 class="mb-0">Mano de obra</h5>
         <span class="badge bg-primary">{{ labour|length }}</span>
       </div>
-      {% if not isShowPlanned %}
+      {% if not isShowPlanned and not isShowFinished %}
         <a
           href="{% url 'memoryManoObra' project.id activity.id %}"
           class="btn btn-outline-primary btn-sm"
@@ -74,9 +74,15 @@
               </td>
 
               <!-- Subtotal -->
+              {% if isShowFinished %}
+                <td class="text-end text-nowrap">
+                  ${{ l.manoobra.jornada|jornalTotal:l.prestaciones|dividir:l.rendimiento|times_business_days_finished:schedule|floatformat:2 }}
+                </td>
+              {% else %}
               <td class="text-end text-nowrap">
                 ${{ l.manoobra.jornada|jornalTotal:l.prestaciones|dividir:l.rendimiento|times_business_days:schedule|floatformat:2 }}
               </td>
+              {% endif %}
             </tr>
           {% empty %}
             <tr>
@@ -89,7 +95,11 @@
           <tr>
             <th colspan="5" class="text-end">Total</th>
             <th class="text-end text-nowrap">
-              ${{ labour|totalManoObra:schedule|floatformat:2 }}
+              {% if not isShowFinished %}
+                ${{ labour|totalManoObraFinished:schedule|floatformat:2 }}
+              {% else %}
+                ${{ labour|totalManoObra:schedule|floatformat:2 }}
+              {% endif %}
               {# Con humanize:  ${{ labour|totalManoObra|floatformat:2|intcomma }} #}
             </th>
           </tr>

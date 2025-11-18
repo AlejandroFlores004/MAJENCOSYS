@@ -10,7 +10,7 @@
         <h5 class="mb-0">Herramientas</h5>
         <span class="badge bg-primary">{{ herramientas|length }}</span>
       </div>
-      {% if not isShowPlanned %}
+      {% if not isShowPlanned and not isShowFinished %}
         <a
           href="{% url 'memoryHerramienta' project.id activity.id %}"
           class="btn btn-outline-primary btn-sm"

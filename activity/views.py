@@ -279,6 +279,7 @@ def detailActivityFinished(request, pk, activity_id):
     ambiental = MemoryAmbiental.objects.filter(activity=activity)
     hidrologica = MemoryHidrologica.objects.filter(activity=activity)
 
+    isShowFinished = True
 
     ctx = {
         "project": project,
@@ -293,6 +294,7 @@ def detailActivityFinished(request, pk, activity_id):
         "calidad": calidad,
         "ambiental": ambiental,
         "hidrologica": hidrologica,
+        "isShowFinished": isShowFinished,
     }
     return render(request, "activityDetailFinished.html", ctx)
 
