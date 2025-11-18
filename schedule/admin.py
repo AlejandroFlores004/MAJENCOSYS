@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import schedule  # <- tu modelo se llama 'schedule' (minúscula)
+from .models import Schedule
 
-@admin.register(schedule)
+
+@admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ("activity", "start_date", "end_date", "status", "created_at")
-    list_filter = ("status", "start_date", "end_date")
+    list_display = ("activity", "start_date", "end_date", "status")
+    list_filter = ("status",)
     search_fields = ("activity__name",)

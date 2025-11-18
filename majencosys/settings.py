@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize', #Libreria para humanizar las plantillas de los reportes en excel
+
     'project',
     'main',
     'user',

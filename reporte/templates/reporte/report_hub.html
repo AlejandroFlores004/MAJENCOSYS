@@ -10,141 +10,201 @@
     <a href="{% url 'dashboardProject' project.id %}" class="btn btn-outline-secondary">← Volver al proyecto</a>
   </div>
 
-  <!-- ================ Reportes rápidos ================= -->
+  {# -------------------- Reportes rápidos -------------------- #}
   <div class="card mb-4">
-    <div class="card-header"><strong>Reportes rápidos</strong></div>
-    <div class="card-body d-flex flex-wrap gap-3">
+  <div class="card-header"><strong>Reportes rápidos</strong></div>
+  <div class="card-body d-flex flex-wrap gap-3">
 
-      <!-- Libro mayor -->
-      <div class="card shadow-sm" style="min-width:260px;">
-        <div class="card-body">
-          <h6 class="card-title">Libro mayor</h6>
-          <p class="small text-muted m-0">Costos por actividad + cronograma.</p>
-        </div>
-        <div class="card-footer d-flex gap-2">
-          <a class="btn btn-success btn-sm" href="{% url 'reporte:excel_libro_mayor' project_id=project.id %}">Descargar Excel</a>
-         <!-- <a class="btn btn-outline-primary btn-sm" href="?preview=libro">Vista previa</a>-->
-        </div>
+    <!-- LIBRO MAYOR -->
+    <div class="card shadow-sm" style="min-width:260px;">
+      <div class="card-body">
+        <h6 class="card-title">Libro mayor</h6>
+        <p class="small text-muted m-0">Costos por actividad + cronograma.</p>
       </div>
-
-      <!-- Actividades detalle -->
-      <div class="card shadow-sm" style="min-width:260px;">
-        <div class="card-body">
-          <h6 class="card-title">Actividades (detalle)</h6>
-          <p class="small text-muted m-0">Estado, inicio, fin y duración.</p>
-        </div>
-        <div class="card-footer d-flex gap-2">
-          <a class="btn btn-success btn-sm" href="{% url 'reporte:excel_actividades_detalle' project_id=project.id %}">Descargar Excel</a>
-          <!--<a class="btn btn-outline-primary btn-sm" href="?preview=detalle">Vista previa</a>-->
-        </div>
+      <div class="card-footer d-flex gap-2">
+        <a class="btn btn-success btn-sm"
+           href="{% url 'reporte:excel_libro_mayor' project.id %}">
+          Descargar Excel
+        </a>
+        <!-- NUEVO: vista previa usando ?preview=libro -->
+        <a class="btn btn-outline-primary btn-sm"
+           href="?preview=libro">
+          Vista previa
+        </a>
       </div>
-
-      <!-- Por estado -->
-      <div class="card shadow-sm" style="min-width:260px;">
-        <div class="card-body">
-          <h6 class="card-title">Por estado</h6>
-          <div class="d-flex gap-1 flex-wrap">
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=P">P</a>
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=E">E</a>
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'reporte:excel_por_estado' project_id=project.id %}?estado=F">F</a>
-          <!--  <a class="btn btn-outline-primary btn-sm ms-auto" href="?preview=estado&v=E">Vista previa</a>-->
-          </div>
-        </div>
-      </div>
-
-      <!-- Por fecha -->
-      <div class="card shadow-sm" style="min-width:260px;">
-        <div class="card-body">
-          <h6 class="card-title">Por fecha</h6>
-          <form class="row g-2" method="get">
-            <input type="hidden" name="preview" value="fecha">
-            <div class="col-7">
-              <input type="date" class="form-control form-control-sm" name="fecha" value="{{ today }}">
-            </div>
-            <div class="col-5">
-              <select class="form-select form-select-sm" name="tipo">
-                <option value="fin">Fin</option>
-                <option value="inicio">Inicio</option>
-              </select>
-            </div>
-            <div class="col-12 d-flex gap-2">
-              <a class="btn btn-success btn-sm"
-                 href="{% url 'reporte:excel_actividades_por_fecha' project_id=project.id %}?fecha={{ today }}&tipo=fin">
-                Descargar Excel (hoy/fin)
-              </a>
-           <!--  <button class="btn btn-outline-primary btn-sm" type="submit">Vista previa</button>--> 
-            </div>
-          </form>
-        </div>
-      </div>
-
     </div>
-  </div>
 
-  <!-- ================ Constructor (custom) ================= -->
+    <!-- ACTIVIDADES DETALLE (igual que el tuyo) -->
+    <div class="card shadow-sm" style="min-width:260px;">
+      <div class="card-body">
+        <h6 class="card-title">Actividades (detalle)</h6>
+        <p class="small text-muted m-0">Estado, inicio, fin y duración.</p>
+      </div>
+      <div class="card-footer d-flex gap-2">
+        <a class="btn btn-success btn-sm"
+           href="{% url 'reporte:excel_actividades_detalle' project.id %}">
+          Descargar Excel
+        </a>
+        <a class="btn btn-outline-primary btn-sm"
+           href="?preview=detalle">
+          Vista previa
+        </a>
+      </div>
+    </div>
+
+    <!-- POR ESTADO: descargas + vista previa seleccionable -->
+    <div class="card shadow-sm" style="min-width:260px;">
+      <div class="card-body">
+        <h6 class="card-title">Por estado</h6>
+        <p class="small text-muted mb-2">
+          Descarga actividades por estado:
+        </p>
+        <!-- Descargas rápidas por estado -->
+        <div class="d-flex gap-1 flex-wrap align-items-center mb-2">
+          <a class="btn btn-outline-secondary btn-sm"
+             href="{% url 'reporte:excel_por_estado' project.id %}?estado=P"
+             title="Descargar Excel: solo P">P</a>
+          <a class="btn btn-outline-secondary btn-sm"
+             href="{% url 'reporte:excel_por_estado' project.id %}?estado=E"
+             title="Descargar Excel: solo E">E</a>
+          <a class="btn btn-outline-secondary btn-sm"
+             href="{% url 'reporte:excel_por_estado' project.id %}?estado=F"
+             title="Descargar Excel: solo F">F</a>
+        </div>
+
+        <!-- NUEVO: formulario para vista previa por estado -->
+        <form class="d-flex flex-wrap gap-2 align-items-center" method="get">
+          <input type="hidden" name="preview" value="estado">
+          <label class="small mb-0" for="estadoPreview">
+            Vista previa por estado:
+          </label>
+          <select class="form-select form-select-sm"
+                  id="estadoPreview"
+                  name="v"
+                  style="max-width:130px;">
+            <option value="P">Planeación (P)</option>
+            <option value="E" selected>Ejecución (E)</option>
+            <option value="F">Finalizado (F)</option>
+          </select>
+          <button class="btn btn-outline-primary btn-sm" type="submit">
+            Vista previa
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- POR FECHA-->
+    <div class="card shadow-sm" style="min-width:260px;">
+      <div class="card-body">
+        <h6 class="card-title">Por fecha</h6>
+        <form class="row g-2" method="get" id="formPreviewFecha">
+          <input type="hidden" name="preview" value="fecha">
+          <div class="col-7">
+            <input type="date"
+                   class="form-control form-control-sm"
+                   name="fecha"
+                   id="fechaRapido"
+                   value="{{ today }}"
+                   title="Fecha a filtrar">
+          </div>
+          <div class="col-5">
+            <select class="form-select form-select-sm"
+                    name="tipo"
+                    id="tipoRapido"
+                    title="Filtrar por inicio o fin">
+              <option value="fin">Fin</option>
+              <option value="inicio">Inicio</option>
+            </select>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <a class="btn btn-success btn-sm"
+               id="btnExcelPorFecha"
+               href="#"
+               title="Descargar Excel con la fecha seleccionada">
+              Descargar Excel (fecha)
+            </a>
+            <button class="btn btn-outline-primary btn-sm"
+                    type="submit"
+                    title="Vista previa rápida">
+              Vista previa
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% if quick_preview_html %}
+  <div id="quickPreviewBox" class="mt-3">
+    {{ quick_preview_html|safe }}
+  </div>
+{% endif %}
+
+  {# -------------------- Constructor -------------------- #}
   <div class="card mb-4">
     <div class="card-header"><strong>Armar reporte</strong></div>
     <div class="card-body">
       <div class="row">
-        <!-- Columnas -->
+        {# columnas #}
         <div class="col-12 col-lg-4">
           <h6 class="mb-2">Columnas</h6>
           <div class="row row-cols-2 row-cols-md-1 g-1">
             <div class="col">
-              <label class="form-check">
+              <label class="form-check" title="Nombre de la actividad">
                 <input class="form-check-input" type="checkbox" value="actividad" checked>
                 <span class="form-check-label">Actividad</span>
               </label>
             </div>
             <div class="col">
-              <label class="form-check">
+              <label class="form-check" title="Estado más reciente del cronograma">
                 <input class="form-check-input" type="checkbox" value="estado" checked>
                 <span class="form-check-label">Estado</span>
               </label>
             </div>
             <div class="col">
-              <label class="form-check">
+              <label class="form-check" title="Fecha de inicio (schedule más reciente)">
                 <input class="form-check-input" type="checkbox" value="inicio" checked>
                 <span class="form-check-label">Inicio</span>
               </label>
             </div>
             <div class="col">
-              <label class="form-check">
+              <label class="form-check" title="Fecha de fin (schedule más reciente)">
                 <input class="form-check-input" type="checkbox" value="fin" checked>
                 <span class="form-check-label">Fin</span>
               </label>
             </div>
             <div class="col">
-              <label class="form-check">
+              <label class="form-check" title="Duración en días (si hay inicio y fin)">
                 <input class="form-check-input" type="checkbox" value="duracion">
                 <span class="form-check-label">Duración</span>
               </label>
             </div>
             <div class="col">
-              <label class="form-check">
+              <label class="form-check" title="Suma de costos (materiales, equipo, herramientas, hidrológica, ambiental)">
                 <input class="form-check-input" type="checkbox" value="total">
                 <span class="form-check-label">Total (USD)</span>
               </label>
             </div>
           </div>
         </div>
-      
 
-        <!-- Filtros -->
+        {# filtros #}
         <div class="col-12 col-lg-5">
           <h6 class="mb-2">Filtros</h6>
           <div class="row g-2">
             <div class="col-12">
               <label class="form-label small mb-1">Estado</label><br>
-              <label class="form-check form-check-inline">
+              <label class="form-check form-check-inline" title="Pendiente">
                 <input class="form-check-input" type="checkbox" value="P">
                 <span class="form-check-label">P</span>
               </label>
-              <label class="form-check form-check-inline">
+              <label class="form-check form-check-inline" title="Ejecución">
                 <input class="form-check-input" type="checkbox" value="E" checked>
                 <span class="form-check-label">E</span>
               </label>
-              <label class="form-check form-check-inline">
+              <label class="form-check form-check-inline" title="Finalizado">
                 <input class="form-check-input" type="checkbox" value="F">
                 <span class="form-check-label">F</span>
               </label>
@@ -168,12 +228,12 @@
           </div>
         </div>
 
-        <!-- Orden / Agrupar -->
+        {# orden / agrupar #}
         <div class="col-12 col-lg-3">
           <h6 class="mb-2">Orden / Agrupar</h6>
           <div class="mb-2">
             <label class="form-label small">Ordenar por</label>
-            <select id="ord" class="form-select form-select-sm">
+            <select id="ord" class="form-select form-select-sm" title="Campo para ordenar">
               <option value="actividad">Actividad</option>
               <option value="inicio" selected>Inicio</option>
               <option value="fin">Fin</option>
@@ -184,7 +244,7 @@
           </div>
           <div>
             <label class="form-label small">Agrupar por</label>
-            <select id="grp" class="form-select form-select-sm">
+            <select id="grp" class="form-select form-select-sm" title="Agrupar filas por campo">
               <option value="">(Ninguno)</option>
               <option value="estado">Estado</option>
             </select>
@@ -194,174 +254,513 @@
 
       <hr>
 
-      <div class="d-flex gap-2">
-        <button id="btnPreview" class="btn btn-outline-primary" type="button">Generar vista previa</button>
+      <div class="d-flex flex-wrap gap-2">
+        <button id="btnPreview" class="btn btn-outline-primary" type="button">
+          Vista previa
+        </button>
 
-        <form id="tplForm" method="post" action="{% url 'reporte:report_template_save' project_id=project.id %}" class="d-flex gap-2">
+        <button id="btnClearBuilder" class="btn btn-outline-secondary" type="button">
+          Limpiar filtros
+        </button>
+
+        <form id="tplForm" method="post" action="{% url 'reporte:report_template_save' project.id %}" class="d-flex gap-2 flex-wrap">
           {% csrf_token %}
           <input type="hidden" name="payload" id="payload">
           <input type="text" class="form-control" style="max-width:260px" name="name" placeholder="Guardar como…">
-          <button class="btn btn-warning" type="submit">Guardar como predeterminado</button>
-            <a class="btn btn-success btn-sm"
-                 href="{% url 'reporte:excel_actividades_por_fecha' project_id=project.id %}?fecha={{ today }}&tipo=fin">
-                Descargar
-              </a>
+          <button class="btn btn-warning" type="submit">Guardar</button>
+          <button id="btnDownloadCustom" class="btn btn-success" type="button">Descargar</button>
         </form>
       </div>
 
-      <!-- Preview simple -->
-      <div id="previewBox" class="alert alert-secondary mt-3 d-none"></div>
+      <div id="previewBox" class="mt-3 d-none"></div>
     </div>
   </div>
 
-  <!-- ================ Mis plantillas ================= -->
+  {# -------------------- Plantillas guardadas -------------------- #}
   <div class="card">
     <div class="card-header"><strong>Mis reportes guardados</strong></div>
-    <div class="card-body">
-      {% if templates %}
-      <div class="table-responsive">
-        <table class="table table-sm align-middle">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Actualizado</th>
-              <th class="text-end">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for t in templates %}
-            <tr>
-              <td>{{ t.name }}</td>
-              <td class="text-muted small">{{ t.updated_at }}</td>
-              <td class="text-end">
-                <a class="btn btn-outline-primary btn-sm" href="?tpl={{ t.id }}">Cargar</a>
-                <a class="btn btn-outline-danger btn-sm"
-                   href="{% url 'reporte:report_template_delete' project_id=project.id pk=t.id %}"
-                   onclick="return confirm('¿Eliminar plantilla {{ t.name }}?');">Eliminar</a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="text-muted">Aún no tienes reportes guardados.</div>
-      {% endif %}
+    <div class="card-body p-0">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Actualizado</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="saved-reports-body">
+          {% for tpl in templates %}
+          <tr data-id="{{ tpl.id }}">
+            <td class="tpl-name">{{ tpl.name }}</td>
+            <td>{{ tpl.updated_at|date:"d/m/Y H:i" }}</td>
+            <td class="text-end">
+              {# Botón Editar eliminado, solo dejamos vista previa / actualizar / descargar / eliminar #}
+              <button class="btn btn-sm btn-outline-primary js-preview-template">Vista previa</button>
+              <button class="btn btn-sm btn-outline-warning js-refresh-template" title="Recalcular con datos actuales">Actualizar</button>
+              <a class="btn btn-sm btn-success" href="{% url 'reporte:excel_from_template' project.id tpl.id %}">Descargar</a>
+              <button class="btn btn-sm btn-outline-danger js-delete-template">Eliminar</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-muted">Aún no tienes reportes guardados.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
+
 </div>
 
-<!-- ============= DATA (no JS, solo JSON seguro) ============= -->
-<script type="application/json" id="loadedTpl">
-{% if loaded_tpl %}
-{
-  "columns": {{ loaded_tpl.columns|safe }},
-  "filters": {{ loaded_tpl.filters|safe }},
-  "order": "{{ loaded_tpl.order|escapejs }}",
-  "group_by": "{{ loaded_tpl.group_by|escapejs }}",
-  "name": "{{ loaded_tpl.name|escapejs }}"
-}
-{% else %}null{% endif %}
-</script>
+{# --- Toasts (Bootstrap 5) --- #}
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1060">
+  <!-- Dinámicos -->
+</div>
 
-<!-- ============= JS (auto preview y robustez) ============= -->
+{% include 'reporte/includes/_template_modal.html' %}
+
+{# -------------------- JS -------------------- #}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-(function () {
-  function $(id){ return document.getElementById(id); }
-
-  var box = $('previewBox');
-  var payloadInput = $('payload');
-
-  function getSelectedColumns() {
-    var all = document.querySelectorAll('input.form-check-input[type="checkbox"]');
-    var cols = [];
-    all.forEach(function (el) {
-      var v = el.value;
-      var isState = (v === 'P' || v === 'E' || v === 'F');
-      if (!isState && el.checked) cols.push(v);
-    });
-    return cols;
-  }
-
-  function getEstados() {
-    var est = [];
-    ['P','E','F'].forEach(function (v) {
-      var el = document.querySelector('input.form-check-input[value="'+v+'"]');
-      if (el && el.checked) est.push(v);
-    });
-    return est;
-  }
-
-  function buildPayload() {
-    return {
-      columns: getSelectedColumns(),
-      filters: {
-        estado: getEstados(),
-        ini_desde: $('ini_desde').value || null,
-        ini_hasta: $('ini_hasta').value || null,
-        fin_desde: $('fin_desde').value || null,
-        fin_hasta: $('fin_hasta').value || null
-      },
-      order: $('ord').value || "",
-      group_by: $('grp').value || ""
-    };
-  }
-
-  // Vista previa
-  var btnPrev = $('btnPreview');
-  if (btnPrev) {
-    btnPrev.addEventListener('click', function () {
-      try{
-        var p = buildPayload();
-        payloadInput.value = JSON.stringify(p);
-        box.classList.remove('d-none');
-        box.innerHTML =
-          '<div><strong>Vista previa</strong> (parámetros seleccionados)</div>' +
-          '<div class="mt-2"><b>Columnas:</b> ' + (p.columns.join(', ') || '(ninguna)') + '</div>' +
-          '<div class="mt-1"><b>Estados:</b> ' + (p.filters.estado.join(', ') || '(todos)') + '</div>' +
-          '<div class="mt-1"><b>Rango inicio:</b> ' + (p.filters.ini_desde || '—') + ' → ' + (p.filters.ini_hasta || '—') + '</div>' +
-          '<div class="mt-1"><b>Rango fin:</b> ' + (p.filters.fin_desde || '—') + ' → ' + (p.filters.fin_hasta || '—') + '</div>' +
-          '<div class="mt-1"><b>Orden:</b> ' + (p.order || '(ninguno)') + ' · <b>Agrupar:</b> ' + (p.group_by || '(ninguno)') + '</div>' +
-          '<div class="mt-2 text-muted small">Para descargar, guarda como plantilla o usa los reportes rápidos de arriba.</div>';
-      }catch(err){
-        console.warn('Error generando vista previa:', err);
-      }
-    });
-  }
-
-  // Cargar plantilla guardada desde el <script type="application/json">
-  try {
-    var raw = $('loadedTpl');
-    var tpl = raw ? JSON.parse(raw.textContent || 'null') : null;
-    if (tpl) {
-      // Columnas
-      document.querySelectorAll('input.form-check-input[type="checkbox"]').forEach(function (ch) {
-        var v = ch.value;
-        if (v !== 'P' && v !== 'E' && v !== 'F') ch.checked = (tpl.columns || []).indexOf(v) !== -1;
-      });
-      // Estados
-      var estSet = new Set((tpl.filters && tpl.filters.estado) ? tpl.filters.estado : []);
-      ['P','E','F'].forEach(function (v) {
-        var el = document.querySelector('input.form-check-input[value="'+v+'"]');
-        if (el) el.checked = estSet.has(v);
-      });
-      // Fechas
-      $('ini_desde').value = (tpl.filters && tpl.filters.ini_desde) ? tpl.filters.ini_desde : "";
-      $('ini_hasta').value = (tpl.filters && tpl.filters.ini_hasta) ? tpl.filters.ini_hasta : "";
-      $('fin_desde').value = (tpl.filters && tpl.filters.fin_desde) ? tpl.filters.fin_desde : "";
-      $('fin_hasta').value = (tpl.filters && tpl.filters.fin_hasta) ? tpl.filters.fin_hasta : "";
-      // Orden/Agrupar
-      $('ord').value = tpl.order || "";
-      $('grp').value = tpl.group_by || "";
-      // Nombre (sobrescribir)
-      var nameBox = document.querySelector('#tplForm input[name="name"]');
-      if (nameBox) nameBox.value = tpl.name || "";
-      // Persistir payload
-      payloadInput.value = JSON.stringify(tpl);
+  (function () {
+    function $(sel) { return document.querySelector(sel); }
+    function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
+    function getCookie(name) {
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? decodeURIComponent(m.pop()) : '';
     }
-  } catch (e) {
-    console.warn('No se pudo cargar la plantilla:', e);
-  }
-})();
+
+    const previewBox = $('#previewBox');
+    const payloadInput = $('#payload');
+    const csrftoken = getCookie('csrftoken');
+
+    // Toast helper (usa Bootstrap si está; si no, fallback simple)
+    function showToast(type, msg) {
+      const container = document.querySelector('.toast-container');
+      const id = 't' + Date.now();
+      const isOk = type === 'ok';
+      const bg = isOk ? 'bg-success text-white' : 'bg-danger text-white';
+      const html = `
+        <div id="${id}" class="toast align-items-center ${bg}" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body">${msg}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>`;
+      container.insertAdjacentHTML('beforeend', html);
+      const el = document.getElementById(id);
+      try {
+        const t = new bootstrap.Toast(el, { delay: 2500 });
+        t.show();
+      } catch (e) {
+        el.style.display = 'block';
+        setTimeout(() => el.remove(), 2500);
+      }
+    }
+
+    function showErrorModal(msg, title) {
+      if (window.Swal) {
+        Swal.fire({
+          icon: 'warning',
+          title: title || 'Revisa el reporte',
+          text: msg,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#f6a400'
+        });
+      } else {
+        showToast('err', msg);
+      }
+    }
+
+    // ---------------- Quick: POR FECHA (descarga con fecha elegida) ----------------
+    const btnExcelPorFecha = $('#btnExcelPorFecha');
+    if (btnExcelPorFecha) {
+      btnExcelPorFecha.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const fecha = $('#fechaRapido').value;
+        const tipo = $('#tipoRapido').value || 'fin';
+        if (!fecha) {
+          showErrorModal('Selecciona una fecha para descargar el Excel.', 'Falta fecha');
+          return;
+        }
+        const url = "{% url 'reporte:excel_actividades_por_fecha' project.id %}" + `?fecha=${encodeURIComponent(fecha)}&tipo=${encodeURIComponent(tipo)}`;
+        window.location.href = url;
+      });
+    }
+
+    // ---------------- Builder helpers ----------------
+    function getSelectedColumns() {
+      return $all('input.form-check-input[type=checkbox]')
+        .filter(el => !['P', 'E', 'F'].includes(el.value))
+        .filter(el => el.checked)
+        .map(el => el.value);
+    }
+
+    function getEstados() {
+      return ['P', 'E', 'F'].filter(v => {
+        const el = document.querySelector('input.form-check-input[value="' + v + '"]');
+        return el && el.checked;
+      });
+    }
+
+    function buildPayload() {
+      return {
+        columns: getSelectedColumns(),
+        filters: {
+          estado: getEstados(),
+          ini_desde: $('#ini_desde')?.value || null,
+          ini_hasta: $('#ini_hasta')?.value || null,
+          fin_desde: $('#fin_desde')?.value || null,
+          fin_hasta: $('#fin_hasta')?.value || null,
+        },
+        order: $('#ord')?.value || "",
+        group_by: $('#grp')?.value || ""
+      };
+    }
+
+    function mustHaveColumns(payload) {
+      return payload.columns && payload.columns.length > 0;
+    }
+
+    function validatePayload(payload) {
+      const cols = payload.columns || [];
+      if (!cols.length) {
+        return "Selecciona al menos una columna para el reporte.";
+      }
+
+      const allowedOrder = ["actividad", "inicio", "fin", "-fin", "total", "-total"];
+      if (payload.order && !allowedOrder.includes(payload.order)) {
+        return "La opción de orden seleccionada no es válida.";
+      }
+
+      if (payload.group_by === "estado" && !cols.includes("estado")) {
+        return "Para agrupar por Estado debes incluir la columna Estado.";
+      }
+
+      const f = payload.filters || {};
+      function parseISO(d) { return d ? new Date(d) : null; }
+
+      const iniDesde = parseISO(f.ini_desde);
+      const iniHasta = parseISO(f.ini_hasta);
+      const finDesde = parseISO(f.fin_desde);
+      const finHasta = parseISO(f.fin_hasta);
+
+      if (iniDesde && iniHasta && iniDesde > iniHasta) {
+        return "El rango de 'Inicio desde / hasta' no es coherente.";
+      }
+      if (finDesde && finHasta && finDesde > finHasta) {
+        return "El rango de 'Fin desde / hasta' no es coherente.";
+      }
+
+      // Fechas futuras se permiten, así que no validamos contra hoy
+      return null;
+    }
+
+    function resetBuilderForm() {
+      const defaultCols = ["actividad", "estado", "inicio", "fin"];
+
+      // columnas
+      $all('input.form-check-input[type=checkbox]').forEach(chk => {
+        if (["P", "E", "F"].includes(chk.value)) {
+          chk.checked = (chk.value === "E");
+        } else {
+          chk.checked = defaultCols.includes(chk.value);
+        }
+      });
+
+      // fechas
+      ["ini_desde", "ini_hasta", "fin_desde", "fin_hasta"].forEach(id => {
+        const el = $("#" + id);
+        if (el) el.value = "";
+      });
+
+      // ordenar / agrupar
+      const ord = $("#ord");
+      if (ord) ord.value = "inicio";
+      const grp = $("#grp");
+      if (grp) grp.value = "";
+    }
+
+    // ---------------- Vista previa del constructor ----------------
+    async function renderPreview(page = 1) {
+      const payload = buildPayload();
+      const err = validatePayload(payload);
+      if (err) {
+        showErrorModal(err);
+        return;
+      }
+      payloadInput.value = JSON.stringify(payload);
+
+      const url = "{% url 'reporte:preview_custom' project.id %}?page=" + page + "&page_size=12";
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const html = await resp.text();
+      previewBox.innerHTML = html;
+      previewBox.classList.remove("d-none");
+
+      const prev = previewBox.querySelector(".prev-page");
+      const next = previewBox.querySelector(".next-page");
+      if (prev) prev.addEventListener("click", () => renderPreview(page - 1));
+      if (next) next.addEventListener("click", () => renderPreview(page + 1));
+    }
+
+    const btnPrev = $("#btnPreview");
+    if (btnPrev) btnPrev.addEventListener("click", () => renderPreview(1));
+
+    // ---------------- Limpiar filtros ----------------
+    const btnClear = $("#btnClearBuilder");
+    if (btnClear) {
+      btnClear.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        resetBuilderForm();
+        if (window.Swal) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Filtros reiniciados',
+            text: 'Se restauraron los valores por defecto del constructor.',
+            confirmButtonText: 'Ok',
+            confirmButtonColor: '#0d6efd'
+          });
+        } else {
+          showToast('ok', 'Filtros reiniciados.');
+        }
+      });
+    }
+
+    // ---------------- Descargar custom ----------------
+    const btnDl = $("#btnDownloadCustom");
+    if (btnDl) btnDl.addEventListener("click", async () => {
+      const payload = buildPayload();
+      const err = validatePayload(payload);
+      if (err) {
+        showErrorModal(err, 'No se puede descargar');
+        return;
+      }
+
+      const resp = await fetch("{% url 'reporte:excel_custom' project.id %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        showToast('err', 'No se pudo generar el Excel.');
+        return;
+      }
+      const blob = await resp.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "reporte_custom_{{ project.id }}.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showToast('ok', 'Excel generado correctamente.');
+    });
+
+    // ---------------- Guardar plantilla: validar nombre + payload ----------------
+    const tplForm = $('#tplForm');
+    if (tplForm) {
+      tplForm.addEventListener('submit', (e) => {
+        const name = tplForm.querySelector('input[name="name"]').value.trim();
+        if (!name) {
+          e.preventDefault();
+          showErrorModal('Ingresa un nombre para guardar la plantilla.', 'Nombre requerido');
+          return;
+        }
+        const payload = buildPayload();
+        const err = validatePayload(payload);
+        if (err) {
+          e.preventDefault();
+          showErrorModal(err, 'No se puede guardar');
+          return;
+        }
+        payloadInput.value = JSON.stringify(payload);
+      });
+    }
+
+    // ---------------- Tabla de plantillas ----------------
+
+    // EDITAR (modal) – el botón ya no está en la tabla, pero dejamos la lógica por si lo reactivas
+    let modal, modalEl = document.getElementById('modalEditTpl');
+    if (modalEl) {
+      try { modal = new bootstrap.Modal(modalEl); } catch (e) { modal = null; }
+    }
+
+    $all(".js-edit-template").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.closest("tr").dataset.id;
+        const r = await fetch("{% url 'reporte:template_load' project.id 0 %}".replace("/0/", `/${id}/`));
+        const data = await r.json();
+        if (!data.ok) { showToast('err', 'No se pudo cargar la plantilla.'); return; }
+
+        $('#tplEditId').value = data.id;
+        $('#tplEditName').value = data.name || '';
+        $('#tplLoadToBuilder').checked = false;
+
+        if (modal) modal.show(); else modalEl.style.display = 'block';
+
+        $('#btnSaveTplEdit').onclick = async () => {
+          const newName = $('#tplEditName').value.trim();
+          if (!newName) { showErrorModal('El nombre no puede estar vacío.', 'Nombre requerido'); return; }
+
+          const upd = await fetch("{% url 'reporte:template_update' project.id 0 %}".replace("/0/", `/${data.id}/`), {
+            method: "POST",
+            headers: { "X-CSRFToken": csrftoken, "Content-Type": "application/json" },
+            body: JSON.stringify({ name: newName })
+          });
+          if (!upd.ok) { showToast('err', 'No se pudo actualizar el nombre.'); return; }
+
+          if ($('#tplLoadToBuilder').checked && data.payload) {
+            const p = data.payload || {};
+            $all('input.form-check-input[type=checkbox]').forEach(chk => {
+              if (!['P','E','F'].includes(chk.value)) chk.checked = (p.columns || []).includes(chk.value);
+            });
+            ['P','E','F'].forEach(v => {
+              const el = document.querySelector('input.form-check-input[value="'+v+'"]');
+              if (el) el.checked = (p.filters?.estado || []).includes(v);
+            });
+            if (p.filters) {
+              if (p.filters.ini_desde) $('#ini_desde').value = p.filters.ini_desde;
+              if (p.filters.ini_hasta) $('#ini_hasta').value = p.filters.ini_hasta;
+              if (p.filters.fin_desde) $('#fin_desde').value = p.filters.fin_desde;
+              if (p.filters.fin_hasta) $('#fin_hasta').value = p.filters.fin_hasta;
+            }
+            if (p.order) $('#ord').value = p.order;
+            if (p.group_by) $('#grp').value = p.group_by;
+            showToast('ok', 'Plantilla cargada en el constructor.');
+          } else {
+            showToast('ok', 'Nombre actualizado.');
+          }
+
+          if (modal) modal.hide(); else modalEl.style.display = 'none';
+
+          const row = document.querySelector(`tr[data-id="${data.id}"]`);
+          if (row) {
+            row.querySelector('.tpl-name').textContent = newName;
+          }
+        };
+      });
+    });
+
+    // Vista previa plantilla
+    $all(".js-preview-template").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.closest("tr").dataset.id;
+        fetch("{% url 'reporte:preview_template' project.id 0 %}".replace("/0/", `/${id}/`), {
+          method: "POST",
+          headers: { "X-CSRFToken": csrftoken },
+        })
+          .then(r => r.text())
+          .then(html => {
+            previewBox.innerHTML = html;
+            previewBox.classList.remove("d-none");
+            showToast('ok', 'Vista previa generada.');
+          });
+      });
+    });
+
+    // Actualizar (confirmación bonita)
+    $all(".js-refresh-template").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const row = btn.closest("tr");
+        const id = row.dataset.id;
+        const name = row.querySelector('.tpl-name')?.textContent || 'este reporte';
+
+        Swal.fire({
+          icon: 'question',
+          title: 'Actualizar reporte',
+          text: `Se recalculará "${name}" con los datos actuales del proyecto.`,
+          showCancelButton: true,
+          confirmButtonText: 'Sí, actualizar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#ffc107',
+          cancelButtonColor: '#6c757d'
+        }).then(async (result) => {
+          if (!result.isConfirmed) return;
+
+          const r = await fetch("{% url 'reporte:template_refresh' project.id 0 %}".replace("/0/", `/${id}/`), {
+            method: "POST",
+            headers: { "X-CSRFToken": csrftoken },
+          });
+          if (!r.ok) { showToast('err', 'No se pudo actualizar.'); return; }
+          showToast('ok', 'Reporte actualizado.');
+        });
+      });
+    });
+
+    // Eliminar (confirmación bonita)
+    $all(".js-delete-template").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const tr = btn.closest("tr");
+        const id = tr.dataset.id;
+        const name = tr.querySelector('.tpl-name')?.textContent || 'este reporte';
+
+        Swal.fire({
+          icon: 'warning',
+          title: '¿Eliminar reporte?',
+          text: `Se eliminará definitivamente "${name}".`,
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#dc3545',
+          cancelButtonColor: '#6c757d'
+        }).then(async (result) => {
+          if (!result.isConfirmed) return;
+
+          const r = await fetch("{% url 'reporte:template_delete' project.id 0 %}".replace("/0/", `/${id}/`), {
+            method: "POST",
+            headers: { "X-CSRFToken": csrftoken },
+          });
+          if (!r.ok) { showToast('err', 'No se pudo eliminar.'); return; }
+          tr.remove();
+          showToast('ok', 'Reporte eliminado.');
+        });
+      });
+    });
+
+// Vista previa del reporte rápido por ESTADO
+const btnPrevEst = document.getElementById("btnPreviewEstado");
+if (btnPrevEst) {
+    btnPrevEst.addEventListener("click", () => {
+        const est = document.getElementById("estadoPreview").value;
+        window.location.href = `?preview=estado&v=${est}`;
+    });
+}
+
+// Vista previa rápida por FECHA (descarga)
+const btnExcelFecha2 = document.getElementById("btnExcelPorFecha2");
+if (btnExcelFecha2) {
+    btnExcelFecha2.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const fecha = document.getElementById("fechaRapido2").value;
+        const tipo = document.getElementById("tipoRapido2").value;
+
+        if (!fecha) {
+            alert("Selecciona una fecha.");
+            return;
+        }
+
+        window.location.href =
+            "{% url 'reporte:excel_actividades_por_fecha' project.id %}" +
+            `?fecha=${fecha}&tipo=${tipo}`;
+    });
+}
+
+  })();
 </script>
 {% endblock content %}

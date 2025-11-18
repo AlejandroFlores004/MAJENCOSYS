@@ -25,7 +25,7 @@ from catalog.models import (
     Ambiental,
     Hidrologica,
 )
-from schedule.models import schedule
+from schedule.models import Schedule
 
 
 

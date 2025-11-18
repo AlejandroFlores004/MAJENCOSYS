@@ -1,0 +1,61 @@
+<div class="card mb-3">
+  <div class="card-body p-0">
+
+    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+      <h6 class="mb-0">Vista previa</h6>
+      <small class="text-muted">
+        {% if total_count %}
+          {{ total_count }} actividad{% if total_count != 1 %}es{% endif %} encontradas
+        {% else %}
+          Sin resultados con estos filtros
+        {% endif %}
+      </small>
+    </div>
+
+    {% if rows %}
+      <div class="table-responsive">
+        <table class="table table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              {% for h in headers %}
+                <th>{{ h }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                {% for col in row %}
+                  <td>{{ col }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="p-3">
+        <em>No hay actividades que coincidan con los filtros actuales.</em>
+      </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary prev-page"
+              {% if not has_prev %}disabled{% endif %}
+              data-preview-page="{{ page|add:"-1" }}">
+        ← Anterior
+      </button>
+
+      <small class="text-muted mb-0">Página {{ page }}</small>
+
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary next-page"
+              {% if not has_next %}disabled{% endif %}
+              data-preview-page="{{ page|add:"1" }}">
+        Siguiente →
+      </button>
+    </div>
+
+  </div>
+</div>
