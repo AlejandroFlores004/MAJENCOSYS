@@ -107,19 +107,24 @@ def logoutUser(request):
 def dashboardProject(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
-    # parámetros GET
     page = request.GET.get('page', 1)
-    per_page = int(request.GET.get('per_page', 5))  # ajusta default
+    per_page = int(request.GET.get('per_page', 5))
 
-    # queryset con prefetch
     qs = (
         Activity.objects
         .filter(project=project)
-        .order_by('-id')  # o 'name' / '-created_at' según prefieras
+        .order_by('-id')
         .prefetch_related(
             Prefetch(
-                'header_activity',  # usa tu related_name real si es distinto
+                'header_activity',
                 queryset=Header.objects.only('id', 'name', 'content', 'activity_id').order_by('id')
+            ),
+            Prefetch(
+                'schedules',
+                queryset=Schedule.objects.only(
+                    'id', 'status', 'start_date', 'end_date',
+                    'real_start_date', 'real_end_date', 'activity_id'
+                )
             )
         )
     )

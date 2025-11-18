@@ -29,6 +29,7 @@ from .forms import (
 
 # Create your views here.
 @login_required(login_url='log')
+@login_required(login_url='log')
 def mainActivy(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
@@ -46,7 +47,7 @@ def mainActivy(request, pk):
     qs = (
         base_qs
         .annotate(
-            # --- TUS ANOTACIONES ---
+            # --- ANOTACIONES EXISTENTES ---
             mm_rows=Count('memoryMaterial_activity', distinct=True),
             mm_qty=Coalesce(
                 Sum('memoryMaterial_activity__quantity'),
@@ -65,41 +66,45 @@ def mainActivy(request, pk):
                 output_field=DecimalField(max_digits=12, decimal_places=2)
             ),
 
-            # --- ORDEN POR PROXIMIDAD A HOY ---
-            # Trae la fecha de inicio del schedule (puede ser NULL)
-            sched_start=F("schedule_activity__start_date"),
+            # --- ORDEN POR PROXIMIDAD A HOY (USANDO schedules__) ---
+            # Fecha de inicio del Schedule (puede ser NULL)
+            sched_start=F("schedules__start_date"),
 
             # Diferencia cuando es futuro/igual (>= hoy): start - hoy
             future_delta=ExpressionWrapper(
-                F("schedule_activity__start_date") - Value(today),
+                F("schedules__start_date") - Value(today),
                 output_field=DurationField(),
             ),
             # Diferencia cuando es pasado (< hoy): hoy - start
             past_delta=ExpressionWrapper(
-                Value(today) - F("schedule_activity__start_date"),
+                Value(today) - F("schedules__start_date"),
                 output_field=DurationField(),
             ),
-            # Tomamos el valor absoluto vía CASE (compatible en Postgres y MySQL)
+            # Valor absoluto de la diferencia (según si es futuro o pasado)
             abs_delta=Case(
-                When(schedule_activity__start_date__isnull=True, then=Value(None)),
-                When(schedule_activity__start_date__gte=today, then=F("future_delta")),
+                When(schedules__start_date__isnull=True, then=Value(None)),
+                When(schedules__start_date__gte=today, then=F("future_delta")),
                 default=F("past_delta"),
                 output_field=DurationField(),
             ),
-            # Flag para empujar sin-schedule al final
+            # Flag para empujar actividades SIN schedule al final
             has_schedule=Case(
-                When(schedule_activity__start_date__isnull=True, then=Value(1)),
+                When(schedules__start_date__isnull=True, then=Value(1)),
                 default=Value(0),
                 output_field=IntegerField(),
             ),
         )
-        # Primero las que sí tienen schedule, luego por más cercano a hoy, y como tie-breaker por fecha
+        # Primero las que sí tienen schedule, luego las más cercanas a hoy
         .order_by("has_schedule", "abs_delta", "sched_start", "-id")
         .prefetch_related(
             Prefetch(
                 'header_activity',
                 queryset=Header.objects.only('id', 'name', 'content', 'activity_id').order_by('id')
-            )
+            ),
+            Prefetch(
+                'schedules',
+                queryset=Schedule.objects.only("id", "start_date", "end_date", "status", "activity_id")
+            ),
         )
     )
 
@@ -117,15 +122,13 @@ def mainActivy(request, pk):
             activities_page = paginator.page(paginator.num_pages)
         is_paginated = paginator.num_pages > 1
 
-
     context = {
         "project": project,
         "activities_page": activities_page,
         "paginator_activities": paginator,
         "is_paginated_activities": is_paginated,
         "per_page_activities": per_page,
-
-        "q": q,  # por si lo usas en el buscador
+        "q": q,
     }
     return render(request, 'mainActivities.html', context)
 

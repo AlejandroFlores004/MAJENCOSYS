@@ -21,7 +21,7 @@ def mainSchedule(request, pk):
         .filter(project=project)
         .prefetch_related(
             Prefetch("header_activity", queryset=Header.objects.all()),
-            Prefetch("schedule_activity", queryset=Schedule.objects.order_by("-updated_at", "-id"))
+            Prefetch("schedules", queryset=Schedule.objects.order_by("-updated_at", "-id"))
         )
         .order_by("name")
     )
@@ -31,7 +31,7 @@ def mainSchedule(request, pk):
     to_start, in_progress, to_finish, upcoming, finished = [], [], [], [], []
 
     for ac in activities_qs:
-        sch = ac.schedule_activity.first()
+        sch = ac.schedules.first()
         if not sch:
             continue
 
@@ -81,7 +81,7 @@ def mainSchedule(request, pk):
 def schedule_start_page(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
-    sch = activity.schedule_activity.first()
+    sch = activity.schedules.first()
 
     if not sch:
         messages.error(request, "Esta actividad no tiene cronograma configurado.")
@@ -129,7 +129,7 @@ def schedule_start_page(request, pk, activity_id):
 def schedule_finish_page(request, pk, activity_id):
     project = get_object_or_404(Project, pk=pk)
     activity = get_object_or_404(Activity, pk=activity_id, project=project)
-    sch = activity.schedule_activity.first()
+    sch = activity.schedules.first()
 
     if not sch:
         messages.error(request, "Esta actividad no tiene cronograma configurado.")

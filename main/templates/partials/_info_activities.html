@@ -31,8 +31,27 @@
         <div class="card border-0 shadow-sm">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
+
+              {% with ac.schedules.all|first as sch %}
               <div>
-                <h5 class="mb-2">{{ ac.name }}</h5>
+                <!-- Título + ESTADO -->
+                <h5 class="mb-2 d-flex align-items-center gap-2">
+                  {{ ac.name }}
+
+                  {% if sch %}
+                    {% if sch.status == "P" %}
+                      <span class="badge bg-secondary">Planeado</span>
+                    {% elif sch.status == "E" %}
+                      <span class="badge bg-warning text-dark">Ejecutando</span>
+                    {% elif sch.status == "F" %}
+                      <span class="badge bg-success">Finalizado</span>
+                    {% else %}
+                      <span class="badge bg-light text-muted">Sin estado</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="badge bg-light text-muted">Sin cronograma</span>
+                  {% endif %}
+                </h5>
 
                 <!-- Botón de detalles -->
                 <button class="btn btn-sm btn-outline-primary mb-2"
@@ -63,13 +82,22 @@
 
               <!-- Botones de acción -->
               <div class="d-flex gap-2">
-                <a href="#" class="btn btn-sm btn-outline-primary">
+                <a
+                  class="btn btn-sm btn-outline-primary"
+                  href="{% if sch and sch.status == 'F' %}
+                           {% url 'detailActivityFinished' project.id ac.id %}
+                         {% else %}
+                           {% url 'detailActivityPlanned' project.id ac.id %}
+                         {% endif %}"
+                >
                   <i class="bi bi-eye"></i> Ver
                 </a>
                 <a href="{% url "editarActivity" project.id ac.id %}" class="btn btn-sm btn-outline-secondary">
                   <i class="bi bi-pencil"></i> Editar
                 </a>
               </div>
+              {% endwith %}
+
             </div>
           </div>
         </div>
