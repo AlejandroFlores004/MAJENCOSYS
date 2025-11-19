@@ -3,7 +3,7 @@
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="d-flex align-items-center gap-2">
-        <h2 class="mb-0">Herramientas</h5>
+        <h2 class="mb-0">Herramientas</h2>
         <span class="badge bg-primary">{{ paginatorhrr.count }}</span>
         {% if q_hrr %}
           <span class="badge bg-secondary3">Filtro: “{{ q_hrr }}”</span>
@@ -12,9 +12,13 @@
       
       <form class="row g-2 align-items-center" method="get">
         <div class="col-12 col-md">
-          <input type="text" name="q_hrr" class="form-control"
+          <input
+            type="text"
+            name="q_hrr"
+            class="form-control"
             placeholder="Buscar"
-            value="{{ q_hrr }}" title="Nombre o Tipo"
+            value="{{ q_hrr }}"
+            title="Nombre o Tipo"
           >
         </div>
         <div class="col-6 col-md-3">
@@ -50,26 +54,26 @@
             <tr>
               <th>Descripción</th>
               <th>Tipo</th>
-              <th style="width: 160px;">Costo/Dia</th>
+              <th style="width: 160px;">Costo/Día</th>
               <th class="text-end" style="width: 180px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {% for hrr in herramienta_page %}
-            <tr>
-              <td class="fw-semibold text-muted">{{ hrr.name }}</td>
-              <td class="text-muted">{{ hrr.tipo|default:"—" }}</td>
-              <td>
-                {% if hrr.costodia is not None %}$ {{ hrr.costodia }}{% else %}—{% endif %}
-              </td>
-              <td class="text-end">
-                <div class="btn-group btn-group-md" role="group">
-                  <a href="{% url 'editarHerramienta' project.id hrr.id %}" class="btn btn-3" title="Editar">
-                    <i class="bi bi-pencil"></i> Editar
-                  </a>
-                </div>
-              </td>
-            </tr>
+              <tr>
+                <td class="fw-semibold text-muted">{{ hrr.name }}</td>
+                <td class="text-muted">{{ hrr.tipo|default:"—" }}</td>
+                <td>
+                  {% if hrr.costodia is not None %}$ {{ hrr.costodia }}{% else %}—{% endif %}
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-md" role="group">
+                    <a href="{% url 'editarHerramienta' project.id hrr.id %}" class="btn btn-3" title="Editar">
+                      <i class="bi bi-pencil"></i> Editar
+                    </a>
+                  </div>
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -81,38 +85,82 @@
         </div>
 
         {% if is_paginatedhrr %}
-        <nav aria-label="Page navigation">
-          <ul class="pagination pagination-sm mb-0">
-            <li class="page-item {% if not herramienta_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page=1&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">«</a>
-            </li>
-            <li class="page-item {% if not herramienta_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ herramienta_page.previous_page_number }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">‹</a>
-            </li>
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
 
-            {% for num in herramienta_page.paginatorhrr.page_range %}
-              {% if num >= herramienta_page.number|add:'-2' and num <= herramienta_page.number|add:'2' %}
-                <li class="page-item {% if num == herramienta_page.number %}active{% endif %}">
-                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">{{ num }}</a>
-                </li>
-              {% endif %}
-            {% endfor %}
+              {# Primera página #}
+              <li class="page-item {% if not herramienta_page.has_previous %}disabled{% endif %}">
+                {% if herramienta_page.has_previous %}
+                  <a class="page-link"
+                     href="?page=1&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">
+                    «
+                  </a>
+                {% else %}
+                  <span class="page-link">«</span>
+                {% endif %}
+              </li>
 
-            <li class="page-item {% if not herramienta_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ herramienta_page.next_page_number }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">›</a>
-            </li>
-            <li class="page-item {% if not herramienta_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ paginatorhrr.num_pages }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">»</a>
-            </li>
-          </ul>
-        </nav>
+              {# Página anterior #}
+              <li class="page-item {% if not herramienta_page.has_previous %}disabled{% endif %}">
+                {% if herramienta_page.has_previous %}
+                  <a class="page-link"
+                     href="?page={{ herramienta_page.previous_page_number }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">
+                    ‹
+                  </a>
+                {% else %}
+                  <span class="page-link">‹</span>
+                {% endif %}
+              </li>
+
+              {# Números de página #}
+              {% for num in herramienta_page.paginator.page_range %}
+                {% if num >= herramienta_page.number|add:'-2' and num <= herramienta_page.number|add:'2' %}
+                  <li class="page-item {% if num == herramienta_page.number %}active{% endif %}">
+                    <a class="page-link"
+                       href="?page={{ num }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">
+                      {{ num }}
+                    </a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {# Página siguiente #}
+              <li class="page-item {% if not herramienta_page.has_next %}disabled{% endif %}">
+                {% if herramienta_page.has_next %}
+                  <a class="page-link"
+                     href="?page={{ herramienta_page.next_page_number }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">
+                    ›
+                  </a>
+                {% else %}
+                  <span class="page-link">›</span>
+                {% endif %}
+              </li>
+
+              {# Última página #}
+              <li class="page-item {% if not herramienta_page.has_next %}disabled{% endif %}">
+                {% if herramienta_page.has_next %}
+                  <a class="page-link"
+                     href="?page={{ paginatorhrr.num_pages }}&per_page={{ per_page }}{% if q_hrr %}&q_hrr={{ q_hrr|urlencode }}{% endif %}">
+                    »
+                  </a>
+                {% else %}
+                  <span class="page-link">»</span>
+                {% endif %}
+              </li>
+
+            </ul>
+          </nav>
         {% endif %}
       </div>
     {% else %}
       <div class="text-center text-muted py-5">
         <i class="bi bi-search" style="font-size:2rem;"></i>
         <p class="mb-1 mt-2">
-          {% if q_hrr %}No se encontraron herramientas para “{{ q_hrr }}”.{% else %}Aún no has agregado herramientas.{% endif %}
+          {% if q_hrr %}
+            No se encontraron herramientas para “{{ q_hrr }}”.
+          {% else %}
+            Aún no has agregado herramientas.
+          {% endif %}
         </p>
         <a href="{% url 'crearHerramienta' project.id %}" class="btn btn-primary">
           <i class="bi bi-clipboard2-plus"></i> Crear

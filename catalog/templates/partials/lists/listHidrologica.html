@@ -3,7 +3,7 @@
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="d-flex align-items-center gap-2">
-        <h2 class="mb-0">Prueba Hidrologica</h5>
+        <h2 class="mb-0">Prueba Hidrológica</h2>
         <span class="badge bg-primary">{{ paginatorhdg.count }}</span>
         {% if q_hdg %}
           <span class="badge bg-secondary3">Filtro: “{{ q_hdg }}”</span>
@@ -12,9 +12,13 @@
       
       <form class="row g-2 align-items-center" method="get">
         <div class="col-12 col-md">
-          <input type="text" name="q_hdg" class="form-control"
+          <input
+            type="text"
+            name="q_hdg"
+            class="form-control"
             placeholder="Buscar"
-            value="{{ q_hdg }}" title="Nombre, Descripción, Epoca o Especie"
+            value="{{ q_hdg }}"
+            title="Nombre, Descripción, Ubicación, Parámetro o Unidad"
           >
         </div>
         <div class="col-6 col-md-3">
@@ -50,28 +54,28 @@
             <tr>
               <th>Nombre</th>
               <th>Descripción</th>
-              <th>Ubicacion</th>
-              <th>Parametros</th>
+              <th>Ubicación</th>
+              <th>Parámetro</th>
               <th>Unidad</th>
               <th class="text-end" style="width: 180px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {% for hdg in hidrologica_page %}
-            <tr>
-              <td class="fw-semibold text-muted">{{ hdg.name }}</td>
-              <td class="fw-semibold text-muted">{{ hdg.description|default:"—" }}</td>
-              <td class="text-muted">{{ hdg.ubicacion|default:"—" }}</td>
-              <td class="fw-semibold">{{ hdg.parametro|default:"—" }}</td>
-              <td class="text-muted">{{ hdg.unidad|default:"—" }}</td>
-              <td class="text-end">
-                <div class="btn-group btn-group-md" role="group">
-                  <a href="{% url 'editarHidrologica' project.id hdg.id %}" class="btn btn-3" title="Editar">
-                    <i class="bi bi-pencil"></i> Editar
-                  </a>
-                </div>
-              </td>
-            </tr>
+              <tr>
+                <td class="fw-semibold text-muted">{{ hdg.name }}</td>
+                <td class="fw-semibold text-muted">{{ hdg.description|default:"—" }}</td>
+                <td class="text-muted">{{ hdg.ubicacion|default:"—" }}</td>
+                <td class="fw-semibold">{{ hdg.parametro|default:"—" }}</td>
+                <td class="text-muted">{{ hdg.unidad|default:"—" }}</td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-md" role="group">
+                    <a href="{% url 'editarHidrologica' project.id hdg.id %}" class="btn btn-3" title="Editar">
+                      <i class="bi bi-pencil"></i> Editar
+                    </a>
+                  </div>
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -83,38 +87,82 @@
         </div>
 
         {% if is_paginatedhdg %}
-        <nav aria-label="Page navigation">
-          <ul class="pagination pagination-sm mb-0">
-            <li class="page-item {% if not hidrologica_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page=1&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">«</a>
-            </li>
-            <li class="page-item {% if not hidrologica_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ hidrologica_page.previous_page_number }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">‹</a>
-            </li>
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
 
-            {% for num in hidrologica_page.paginatorhdg.page_range %}
-              {% if num >= hidrologica_page.number|add:'-2' and num <= hidrologica_page.number|add:'2' %}
-                <li class="page-item {% if num == hidrologica_page.number %}active{% endif %}">
-                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">{{ num }}</a>
-                </li>
-              {% endif %}
-            {% endfor %}
+              {# Primera página #}
+              <li class="page-item {% if not hidrologica_page.has_previous %}disabled{% endif %}">
+                {% if hidrologica_page.has_previous %}
+                  <a class="page-link"
+                     href="?page=1&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">
+                    «
+                  </a>
+                {% else %}
+                  <span class="page-link">«</span>
+                {% endif %}
+              </li>
 
-            <li class="page-item {% if not hidrologica_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ hidrologica_page.next_page_number }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">›</a>
-            </li>
-            <li class="page-item {% if not hidrologica_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ paginatorhdg.num_pages }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">»</a>
-            </li>
-          </ul>
-        </nav>
+              {# Página anterior #}
+              <li class="page-item {% if not hidrologica_page.has_previous %}disabled{% endif %}">
+                {% if hidrologica_page.has_previous %}
+                  <a class="page-link"
+                     href="?page={{ hidrologica_page.previous_page_number }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">
+                    ‹
+                  </a>
+                {% else %}
+                  <span class="page-link">‹</span>
+                {% endif %}
+              </li>
+
+              {# Números de página #}
+              {% for num in hidrologica_page.paginator.page_range %}
+                {% if num >= hidrologica_page.number|add:'-2' and num <= hidrologica_page.number|add:'2' %}
+                  <li class="page-item {% if num == hidrologica_page.number %}active{% endif %}">
+                    <a class="page-link"
+                       href="?page={{ num }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">
+                      {{ num }}
+                    </a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {# Página siguiente #}
+              <li class="page-item {% if not hidrologica_page.has_next %}disabled{% endif %}">
+                {% if hidrologica_page.has_next %}
+                  <a class="page-link"
+                     href="?page={{ hidrologica_page.next_page_number }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">
+                    ›
+                  </a>
+                {% else %}
+                  <span class="page-link">›</span>
+                {% endif %}
+              </li>
+
+              {# Última página #}
+              <li class="page-item {% if not hidrologica_page.has_next %}disabled{% endif %}">
+                {% if hidrologica_page.has_next %}
+                  <a class="page-link"
+                     href="?page={{ paginatorhdg.num_pages }}&per_page={{ per_page }}{% if q_hdg %}&q_hdg={{ q_hdg|urlencode }}{% endif %}">
+                    »
+                  </a>
+                {% else %}
+                  <span class="page-link">»</span>
+                {% endif %}
+              </li>
+
+            </ul>
+          </nav>
         {% endif %}
       </div>
     {% else %}
       <div class="text-center text-muted py-5">
         <i class="bi bi-search" style="font-size:2rem;"></i>
         <p class="mb-1 mt-2">
-          {% if q_hdg %}No se encontraron pruebas hidrologicas para “{{ q_hdg }}”.{% else %}Aún no has agregado pruebas hidrologicas.{% endif %}
+          {% if q_hdg %}
+            No se encontraron pruebas hidrológicas para “{{ q_hdg }}”.
+          {% else %}
+            Aún no has agregado pruebas hidrológicas.
+          {% endif %}
         </p>
         <a href="{% url 'crearHidrologica' project.id %}" class="btn btn-primary">
           <i class="bi bi-clipboard2-plus"></i> Crear

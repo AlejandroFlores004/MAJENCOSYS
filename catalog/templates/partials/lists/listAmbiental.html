@@ -3,7 +3,7 @@
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="d-flex align-items-center gap-2">
-        <h2 class="mb-0">Control Ambiental</h5>
+        <h2 class="mb-0">Control Ambiental</h2>
         <span class="badge bg-primary">{{ paginatormbt.count }}</span>
         {% if q_mbt %}
           <span class="badge bg-secondary3">Filtro: “{{ q_mbt }}”</span>
@@ -12,9 +12,13 @@
       
       <form class="row g-2 align-items-center" method="get">
         <div class="col-12 col-md">
-          <input type="text" name="q_mbt" class="form-control"
+          <input
+            type="text"
+            name="q_mbt"
+            class="form-control"
             placeholder="Buscar"
-            value="{{ q_mbt }}" title="Nombre, Descripción, Epoca o Especie"
+            value="{{ q_mbt }}"
+            title="Nombre, Descripción, Época o Especie"
           >
         </div>
         <div class="col-6 col-md-3">
@@ -50,7 +54,7 @@
             <tr>
               <th>Nombre</th>
               <th>Descripción</th>
-              <th>Epoca</th>
+              <th>Época</th>
               <th>Especie</th>
               <th>Insumos</th>
               <th class="text-end" style="width: 180px;">Acciones</th>
@@ -58,20 +62,20 @@
           </thead>
           <tbody>
             {% for mbt in ambiental_page %}
-            <tr>
-              <td class="fw-semibold text-muted">{{ mbt.name }}</td>
-              <td class="fw-semibold text-muted">{{ mbt.description|default:"—" }}</td>
-              <td class="text-muted">{{ mbt.epoca|default:"—" }}</td>
-              <td class="text-muted">{{ mbt.especie|default:"—" }}</td>
-              <td class="fw-semibold">{{ mbt.insumos|default:"—" }}</td>
-              <td class="text-end">
-                <div class="btn-group btn-group-md" role="group">
-                  <a href="{% url 'editarAmbiental' project.id mbt.id %}" class="btn btn-3" title="Editar">
-                    <i class="bi bi-pencil"></i> Editar
-                  </a>
-                </div>
-              </td>
-            </tr>
+              <tr>
+                <td class="fw-semibold text-muted">{{ mbt.name }}</td>
+                <td class="fw-semibold text-muted">{{ mbt.description|default:"—" }}</td>
+                <td class="text-muted">{{ mbt.epoca|default:"—" }}</td>
+                <td class="text-muted">{{ mbt.especie|default:"—" }}</td>
+                <td class="fw-semibold">{{ mbt.insumos|default:"—" }}</td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-md" role="group">
+                    <a href="{% url 'editarAmbiental' project.id mbt.id %}" class="btn btn-3" title="Editar">
+                      <i class="bi bi-pencil"></i> Editar
+                    </a>
+                  </div>
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -83,38 +87,82 @@
         </div>
 
         {% if is_paginatedmbt %}
-        <nav aria-label="Page navigation">
-          <ul class="pagination pagination-sm mb-0">
-            <li class="page-item {% if not ambiental_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page=1&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">«</a>
-            </li>
-            <li class="page-item {% if not ambiental_page.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ ambiental_page.previous_page_number }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">‹</a>
-            </li>
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
 
-            {% for num in ambiental_page.paginatormbt.page_range %}
-              {% if num >= ambiental_page.number|add:'-2' and num <= ambiental_page.number|add:'2' %}
-                <li class="page-item {% if num == ambiental_page.number %}active{% endif %}">
-                  <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">{{ num }}</a>
-                </li>
-              {% endif %}
-            {% endfor %}
+              {# Primera página #}
+              <li class="page-item {% if not ambiental_page.has_previous %}disabled{% endif %}">
+                {% if ambiental_page.has_previous %}
+                  <a class="page-link"
+                     href="?page=1&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">
+                    «
+                  </a>
+                {% else %}
+                  <span class="page-link">«</span>
+                {% endif %}
+              </li>
 
-            <li class="page-item {% if not ambiental_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ ambiental_page.next_page_number }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">›</a>
-            </li>
-            <li class="page-item {% if not ambiental_page.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?page={{ paginatormbt.num_pages }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">»</a>
-            </li>
-          </ul>
-        </nav>
+              {# Página anterior #}
+              <li class="page-item {% if not ambiental_page.has_previous %}disabled{% endif %}">
+                {% if ambiental_page.has_previous %}
+                  <a class="page-link"
+                     href="?page={{ ambiental_page.previous_page_number }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">
+                    ‹
+                  </a>
+                {% else %}
+                  <span class="page-link">‹</span>
+                {% endif %}
+              </li>
+
+              {# Números de página #}
+              {% for num in ambiental_page.paginator.page_range %}
+                {% if num >= ambiental_page.number|add:'-2' and num <= ambiental_page.number|add:'2' %}
+                  <li class="page-item {% if num == ambiental_page.number %}active{% endif %}">
+                    <a class="page-link"
+                       href="?page={{ num }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">
+                      {{ num }}
+                    </a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {# Página siguiente #}
+              <li class="page-item {% if not ambiental_page.has_next %}disabled{% endif %}">
+                {% if ambiental_page.has_next %}
+                  <a class="page-link"
+                     href="?page={{ ambiental_page.next_page_number }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">
+                    ›
+                  </a>
+                {% else %}
+                  <span class="page-link">›</span>
+                {% endif %}
+              </li>
+
+              {# Última página #}
+              <li class="page-item {% if not ambiental_page.has_next %}disabled{% endif %}">
+                {% if ambiental_page.has_next %}
+                  <a class="page-link"
+                     href="?page={{ paginatormbt.num_pages }}&per_page={{ per_page }}{% if q_mbt %}&q_mbt={{ q_mbt|urlencode }}{% endif %}">
+                    »
+                  </a>
+                {% else %}
+                  <span class="page-link">»</span>
+                {% endif %}
+              </li>
+
+            </ul>
+          </nav>
         {% endif %}
       </div>
     {% else %}
       <div class="text-center text-muted py-5">
         <i class="bi bi-search" style="font-size:2rem;"></i>
         <p class="mb-1 mt-2">
-          {% if q_mbt %}No se encontraron controles ambientales para “{{ q_mbt }}”.{% else %}Aún no has agregado controles ambientales.{% endif %}
+          {% if q_mbt %}
+            No se encontraron controles ambientales para “{{ q_mbt }}”.
+          {% else %}
+            Aún no has agregado controles ambientales.
+          {% endif %}
         </p>
         <a href="{% url 'crearAmbiental' project.id %}" class="btn btn-primary">
           <i class="bi bi-clipboard2-plus"></i> Crear
