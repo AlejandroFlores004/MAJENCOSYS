@@ -2,14 +2,10 @@ from django.contrib import admin
 from django.shortcuts import render
 from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views    
-from .views import startpage, dashboard, loginPage, database_tools, download_backup, userInfo, logoutUser, dashboardProject, project_schedule_events
+from .views import startpage, dashboard, loginPage, database_tools, download_backup, userInfo, logoutUser, dashboardProject, project_schedule_events, custom_404_view
 from .forms import CustomSetPasswordForm,CustomPasswordResetForm
 
-def custom_404_view(request, exception=None):
-    """
-    Vista simple para mostrar el template 404
-    """
-    return render(request, '404.html', status=404)
+
 
 urlpatterns = [
     # ---- Rutas principales ----

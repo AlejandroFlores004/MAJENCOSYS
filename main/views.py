@@ -342,3 +342,10 @@ def download_backup(request):
         error_msg = e.stderr.decode()
         print("Error generating backup:", error_msg)
         return HttpResponse(f"Backup failed: {error_msg}", status=500)
+
+
+def custom_404_view(request, exception=None):
+    """
+    Vista simple para mostrar el template 404
+    """
+    return render(request, '404.html', status=404)
