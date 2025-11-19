@@ -10,8 +10,21 @@
       <a href="{% url "mainAcivity" project.id %}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left"></i> Regresar
       </a>
+
       <h3 class="mb-0">Gestión de Memorias</h3>
+
+      <!-- Botón pequeño de ayuda -->
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-info d-flex align-items-center"
+        data-toggle="modal"
+        data-target="#helpMemoriasModal"
+        title="Ayuda sobre esta pantalla"
+      >
+        <i class="fa fa-question-circle mr-1"></i> Ayuda
+      </button>
     </div>
+
     <!-- Select más grande para acciones -->
     <form class="d-flex align-items-end gap-2" onsubmit="handleAccion(event)">
       <div class="w-auto">
@@ -70,7 +83,6 @@
         </h6>
 
         <div class="row g-3">
-          
           <div class="col-md-6">
             <div class="border rounded-3 p-3 bg-light h-100">
               <div class="fw-semibold text-muted small mb-1">
@@ -91,7 +103,6 @@
               </div>
             </div>
           </div>
- 
         </div>
       </div>
       {% endif %}
@@ -255,6 +266,56 @@
           </div>
         {% endif %}
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de ayuda -->
+<div class="modal fade" id="helpMemoriasModal" tabindex="-1" role="dialog" aria-labelledby="helpMemoriasModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-sm" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header py-2">
+        <h5 class="modal-title" id="helpMemoriasModalLabel">
+          <i class="fa fa-info-circle"></i> Ayuda de Memorias
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body small">
+        <p class="mb-2">
+          Esta pantalla te permite gestionar todas las memorias asociadas a una actividad específica del proyecto.
+        </p>
+
+        <hr class="my-2">
+
+        <p class="mb-1"><strong>Acciones principales:</strong></p>
+        <ul class="pl-3 mb-2">
+          <li><strong>Seleccionar acción:</strong> elige el tipo de memoria (materiales, mano de obra, riesgos, etc.) y pulsa <em>Agregar</em> para ir al formulario correspondiente.</li>
+          <li><strong>Ver tablas de memorias:</strong> utiliza las pestañas para visualizar solo el tipo de memoria que necesitas o la opción <em>Todos</em>.</li>
+        </ul>
+
+        <p class="mb-1"><strong>Secciones de la pantalla:</strong></p>
+        <ul class="pl-3 mb-2">
+          <li><strong>Información de la actividad:</strong> muestra el nombre de la actividad, el proyecto al que pertenece y la fecha de creación.</li>
+          <li><strong>Encabezados:</strong> datos descriptivos adicionales configurados para esta actividad.</li>
+          <li><strong>Cronograma:</strong> estado de la actividad y fechas de inicio y fin.</li>
+          <li><strong>Pestañas de memorias:</strong> tablas detalladas para cada tipo (materiales, mano de obra, herramientas, equipo, riesgos, calidad, ambiental, hidrológica).</li>
+        </ul>
+
+        <p class="text-muted mb-0">
+          Tip: usa este módulo para documentar de forma ordenada todo lo que interviene en la ejecución de la actividad.
+        </p>
+      </div>
+
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
