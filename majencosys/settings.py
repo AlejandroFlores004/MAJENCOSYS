@@ -88,13 +88,13 @@ WSGI_APPLICATION = 'majencosys.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': os.getenv("DB_HOST", "mysql.railway.internal"),
-        'PORT': os.getenv("DB_PORT", "3306"),
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("MYSQLDATABASE", os.environ.get("DB_NAME", "railway")),
+        "USER": os.environ.get("MYSQLUSER", os.environ.get("DB_USER", "root")),
+        "PASSWORD": os.environ.get("MYSQLPASSWORD", os.environ.get("DB_PASSWORD", "")),
+        "HOST": os.environ.get("MYSQLHOST", os.environ.get("DB_HOST", "mysql.railway.internal")),
+        "PORT": os.environ.get("MYSQLPORT", os.environ.get("DB_PORT", "3306")),
     }
 }
 
