@@ -21,9 +21,25 @@
 <div class="container py-5">
   <div class="row">
     
-    <h6 class="text-primary text-uppercase font-weight-bold">Lista de
-      proyectos</h6>
-    <h1 class="mb-4">Proyectos Pendientes</h1>
+    <div class="d-flex justify-content-between align-items-center w-100">
+      <div>
+        <h6 class="text-primary text-uppercase font-weight-bold mb-1">
+          Lista de proyectos
+        </h6>
+        <h1 class="mb-0">Proyectos Pendientes</h1>
+      </div>
+
+      <!-- Botón de ayuda -->
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-info d-flex align-items-center"
+        data-toggle="modal"
+        data-target="#helpDashboardModal"
+        title="Ayuda sobre esta pantalla"
+      >
+        <i class="fa fa-question-circle mr-1"></i> Ayuda
+      </button>
+    </div>
 
     <!-- Proyectos Pendientes -->
     <div class="col-lg-8">
@@ -31,41 +47,42 @@
         {% for p in projects %}
           <div class="col-md-6 mb-3">
             <a class="text-decoration-none" href="{% url 'dashboardProject' p.pk %}">
-            <div class="position-relative">
-              <img class="img-fluid w-100"
-                style="height: 225px; object-fit: cover;"
-                src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
-              <div
-                class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
-                style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
-                <h4 class="font-weight-bold mb-n1">{{ p.created_at|date:'d' }}</h4>
-                <small class="text-white text-uppercase">{{ p.created_at|date:'M y' }}</small>
-              </div>
-            </div>
-            <div class="bg-secondary mb-3" style="padding: 30px;">
-              <div class="d-flex mb-3">
-                <div class="d-flex align-items-center">
-                  <p class="text-muted ml-2">{{ p.cliente }}</p>  
-                </div>
-                <div class="d-flex align-items-center ml-4">
-                  <p class="text-muted ml-2">{{ p.get_type_display }}</p>
+              <div class="position-relative">
+                <img class="img-fluid w-100"
+                  style="height: 225px; object-fit: cover;"
+                  src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+                <div
+                  class="position-absolute bg-primary d-flex flex-column align-items-center justify-content-center rounded-circle"
+                  style="width: 60px; height: 60px; bottom: -30px; right: 30px;">
+                  <h4 class="font-weight-bold mb-n1">{{ p.created_at|date:'d' }}</h4>
+                  <small class="text-white text-uppercase">{{ p.created_at|date:'M y' }}</small>
                 </div>
               </div>
-              <h4 class="font-weight-bold mb-3 text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h4>
-              <p class="text-truncate" title="{{ p.descripcion }}"><b><i>Descripción:</i>
-                <br>-</b> {{ p.descripcion }}</p>
-            </div>
+              <div class="bg-secondary mb-3" style="padding: 30px;">
+                <div class="d-flex mb-3">
+                  <div class="d-flex align-items-center">
+                    <p class="text-muted ml-2">{{ p.cliente }}</p>  
+                  </div>
+                  <div class="d-flex align-items-center ml-4">
+                    <p class="text-muted ml-2">{{ p.get_type_display }}</p>
+                  </div>
+                </div>
+                <h4 class="font-weight-bold mb-3 text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h4>
+                <p class="text-truncate" title="{{ p.descripcion }}"><b><i>Descripción:</i>
+                  <br>-</b> {{ p.descripcion }}</p>
+              </div>
             </a>
           </div>
-          {% empty %}
-            <div class="col-12 text-center my-5">
-              <h4 class="text-muted">No hay proyectos pendiente.</h4>
-              <p>Inicia un nuevo proyecto aquí.</p>
-              <a href="{% url "projectCreate" %}" class="btn btn-primary py-2 px-4">Nuevo proyecto</a>
-            </div>
+        {% empty %}
+          <div class="col-12 text-center my-5">
+            <h4 class="text-muted">No hay proyectos pendiente.</h4>
+            <p>Inicia un nuevo proyecto aquí.</p>
+            <a href="{% url "projectCreate" %}" class="btn btn-primary py-2 px-4">Nuevo proyecto</a>
+          </div>
         {% endfor %}
       </div>
-       <!-- PAGINATION -->
+
+      <!-- PAGINATION -->
       {% if projects.has_other_pages %}
       <div class="row">
         <div class="col-12">
@@ -130,26 +147,25 @@
 
       <!-- Tipos  -->
       <div class="mb-5">
-          <h3 class="mb-4">Tipos de Trabajo</h3>
-          <div class="bg-secondary2" style="padding: 30px;">
-            <ul class="list-inline m-0">
-              {% for pt in project_types %}
-                <li class="mb-1 py-2 px-3 bg-light d-flex justify-content-between align-items-center">
-                  <a class="text-dark" href="#">
-                    <i class="fa fa-angle-right text-primary mr-2"></i>
-                    {{ pt.type_name }}
-                  </a>
-                  <span class="badge badge-secondary badge-pill">{{ pt.total }}</span>
-                </li>
-              {% empty %}
-                <li class="mb-1 py-2 px-3 bg-light">
-                  <span class="text-muted">No hay proyectos disponibles.</span>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
+        <h3 class="mb-4">Tipos de Trabajo</h3>
+        <div class="bg-secondary2" style="padding: 30px;">
+          <ul class="list-inline m-0">
+            {% for pt in project_types %}
+              <li class="mb-1 py-2 px-3 bg-light d-flex justify-content-between align-items-center">
+                <a class="text-dark" href="#">
+                  <i class="fa fa-angle-right text-primary mr-2"></i>
+                  {{ pt.type_name }}
+                </a>
+                <span class="badge badge-secondary badge-pill">{{ pt.total }}</span>
+              </li>
+            {% empty %}
+              <li class="mb-1 py-2 px-3 bg-light">
+                <span class="text-muted">No hay proyectos disponibles.</span>
+              </li>
+            {% endfor %}
+          </ul>
         </div>
-
+      </div>
 
       <!-- Actividades -->
       <!--
@@ -210,14 +226,61 @@
 
   </div>
 </div>
-{% if messages %}
-    <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
-      {% for m in messages %}
-        <div class="alert alert-{{ m.tags }} shadow text-center mb-2">{{ m }}</div>
-      {% endfor %}
+
+<!-- Modal de ayuda del Dashboard -->
+<div class="modal fade" id="helpDashboardModal" tabindex="-1" role="dialog" aria-labelledby="helpDashboardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h5 class="modal-title" id="helpDashboardModalLabel">
+          <i class="fa fa-info-circle"></i> Ayuda del Dashboard
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body small">
+        <p class="mb-2">
+          Esta pantalla muestra un resumen de los proyectos y tipos de trabajo registrados en el sistema.
+        </p>
+
+        <hr class="my-2">
+
+        <p class="mb-1"><strong>Secciones principales:</strong></p>
+        <ul class="pl-3 mb-2">
+          <li><strong>Encabezado:</strong> indica que estás en el <em>Dashboard</em> con accesos a calendario, proyectos y actividades.</li>
+          <li><strong>Proyectos Pendientes:</strong> lista de proyectos en tarjetas con imagen, cliente, tipo de trabajo, nombre y descripción.</li>
+          <li><strong>Tipos de Trabajo:</strong> barra lateral que muestra cada tipo de proyecto y cuántos hay registrados.</li>
+        </ul>
+
+        <p class="mb-1"><strong>Acciones que puedes realizar:</strong></p>
+        <ul class="pl-3 mb-2">
+          <li><strong>Ver detalle de un proyecto:</strong> haz clic sobre cualquier tarjeta de proyecto para ir al detalle del mismo.</li>
+          <li><strong>Cambiar de página:</strong> usa la paginación de la parte inferior para ver más proyectos.</li>
+          <li><strong>Crear un nuevo proyecto:</strong> si no hay proyectos o deseas agregar uno nuevo, usa el botón <em>“Nuevo proyecto”</em>.</li>
+        </ul>
+
+        <p class="mb-0 text-muted">
+          Tip: si no ves proyectos, verifica que tengas proyectos activos registrados en el sistema.
+        </p>
+      </div>
+
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
     </div>
-    <script>
-      setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
-    </script>
+  </div>
+</div>
+
+{% if messages %}
+  <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
+    {% for m in messages %}
+      <div class="alert alert-{{ m.tags }} shadow text-center mb-2">{{ m }}</div>
+    {% endfor %}
+  </div>
+  <script>
+    setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
+  </script>
 {% endif %}
 {% endblock content %}

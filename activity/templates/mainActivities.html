@@ -8,24 +8,95 @@
   <div class="container text-center py-6">
     <h1 class="text-white display-3">ACTIVIDADES</h1>
     <div class="d-inline-flex align-items-center text-white">
-      <p class="m-0 text-white">Informacion</p>
+      <p class="m-0 text-white">Información</p>
       <i class="fa fa-circle px-3"></i>
       <p class="m-0 text-white">Cronograma</p>
       <i class="fa fa-circle px-3"></i>
-      <p class="m-0 text-white">Cotizacion</p>
+      <p class="m-0 text-white">Cotización</p>
     </div>
   </div>
 </div>
 
 <div class="container py-4">
-  <h3 class="text-uppercase fw-bold">GENERAR REPORTE</h3>
+
+  <!-- Título + Botón de ayuda -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h3 class="text-uppercase fw-bold m-0">GENERAR REPORTE</h3>
+
+    <!-- Botón pequeño de ayuda -->
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-info d-flex align-items-center"
+      data-toggle="modal"
+      data-target="#helpActivitiesModal"
+      title="Ayuda de esta pantalla"
+    >
+      <i class="fa fa-question-circle mr-1"></i> Ayuda
+    </button>
+  </div>
+
+  <!-- Botón PDF -->
   <a href="{% url 'libromayor_pdf' project.id %}" class="btn btn-primary" target="_blank">
     <i class="bi bi-file-earmark-pdf"></i> PDF
   </a>
+
   <hr class="my-5">
 
   <div class="mt-4">{% include "partials/lists/_list_activities.html" %}</div>
 </div>
+
+<!-- Modal de ayuda -->
+<div class="modal fade" id="helpActivitiesModal" tabindex="-1" role="dialog" aria-labelledby="helpActivitiesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-sm" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header py-2">
+        <h5 class="modal-title" id="helpActivitiesModalLabel">
+          <i class="fa fa-info-circle"></i> Ayuda de Actividades
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body small">
+
+        <p class="mb-2">
+          Esta pantalla muestra todas las actividades registradas para el proyecto.
+        </p>
+
+        <hr class="my-2">
+
+        <p class="mb-1"><strong>Acciones disponibles:</strong></p>
+        <ul class="pl-3 mb-2">
+          <li><strong>Ver actividades:</strong> lista completa de actividades del proyecto actual.</li>
+          <li><strong>Editar actividades:</strong> dentro de la lista puedes acceder a edición o actualización.</li>
+          <li><strong>Generar reporte PDF:</strong> descarga un informe con toda la información del libro mayor del proyecto.</li>
+        </ul>
+
+        <p class="mb-1"><strong>Secciones principales:</strong></p>
+        <ul class="pl-3 mb-2">
+          <li><strong>Encabezado:</strong> muestra el módulo actual: información, cronograma y cotización.</li>
+          <li><strong>Generar Reporte:</strong> botón rápido para obtener un archivo PDF.</li>
+          <li><strong>Lista de actividades:</strong> tabla con actividades, fechas, estado y acciones de edición.</li>
+        </ul>
+
+        <p class="text-muted mb-0">
+          Tip: usa esta vista para controlar y actualizar el avance del cronograma del proyecto.
+        </p>
+
+      </div>
+
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 {% if messages %}
   <div id="top-right-toast" class="position-fixed top-0 end-0 p-3" style="z-index:1080; min-width:280px; max-width:90vw;">
@@ -37,4 +108,5 @@
     setTimeout(() => document.getElementById('top-right-toast')?.remove(), 5000);
   </script>
 {% endif %}
+
 {% endblock content %}
