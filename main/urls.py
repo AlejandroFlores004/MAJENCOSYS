@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.shortcuts import render
 from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views    
-from .views import startpage, dashboard, loginPage, database_tools, download_backup, userInfo, logoutUser, dashboardProject, project_schedule_events, custom_404_view
+from .views import startpage, dashboard, loginPage, database_tools, download_backup, userInfo, logoutUser, dashboardProject, project_schedule_events
 from .forms import CustomSetPasswordForm,CustomPasswordResetForm
 
 
@@ -50,5 +50,4 @@ urlpatterns = [
 
 ]
 
-# Catch-all pattern para URLs no encontradas
 
