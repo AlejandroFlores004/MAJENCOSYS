@@ -7,4 +7,5 @@ class UserConfig(AppConfig):
     def ready(self):
         from .models import create_default_groups
         create_default_groups()
+        import user.signals
 
