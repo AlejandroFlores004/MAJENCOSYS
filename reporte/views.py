@@ -232,7 +232,7 @@ def activities_pdf(request, pk):
         .prefetch_related(
             Prefetch("header_activity", queryset=Header.objects.all()),
             # Traemos el cronograma (uno por actividad según tu UniqueConstraint)
-            Prefetch("schedule_activity", queryset=Schedule.objects.all())
+            Prefetch("schedules", queryset=Schedule.objects.all())
         )
         .order_by("name")
     )
@@ -265,14 +265,13 @@ def fecha_pdf(request, pk):
 
 
     activities_qs = (
-        Activity.objects
-        .filter(project=project,
-            schedule_activity__start_date__lte=fecha_consulta,
-            schedule_activity__end_date__gte=fecha_consulta
+        Activity.objects.filter(project=project,
+            schedules__start_date__lte=fecha_consulta,
+            schedules__end_date__gte=fecha_consulta
         )
         .prefetch_related(
             Prefetch("header_activity", queryset=Header.objects.all()),
-            Prefetch("schedule_activity", queryset=Schedule.objects.all())
+            Prefetch("schedules", queryset=Schedule.objects.all())
         )
         .order_by("name")
     )

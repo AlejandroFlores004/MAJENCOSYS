@@ -36,7 +36,7 @@
     <hr class="my-5">
 
     {% for ac in activities %}
-      {% with sch=ac.schedule_activity.all|first %}
+      {% with sch=ac.schedules.all|first %}
         <h2 class="mb-2 text-uppercase">{{ ac.name }}</h2>
         <h6 class="text-primary font-weight-bold my-4"><u>Estado y Fechas:</u></h6>
         <div class="table-responsive">
