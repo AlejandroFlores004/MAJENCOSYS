@@ -51,8 +51,4 @@ urlpatterns = [
 ]
 
 # Catch-all pattern para URLs no encontradas
-urlpatterns += [
-    re_path(r'^.*$', custom_404_view),
-]
-  
 
