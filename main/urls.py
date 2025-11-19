@@ -1,8 +1,15 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.shortcuts import render
+from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views    
 from .views import startpage, dashboard, loginPage, database_tools, download_backup, userInfo, logoutUser, dashboardProject, project_schedule_events
 from .forms import CustomSetPasswordForm,CustomPasswordResetForm
+
+def custom_404_view(request, exception=None):
+    """
+    Vista simple para mostrar el template 404
+    """
+    return render(request, '404.html', status=404)
 
 urlpatterns = [
     # ---- Rutas principales ----
@@ -45,6 +52,11 @@ urlpatterns = [
     path('admon_project/', include('project.urls')),
 
 
+]
+
+# Catch-all pattern para URLs no encontradas
+urlpatterns += [
+    re_path(r'^.*$', custom_404_view),
 ]
   
 
