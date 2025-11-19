@@ -37,6 +37,11 @@ ALLOWED_HOSTS = [
 ]
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://majencosys-production.up.railway.app",
+]
+
+
 # Application definition
 
 INSTALLED_APPS = [
