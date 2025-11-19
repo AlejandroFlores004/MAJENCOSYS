@@ -37,9 +37,15 @@ EXPOSE 8000
 
 EXPOSE 8000
 
+
 CMD ["sh", "-c", "\
-python manage.py makemigrations --noinput && \
+python manage.py makemigrations project && \
+python manage.py makemigrations main && \
+python manage.py makemigrations user && \
+python manage.py makemigrations catalog && \
+python manage.py makemigrations activity && \
+python manage.py makemigrations reporte && \
+python manage.py makemigrations schedule && \
 python manage.py migrate --noinput && \
-python manage.py createsuperuser --noinput --username developer --email developer@example.com || true && \
 python manage.py runserver 0.0.0.0:8000 \
 "]
