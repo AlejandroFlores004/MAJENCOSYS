@@ -35,7 +35,10 @@ RUN mkdir -p /app/files
 
 EXPOSE 8000
 
+EXPOSE 8000
+
 CMD ["sh", "-c", "\
+python manage.py makemigrations --noinput && \
 python manage.py migrate --noinput && \
 python manage.py createsuperuser --noinput --username developer --email developer@example.com || true && \
 python manage.py runserver 0.0.0.0:8000 \
