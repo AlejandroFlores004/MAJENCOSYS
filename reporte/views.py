@@ -576,6 +576,10 @@ def excel_por_estado_view(request, project_id=None, *args, **kwargs):
 
 
 def excel_actividades_por_fecha_view(request, project_id=None, *args, **kwargs):
+    """
+    Descarga Excel filtrando por fecha y tipo (inicio/fin).
+    Siempre usa EXACTAMENTE la fecha y el tipo que vienen en la query string.
+    """
     project = _get_project(request, project_id)
     fecha = request.GET.get("fecha")
     tipo = request.GET.get("tipo", "fin")
@@ -587,7 +591,7 @@ def excel_actividades_por_fecha_view(request, project_id=None, *args, **kwargs):
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     resp["Content-Disposition"] = (
-        f'attachment; filename="por_fecha_{tipo}_{fecha}_{project.id}.xlsx"'
+        f'attachment; filename="por_fecha_{tipo}{fecha}{project.id}.xlsx"'
     )
     return resp
 
